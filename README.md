@@ -18,9 +18,15 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 ### Dataframe record type  
 
 [`(make-dataframe alist)`](#procedure-make-dataframe-alist)  
-[`(dataframe-equal? . dfs)`](#procedure-dataframe-equal?-.-dfs)  
+[`(dataframe-equal? . dfs)`](#procedure-dataframe-equal-dfs)  
+[`(dataframe-head df n)`](#procedure-dataframe-head-df-n)  
+[`(dataframe-tail df n)`](#procedure-dataframe-tail-df-n)  
+[`(dataframe-values df name)`](#procedure-dataframe-values-df-name)  
 
 ### Select, drop, and rename columns  
+
+[`(dataframe-select df . names)`](#procedure-dataframe-select-df-names)  
+[`(dataframe-drop df . names)`](#procedure-dataframe-drop-df-names)  
 
 ### Filter and sort  
 
@@ -34,18 +40,18 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 **returns:** a dataframe record type with three fields: alist, names, and dim  
 
 ```
-> (define df1 (make-dataframe '((a 1 2 3) (b 4 5 6))))
-> df1
+> (define df (make-dataframe '((a 1 2 3) (b 4 5 6))))
+> df
 #[#{dataframe cziqfonusl4ihl0gdwa8clop7-3} ((a 1 2 3) (b 4 5 6)) (a b) (3 . 2)]
-> (dataframe? df1)
+> (dataframe? df)
 #t
 > (dataframe? '((a 1 2 3) (b 4 5 6)))
 #f
-> (dataframe-alist df1)
+> (dataframe-alist df)
 ((a 1 2 3) (b 4 5 6))
-> (dataframe-names df1)
+> (dataframe-names df)
 (a b)
-> (dataframe-dim df1)
+> (dataframe-dim df)
 (3 . 2)
 ```
 
@@ -61,7 +67,42 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 #f
 ```
 
+#### procedure: `(dataframe-values df name)`
+**returns:** list of values for column `name` in `df`  
+
+```
+> (define df (make-dataframe '((a 100 200 300) (b 4 5 6) (c 700 800 900))))
+> (dataframe-values df 'b)
+(4 5 6)
+> ($ df 'b)                   ; $ is shorthand for dataframe-values; inspired by R, e.g., df$b.
+(4 5 6)
+> (map (lambda (name) ($ df name)) '(c a))
+((700 800 900) (100 200 300))
+```
+
 ## Select, drop, and rename columns  
+
+#### procedure: `(dataframe-select df . names)`
+**returns:** dataframe of columns with `names` selected from `df`   
+
+```
+> (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
+> (dataframe-select df 'a)
+#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3)) (a) (3 . 1)]
+> (dataframe-select df 'c 'b)
+#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((c 7 8 9) (b 4 5 6)) (c b) (3 . 2)]
+```
+
+#### procedure: `(dataframe-select df . names)`
+**returns:** dataframe of columns with `names` dropped from `df`   
+
+```
+> (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
+> (dataframe-drop df 'c 'b)
+#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3)) (a) (3 . 1)]
+> (dataframe-drop df 'a)
+#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((b 4 5 6) (c 7 8 9)) (b c) (3 . 2)]
+```
 
 ## Filter and sort  
 
