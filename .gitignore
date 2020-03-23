@@ -5,3 +5,6 @@
 *.scm~
 *.scm#*
 .#*.scm
+
+.DS_Store
+test/.DS_Store
