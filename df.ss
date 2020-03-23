@@ -457,7 +457,7 @@
   ;; returns two values
   ;; first value is list of alists representing all columns in the dataframe
   ;; second value is a list of alists representing the grouping columns in the dataframe
-  (define (alist-split alist group-names return-groups)
+  (define (alist-split alist group-names return-groups?)
     (define (loop ls-row-unique alist alists groups)
       (cond [(null? ls-row-unique)
              (values (reverse alists)
@@ -476,15 +476,15 @@
     (let* ([ls-values-select (map cdr (alist-select alist group-names))]
            [ls-row-unique (ls-values-unique ls-values-select #t)])
       (let-values ([(alists groups) (loop ls-row-unique alist '() '())])
-        (if return-groups
+        (if return-groups?
             (values alists groups)
             alists))))
 
-  (define (dataframe-split-helper df group-names return-groups)
+  (define (dataframe-split-helper df group-names return-groups?)
     (apply check-df-names df "(dataframe-split df group-names)" group-names)
     (let-values ([(alists groups) (alist-split (dataframe-alist df) group-names #t)])
       (let ([dfs (map make-dataframe alists)])
-        (if return-groups
+        (if return-groups?
             (values dfs groups)
             dfs))))
 
