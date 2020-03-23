@@ -18,7 +18,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 ### Dataframe record type  
 
 [`(make-dataframe alist)`](#procedure-make-dataframe-alist)  
-[`(dataframe-equal? dfs)`](#procedure-dataframe-equal?-dfs)  
+[`(dataframe-equal? . dfs)`](#procedure-dataframe-equal?-.-dfs)  
 
 ### Select, drop, and rename columns  
 
@@ -54,7 +54,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 ```
 > (dataframe-equal? (make-dataframe '((a 1 2 3) (b 4 5 6)))
-                    (make-dataframe '((b 4 5 6) (a 4 5 6))))
+                    (make-dataframe '((b 4 5 6) (a 1 2 3))))
 #f
 > (dataframe-equal? (make-dataframe '((a 1 2 3) (b 4 5 6)))
                     (make-dataframe '((a 10 2 3) (b 4 5 6))))
