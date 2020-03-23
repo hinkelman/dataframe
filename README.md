@@ -18,15 +18,15 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 ### Dataframe record type  
 
 [`(make-dataframe alist)`](#procedure-make-dataframe-alist)  
-[`(dataframe-equal? . dfs)`](#procedure-dataframe-equal-dfs)  
+[`(dataframe-equal? df ...)`](#df-equal)  
 [`(dataframe-head df n)`](#procedure-dataframe-head-df-n)  
 [`(dataframe-tail df n)`](#procedure-dataframe-tail-df-n)  
 [`(dataframe-values df name)`](#procedure-dataframe-values-df-name)  
 
 ### Select, drop, and rename columns  
 
-[`(dataframe-select df . names)`](#procedure-dataframe-select-df-names)  
-[`(dataframe-drop df . names)`](#procedure-dataframe-drop-df-names)  
+[`(dataframe-select df names)`](#procedure-dataframe-select-df-names)  
+[`(dataframe-drop df names)`](#procedure-dataframe-drop-df-names)  
 
 ### Filter and sort  
 
@@ -55,7 +55,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 (3 . 2)
 ```
 
-#### procedure: `(dataframe-equal? . dfs)`
+#### <a name="df-equal"></a>procedure: `(dataframe-equal? . dfs)` ref2
 **returns:** `#t` if all dataframes are equal, `#f` otherwise  
 
 ```
