@@ -1,6 +1,6 @@
 # Chez Scheme Dataframe Library
 
-A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and, filter, sort, split, append, modify, and aggregate dataframes. 
+A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, append, modify, and aggregate dataframes. 
 
 ## Installation and Import
 
