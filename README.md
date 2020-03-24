@@ -20,9 +20,9 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 [`(make-dataframe alist)`](#make-df)  
 [`(dataframe-head df n)`](#df-head)  
 [`(dataframe-tail df n)`](#df-tail)  
+[`(dataframe-equal? df1 df2 ...)`](#df-equal)  
 [`(dataframe-write df path overwrite?)`](#df-write)  
 [`(dataframe-read path)`](#df-read)  
-[`(dataframe-equal? df1 df2 ...)`](#df-equal)  
 [`(dataframe->rowtable df)`](#df-rows)  
 [`(rowtable->dataframe rt header?)`](#rows-df)  
 [`(dataframe-values df name)`](#df-values)  
@@ -63,7 +63,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 
 #### <a name="df-head"></a> procedure: `(dataframe-head df n)`  
-**returns:** a dataframe with first `n` rows from `df`  
+**returns:** a dataframe with first `n` rows from dataframe `df`  
 
 ```
 > (define df (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
@@ -72,7 +72,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 
 #### <a name="df-tail"></a> procedure: `(dataframe-tail df n)`  
-**returns:** a dataframe with the `n`th tail (zero-based) rows from `df`  
+**returns:** a dataframe with the `n`th tail (zero-based) rows from dataframe `df`  
 
 ```
 > (define df (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
@@ -93,7 +93,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 
 #### <a name="df-write"></a> procedure: `(dataframe-write df path overwrite?)`  
-**returns:** writes a dataframe as a Scheme object to `path`, if file exists at `path`, operation will fail unless `overwrite?` is #t  
+**writes:** a dataframe `df` as a Scheme object to `path`; if file exists at `path`, operation will fail unless `overwrite?` is #t  
 
 ```
 > (define df (make-dataframe '((grp "b" "b" "a" "b" "a")
@@ -116,7 +116,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 
 #### <a name="df-rows"></a> procedure: `(dataframe->rowtable df)`  
-**returns:** a rowtable from `df`
+**returns:** a rowtable from dataframe `df`
 
 ```
 ;; a dataframe is a column-based data structure; a rowtable is a row-based data structure
@@ -128,7 +128,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 
 #### <a name="rows-df"></a> procedure: `(rowtable->dataframe rt header?)`  
-**returns:** a dataframe from `rt`; if `header?` is `#f` a header row is created
+**returns:** a dataframe from rowtable `rt`; if `header?` is `#f` a header row is created
 
 ```
 ;; a rowtable is a row-based data structure; a dataframe is a column-based data structure
@@ -142,7 +142,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 
 #### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
-**returns:** list of values for column `name` from `df`  
+**returns:** a list of values for column `name` from dataframe `df`  
 
 ```
 > (define df (make-dataframe '((a 100 200 300) (b 4 5 6) (c 700 800 900))))
@@ -157,7 +157,7 @@ Exception in (make-dataframe alist): names are not symbols
 ## Select, drop, and rename columns  
 
 #### <a name="df-select"></a> procedure: `(dataframe-select df name ...)`  
-**returns:** a dataframe of columns with `names` selected from `df`   
+**returns:** a dataframe of columns with `names` selected from dataframe `df`   
 
 ```
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
@@ -167,8 +167,8 @@ Exception in (make-dataframe alist): names are not symbols
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((c 7 8 9) (b 4 5 6)) (c b) (3 . 2)]
 ```
 
-#### <a name="df-drop"></a> procedure: `(dataframe-select df name ...)`  
-**returns:** a dataframe of columns with `names` dropped from `df`   
+#### <a name="df-drop"></a> procedure: `(dataframe-drop df name ...)`  
+**returns:** a dataframe of columns with `names` dropped from dataframe `df`   
 
 ```
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
