@@ -57,16 +57,22 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6))))
 > df
 #[#{dataframe cziqfonusl4ihl0gdwa8clop7-3} ((a 1 2 3) (b 4 5 6)) (a b) (3 . 2)]
+
 > (dataframe? df)
 #t
+
 > (dataframe? '((a 1 2 3) (b 4 5 6)))
 #f
+
 > (dataframe-alist df)
 ((a 1 2 3) (b 4 5 6))
+
 > (dataframe-names df)
 (a b)
+
 > (dataframe-dim df)
 (3 . 2)
+
 > (define df (make-dataframe '(("a" 1 2 3) ("b" 4 5 6))))
 
 Exception in (make-dataframe alist): names are not symbols
@@ -79,6 +85,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1) (b 2) (c 3) (d 4))))
 > (dataframe-contains? df 'a 'c 'd)
 #t
+
 > (dataframe-contains? df 'b 'e)
 #f
 ```
@@ -108,6 +115,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (dataframe-equal? (make-dataframe '((a 1 2 3) (b 4 5 6)))
                     (make-dataframe '((b 4 5 6) (a 1 2 3))))
 #f
+
 > (dataframe-equal? (make-dataframe '((a 1 2 3) (b 4 5 6)))
                     (make-dataframe '((a 10 2 3) (b 4 5 6))))
 #f
@@ -123,6 +131,7 @@ Exception in (make-dataframe alist): names are not symbols
                                (juv 50 40 20 30 10))))
 > df
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((grp "b" "b" "a" "b" "a") (trt b b b a a) (adult 5 4 2 3 1) (juv 50 40 20 30 10)) (grp trt adult juv) (5 . 4)]
+
 > (dataframe-write df "df-example.scm" #t)
 ```
 
@@ -144,6 +153,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 100 300) (b 4 6) (c 700 900))))
 > df
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 100 300) (b 4 6) (c 700 900)) (a b c) (2 . 3)]
+
 > (dataframe->rowtable df)
 ((a b c) (100 4 700) (300 6 900))
 ```
@@ -155,8 +165,10 @@ Exception in (make-dataframe alist): names are not symbols
 ;; a rowtable is a row-based data structure; a dataframe is a column-based data structure
 > (rowtable->dataframe '((a b c) (1 4 7) (2 5 8) (3 6 9)) #t)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3) (b 4 5 6) (c 7 8 9)) (a b c) (3 . 3)]
+
 > (rowtable->dataframe '((1 4 7) (2 5 8) (3 6 9)) #f)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((V0 1 2 3) (V1 4 5 6) (V2 7 8 9)) (V0 V1 V2) (3 . 3)]
+
 > (rowtable->dataframe '(("a" "b" "c") (1 4 7) (2 5 8) (3 6 9)) #t)
 
 Exception in (make-dataframe alist): names are not symbols
@@ -169,8 +181,10 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 100 200 300) (b 4 5 6) (c 700 800 900))))
 > (dataframe-values df 'b)
 (4 5 6)
+
 > ($ df 'b)                   ; $ is shorthand for dataframe-values; inspired by R, e.g., df$b.
 (4 5 6)
+
 > (map (lambda (name) ($ df name)) '(c a))
 ((700 800 900) (100 200 300))
 ```
@@ -184,6 +198,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 > (dataframe-select df 'a)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3)) (a) (3 . 1)]
+
 > (dataframe-select df 'c 'b)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((c 7 8 9) (b 4 5 6)) (c b) (3 . 2)]
 ```
@@ -195,6 +210,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 > (dataframe-drop df 'c 'b)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3)) (a) (3 . 1)]
+
 > (dataframe-drop df 'a)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((b 4 5 6) (c 7 8 9)) (b c) (3 . 2)]
 ```
@@ -206,6 +222,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 > (dataframe-names-update df '(A B C))
 #[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((A 1 2 3) (B 4 5 6) (C 7 8 9)) (A B C) (3 . 3)]
+
 > (dataframe-names-update df '(A B C D))
 
 Exception in (dataframe-names-update df names): names length must be 3, not 4
@@ -229,6 +246,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 > (define df (make-dataframe '((Name "Peter" "Paul" "Mary" "Peter") (Pet "Rabbit" "Cat" "Dog" "Rabbit"))))
 > (dataframe-unique df)
 #[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((Name "Paul" "Mary" "Peter") (Pet "Cat" "Dog" "Rabbit")) (Name Pet) (3 . 2)]
+
 > (define df2 (make-dataframe '((grp a a b b b)
                                 (trt a b a b b)
                                 (adult 1 2 3 4 5)
@@ -243,6 +261,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 > (filter-expr (adult) (> adult 3))
 ((adult) #<procedure>)
+
 > (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50)))
 ((grp juv) #<procedure>)
 ```
@@ -257,6 +276,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 > (dataframe-filter df (filter-expr (adult) (> adult 3)))
 #[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp b b) (trt b b) (adult 4 5) (juv 40 50)) (grp trt adult juv) (2 . 4)]
+
 > (dataframe-filter df (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50))))
 #[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp b b) (trt a b) (adult 3 4) (juv 30 40)) (grp trt adult juv) (2 . 4)]
 ```
@@ -280,6 +300,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 > (sort-expr (string<? trt))
 ((#<procedure string<?>) (trt))
+
 > (sort-expr (string<? trt) (< adult))
 ((#<procedure string<?> #<procedure <>) (trt adult))
 ```
@@ -294,6 +315,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 > (dataframe-sort df (sort-expr (string<? trt)))
 #[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp "a" "b" "b" "a" "b") (trt "b" "b" "b" "a" "a") (adult 2 4 5 1 3) (juv 20 40 50 10 30)) (grp trt adult juv) (5 . 4)]
+
 > (dataframe-sort df (sort-expr (string<? trt) (< adult)))
 #[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp "b" "b" "a" "b" "a") (trt "b" "b" "b" "a" "a") (adult 5 4 2 3 1) (juv 50 40 20 30 10)) (grp trt adult juv) (5 . 4)]
 ```
