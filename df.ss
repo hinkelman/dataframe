@@ -174,10 +174,10 @@
             [num-cols (cdr (dataframe-dim df))])
         (unless (= names-length num-cols)
           (assertion-violation proc-string (string-append
-                                            "names length is "
-                                            (number->string names-length)
+                                            "names length must be "
+                                            (number->string num-cols)
                                             ", not "
-                                            (number->string num-cols)))))
+                                            (number->string names-length)))))
       (let* ([alist (dataframe-alist df)]
              [ls-values (map cdr alist)])
         (make-dataframe (add-names-ls-values names ls-values)))))
