@@ -145,6 +145,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 ```
 ;; example requires that you first run code for `dataframe-write`
+
 > (define df2 (dataframe-read "df-example.scm"))
 
 > df2
@@ -156,6 +157,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 ```
 ;; a dataframe is a column-based data structure; a rowtable is a row-based data structure
+
 > (define df (make-dataframe '((a 100 300) (b 4 6) (c 700 900))))
 
 > df
@@ -170,6 +172,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 ```
 ;; a rowtable is a row-based data structure; a dataframe is a column-based data structure
+
 > (rowtable->dataframe '((a b c) (1 4 7) (2 5 8) (3 6 9)) #t)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3) (b 4 5 6) (c 7 8 9)) (a b c) (3 . 3)]
 

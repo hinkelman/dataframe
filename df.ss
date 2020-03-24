@@ -625,11 +625,3 @@
 
   )
 
-
-;; collecting a few misc things here for now
-;; https://stackoverflow.com/questions/23380385/how-do-i-get-the-sum-of-all-elements-10-in-a-given-list-using-chez-scheme
-;; (system "curl https://raw.githubusercontent.com/pandas-dev/pandas/master/doc/data/tips.csv >> tips.csv")
-;; (define tips (read-csv "tips.csv"))
-;; (system "gnuplot -e 'set terminal dumb; plot sin(x)'")
-
-
