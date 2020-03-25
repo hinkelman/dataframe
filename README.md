@@ -363,7 +363,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ## Append and split  
 
 #### <a name="df-split"></a> procedure: `(dataframe-split df group-names ...)`  
-**returns:** two dataframes where the rows of dataframe `df` are partitioned according to the `filter-expr`  
+**returns:** list of dataframes split into unique groups by `group-names` from dataframe `df`  
 
 ```
 > (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
