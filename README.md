@@ -53,6 +53,8 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 ### Modify and aggregate  
 
+[`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
+
 ## Dataframe record type  
 
 #### <a name="make-df"></a> procedure: `(make-dataframe alist)`  
@@ -423,3 +425,12 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 
 ## Modify and aggregate  
+
+#### <a name="modify-expr"></a> procedure: `(modify-expr (new-name (names) (expr)) ...)`  
+**returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element list of lambda procedures based on `expr`  
+
+```
+> (modify-expr (grp (grp) (symbol->string grp))
+               (total (adult juv) (+ adult juv)))
+((grp total) ((grp) (adult juv)) (#<procedure> #<procedure>))
+```
