@@ -143,7 +143,12 @@ Exception in (make-dataframe alist): names are not symbols
                                (juv 50 40 20 30 10))))
 
 > df
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((grp "b" "b" "a" "b" "a") (trt b b b a a) (adult 5 4 2 3 1) (juv 50 40 20 30 10)) (grp trt adult juv) (5 . 4)]
+#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3}
+  ((grp "b" "b" "a" "b" "a")
+   (trt b b b a a)
+   (adult 5 4 2 3 1)
+   (juv 50 40 20 30 10))
+  (grp trt adult juv) (5 . 4)]
 
 > (dataframe-write df "df-example.scm" #t)
 ```
@@ -157,7 +162,12 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df2 (dataframe-read "df-example.scm"))
 
 > df2
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((grp "b" "b" "a" "b" "a") (trt b b b a a) (adult 5 4 2 3 1) (juv 50 40 20 30 10)) (grp trt adult juv) (5 . 4)]
+#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3}
+  ((grp "b" "b" "a" "b" "a")
+   (trt b b b a a)
+   (adult 5 4 2 3 1)
+   (juv 50 40 20 30 10))
+  (grp trt adult juv) (5 . 4)]
 ```
 
 #### <a name="df-rows"></a> procedure: `(dataframe->rowtable df)`  
@@ -202,7 +212,12 @@ Exception in (make-dataframe alist): names are not symbols
                                (juv 10 20 30 40 50))))
 
 > (dataframe-ref df '(0 2 4))
-#[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3} ((grp "a" "b" "b") (trt "a" "a" "b") (adult 1 3 5) (juv 10 30 50)) (grp trt adult juv) (3 . 4)]
+#[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3}
+  ((grp "a" "b" "b")
+   (trt "a" "a" "b")
+   (adult 1 3 5)
+   (juv 10 30 50))
+  (grp trt adult juv) (3 . 4)]
 
 > (dataframe-ref df '(0 2 4) 'adult 'juv)
 #[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3} ((adult 1 3 5) (juv 10 30 50)) (adult juv) (3 . 2)]
@@ -283,10 +298,14 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 **returns:** a dataframe with only the unique rows of dataframe `df`  
 
 ```
-> (define df (make-dataframe '((Name "Peter" "Paul" "Mary" "Peter") (Pet "Rabbit" "Cat" "Dog" "Rabbit"))))
+> (define df (make-dataframe '((Name "Peter" "Paul" "Mary" "Peter")
+                               (Pet "Rabbit" "Cat" "Dog" "Rabbit"))))
 
 > (dataframe-unique df)
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((Name "Paul" "Mary" "Peter") (Pet "Cat" "Dog" "Rabbit")) (Name Pet) (3 . 2)]
+#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
+  ((Name "Paul" "Mary" "Peter")
+   (Pet "Cat" "Dog" "Rabbit"))
+  (Name Pet) (3 . 2)]
 
 > (define df2 (make-dataframe '((grp a a b b b)
                                 (trt a b a b b)
@@ -318,10 +337,20 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 
 > (dataframe-filter df (filter-expr (adult) (> adult 3)))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp b b) (trt b b) (adult 4 5) (juv 40 50)) (grp trt adult juv) (2 . 4)]
+#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
+  ((grp b b)
+   (trt b b)
+   (adult 4 5)
+   (juv 40 50))
+  (grp trt adult juv) (2 . 4)]
 
 > (dataframe-filter df (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50))))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp b b) (trt a b) (adult 3 4) (juv 30 40)) (grp trt adult juv) (2 . 4)]
+#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
+  ((grp b b)
+   (trt a b)
+   (adult 3 4)
+   (juv 30 40))
+  (grp trt adult juv) (2 . 4)]
 ```
 
 #### <a name="df-partition"></a> procedure: `(dataframe-partition df filter-expr)`  
@@ -359,10 +388,20 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 
 > (dataframe-sort df (sort-expr (string<? trt)))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp "a" "b" "b" "a" "b") (trt "b" "b" "b" "a" "a") (adult 2 4 5 1 3) (juv 20 40 50 10 30)) (grp trt adult juv) (5 . 4)]
+#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
+  ((grp "a" "b" "b" "a" "b")
+   (trt "b" "b" "b" "a" "a")
+   (adult 2 4 5 1 3)
+   (juv 20 40 50 10 30))
+  (grp trt adult juv) (5 . 4)]
 
 > (dataframe-sort df (sort-expr (string<? trt) (< adult)))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp "b" "b" "a" "b" "a") (trt "b" "b" "b" "a" "a") (adult 5 4 2 3 1) (juv 50 40 20 30 10)) (grp trt adult juv) (5 . 4)]
+#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
+  ((grp "b" "b" "a" "b" "a")
+   (trt "b" "b" "b" "a" "a")
+   (adult 5 4 2 3 1)
+   (juv 50 40 20 30 10))
+  (grp trt adult juv) (5 . 4)]
 ```
 
 ## Append and split  
@@ -397,7 +436,12 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 
 > (apply dataframe-append (dataframe-split df 'grp 'trt))
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a" "a" "b" "b" "b") (trt "a" "b" "a" "b" "b") (adult 1 2 3 4 5) (juv 10 20 30 40 50)) (grp trt adult juv) (5 . 4)]
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
+  ((grp "a" "a" "b" "b" "b")
+   (trt "a" "b" "a" "b" "b")
+   (adult 1 2 3 4 5)
+   (juv 10 20 30 40 50))
+  (grp trt adult juv) (5 . 4)]
 
 > (define df1 (make-dataframe '((a 1 2 3) (b 10 20 30) (c 100 200 300))))
 
@@ -419,10 +463,18 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 > (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
 
 > (dataframe-append-all -999 df1 df2)
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 1 2 3 4 5 6) (b 10 20 30 40 50 60) (c 100 200 300 -999 -999 -999)) (a b c) (6 . 3)]
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
+  ((a 1 2 3 4 5 6)
+   (b 10 20 30 40 50 60)
+   (c 100 200 300 -999 -999 -999))
+  (a b c) (6 . 3)]
 
 > (dataframe-append-all -999 df2 df1)
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 4 5 6 1 2 3) (b 40 50 60 10 20 30) (c -999 -999 -999 100 200 300)) (a b c) (6 . 3)]
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
+  ((a 4 5 6 1 2 3)
+   (b 40 50 60 10 20 30)
+   (c -999 -999 -999 100 200 300))
+  (a b c) (6 . 3)]
 ```
 
 ## Modify and aggregate  
@@ -456,5 +508,13 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                                     (scalar () 42)
                                     (lst () '(2 4 6 8 10))))
                     
-#[#{dataframe dqmpcr7n11a0dimehuppd0gd9-3} ((grp "a" "a" "b" "b" "b") (trt a b a b b) (adult 1 2 3 4 5) (juv 10 20 30 40 50) (total 11 22 33 44 55) (scalar 42 42 42 42 42) (lst 2 4 6 8 10)) (grp trt adult juv total scalar lst) (5 . 7)]
+#[#{dataframe dqmpcr7n11a0dimehuppd0gd9-3}
+  ((grp "a" "a" "b" "b" "b")
+   (trt a b a b b)
+   (adult 1 2 3 4 5)
+   (juv 10 20 30 40 50)
+   (total 11 22 33 44 55)
+   (scalar 42 42 42 42 42)
+   (lst 2 4 6 8 10))
+  (grp trt adult juv total scalar lst) (5 . 7)]
 ```
