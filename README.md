@@ -60,6 +60,9 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 ### Thread first and thread last  
 
+[`(-> expr ...)`](#thread-first)  
+[`(->> expr ...)`](#thread-last)  
+
 ## Dataframe record type  
 
 #### <a name="make-df"></a> procedure: `(make-dataframe alist)`  
@@ -564,3 +567,57 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 
 ## [Thread first and thread last](https://lispdreams.wordpress.com/2016/04/10/thread-first-thread-last-and-partials-oh-my/)  
+
+#### <a name="thread-first"></a> procedure: `(-> expr ...)`  
+**returns:** an object derived from passing result of previous expression `expr` as input to *first* argument of the next `expr`  
+
+#### <a name="thread-last"></a> procedure: `(->> expr ...)`  
+**returns:** an object derived from passing result of previous expression `expr` as input to *last* argument of the next `expr`  
+
+```
+> (define (mean ls) (/ (apply + ls) (length ls)))
+
+> (-> '(1 2 3) (mean) (+ 10))
+12
+
+> (define x (-> '(1 2 3) (->> (apply +))))
+> x
+6
+
+> (-> '((grp a a b b b)
+        (trt a b a b b)
+        (adult 1 2 3 4 5)
+        (juv 10 20 30 40 50))
+      (make-dataframe)
+      (dataframe-modify
+       (modify-expr (total (adult juv) (+ adult juv)))))
+#[#{dataframe j3vvfoehucee2musfnx4eje5e-4}
+  ((grp a a b b b)
+   (trt a b a b b)
+   (adult 1 2 3 4 5)
+   (juv 10 20 30 40 50)
+   (total 11 22 33 44 55))
+  (grp trt adult juv total) (5 . 5)]
+  
+> (-> '((grp a a b b b)
+        (trt a b a b b)
+        (adult 1 2 3 4 5)
+        (juv 10 20 30 40 50))
+      (make-dataframe)
+      (dataframe-split 'grp)
+      (->> (map (lambda (df)
+                  (dataframe-modify
+                   df
+                   (modify-expr (juv-mean () (mean ($ df 'juv))))))))
+      (->> (apply dataframe-append))
+      (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean))))
+#[#{dataframe j3vvfoehucee2musfnx4eje5e-4}
+  ((grp a b)
+   (trt b b)
+   (adult 2 5)
+   (juv 20 50)
+   (juv-mean 15 40))
+  (grp trt adult juv juv-mean) (2 . 5)]
+```
+
+
