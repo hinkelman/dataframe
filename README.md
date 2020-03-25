@@ -26,6 +26,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 [`(dataframe-read path)`](#df-read)  
 [`(dataframe->rowtable df)`](#df-rows)  
 [`(rowtable->dataframe rt header?)`](#rows-df)  
+[`(dataframe-ref df indices name ...)`](#df-ref)  
 [`(dataframe-values df name)`](#df-values)  
 
 ### Select, drop, and rename columns  
@@ -183,6 +184,23 @@ Exception in (make-dataframe alist): names are not symbols
 
 Exception in (make-dataframe alist): names are not symbols
 ```
+
+#### <a name="df-ref"></a> procedure: `(dataframe-ref df indices name ...)`  
+**returns:** a dataframe with rows specified by `indices` (zero-based) from dataframe `df`; optionally, can specify column `names` to return; defaults to all columns  
+
+```
+> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
+                               (trt "a" "b" "a" "b" "b")
+                               (adult 1 2 3 4 5)
+                               (juv 10 20 30 40 50))))
+
+> (dataframe-ref df '(0 2 4))
+#[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3} ((grp "a" "b" "b") (trt "a" "a" "b") (adult 1 3 5) (juv 10 30 50)) (grp trt adult juv) (3 . 4)]
+
+> (dataframe-ref df '(0 2 4) 'adult 'juv)
+#[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3} ((adult 1 3 5) (juv 10 30 50)) (adult juv) (3 . 2)]
+```
+
 
 #### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
 **returns:** a list of values for column `name` from dataframe `df`  

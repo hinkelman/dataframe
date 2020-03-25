@@ -357,4 +357,15 @@
               (dataframe-sort df27 (sort-expr (string<? trt) (< adult)))))
 (test-end "dataframe-sort-test")
 
+(test-begin "dataframe-ref-test")
+(test-assert (dataframe-equal? (make-dataframe '((grp "a" "b" "b") (trt "a" "a" "b") (adult 1 3 5) (juv 10 30 50)))
+                               (dataframe-ref df27 '(0 2 4))))
+(test-assert (dataframe-equal? (make-dataframe '((adult 1 3 5) (juv 10 30 50)))
+                               (dataframe-ref df27 '(0 2 4) 'adult 'juv)))
+(test-error (dataframe-ref df27 '()))
+(test-error (dataframe-ref df27 '(0 10)))
+(test-error (dataframe-ref df27 2))
+(test-error (dataframe-ref df27 '(2) 'total))
+(test-end "dataframe-ref-test")
+
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))

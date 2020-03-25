@@ -1,6 +1,9 @@
 (library (dataframe assertions)
   (export
-   check-positive-integer
+   check-index
+   check-integer-gte-zero
+   check-integer-positive
+   check-list
    check-rowtable
    check-names-unique
    check-names-symbol
@@ -13,9 +16,23 @@
 
   (import (chezscheme))
 
-  (define (check-positive-integer x x-name who)
+  (define (check-list ls ls-name who)
+    (unless (list? ls)
+      (assertion-violation who (string-append ls-name " is not a list")))
+    (when (null? ls)
+      (assertion-violation who (string-append ls-name " is an empty list"))))
+
+  (define (check-integer-positive x x-name who)
     (unless (and (> x 0) (integer? x))
       (assertion-violation who (string-append x-name " is not a positive integer"))))
+  
+  (define (check-integer-gte-zero x x-name who)
+    (unless (and (>= x 0) (integer? x))
+      (assertion-violation who (string-append x-name " is not an integer >= 0"))))
+
+  (define (check-index n n-max who)
+    (when (> n n-max)
+      (assertion-violation who (string-append "index " (number->string n) " is out of range"))))
 
   (define (check-names-unique names who)
     (unless (= (length names) (length (remove-duplicates names)))

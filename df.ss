@@ -26,6 +26,7 @@
    dataframe-select
    dataframe-sort
    dataframe-split
+   dataframe-ref
    dataframe-tail
    dataframe-unique
    dataframe-values
@@ -128,6 +129,32 @@
     (check-names names who)
     (apply check-names-exist df who names))
 
+  ;; dataframe-ref ------------------------------------------------------------------------------
+
+  (define dataframe-ref
+    (case-lambda
+      [(df indices) (df-ref-helper df indices (dataframe-names df))]
+      [(df indices . names)(df-ref-helper df indices names)]))
+
+  (define (df-ref-helper df indices names)
+    (let ([proc-string "(dataframe-ref df indices names)"]
+          [n-max (car (dataframe-dim df))])
+      (apply check-df-names df proc-string names)
+      (check-list indices "indices" proc-string)
+      (map (lambda (n)
+             (check-integer-gte-zero n "index" proc-string)
+             (check-index n n-max proc-string))
+           indices))
+    (make-dataframe (alist-ref (dataframe-alist df) indices names)))
+    
+  (define (alist-ref alist indices names)
+    (let ([ls-values (alist-values-map alist names)])
+      (add-names-ls-values
+       names
+       (map (lambda (values)
+              (map (lambda (n) (list-ref values n)) indices))
+            ls-values))))
+    
   ;; head/tail -----------------------------------------------------------------------------------
 
   (define (dataframe-head df n)
@@ -139,12 +166,11 @@
 
   (define (dataframe-head-tail df n type)
     (let ([proc-string (string-append "(dataframe-" type " df n)")]
+          [check-integer (if (string=? type "head") check-integer-positive check-integer-gte-zero)]
           [proc (if (string=? type "head") list-head list-tail)])
       (check-dataframe df proc-string)
-      (check-positive-integer n "n" proc-string)
-      (when (> n (car (dataframe-dim df)))
-        (assertion-violation proc-string
-                             (string-append "index " (number->string n) " is out of range")))
+      (check-integer n "n" proc-string)
+      (check-index n (car (dataframe-dim df)) proc-string)
       (make-dataframe
        (map (lambda (col) (cons (car col) (proc (cdr col) n)))
             (dataframe-alist df)))))
