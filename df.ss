@@ -16,7 +16,6 @@
    dataframe-equal?
    dataframe-filter
    dataframe-head
-   dataframe-list-modify
    dataframe-modify
    dataframe-names
    dataframe-names-update
@@ -63,7 +62,6 @@
   ;; rowtable: name used to describe a row-based list of lists where the first row represents column names
   ;; rt: single rowtable
   ;; ls-rows: generic row-based list of lists
-  
   
   ;; thread-first and thread-last -------------------------------------------------------------
   
@@ -519,8 +517,9 @@
 
   ;; modify/add columns ------------------------------------------------------------------------
 
-  (define (dataframe-list-modify df-list modify-expr)
-    (apply dataframe-append (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
+  ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation, e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
+  ;; (define (dataframe-list-modify df-list modify-expr)
+  ;;   (apply dataframe-append (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
 
   (define (dataframe-modify df modify-expr)
     (let* ([names (car modify-expr)]

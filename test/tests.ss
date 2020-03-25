@@ -258,8 +258,8 @@
 (test-end "dataframe-modify-test")
 
 (test-begin "thread-test")
-;; (test-equal 12 (-> '(1 2 3) (mean) (+ 10)))
-;; (test-approximate 0 (-> (random-binomial 1e5 10 0.5) (variance) (- 2.5)) 0.125)
+(define (mean ls) (/ (apply + ls) (length ls)))
+(test-equal 12 (-> '(1 2 3) (mean) (+ 10)))
 (test-assert (dataframe-equal? df1
                                (-> df1
                                    (dataframe-modify
@@ -286,37 +286,24 @@
                                    (dataframe-modify
                                     (modify-expr (juv (juv) (/ juv 2))
                                                  (total (adult juv) (+ adult juv)))))))
-(test-assert (dataframe-equal? df23
+(test-assert (dataframe-equal? df23   
                                (-> df22
                                    (dataframe-split 'grp)
-                                   (dataframe-list-modify
-                                    (modify-expr (total (adult juv) (+ adult juv)))))))
-;; (test-assert (dataframe-equal? df23   
-;;                                (-> df22
-;;                                    (dataframe-split 'grp)
-;;                                    (->> (map (lambda (df)
-;;                                                (dataframe-modify
-;;                                                 df
-;;                                                 (modify-expr (total (adult juv) (+ adult juv)))))))
-;;                                    (->> (apply dataframe-append)))))
-;; (test-assert (dataframe-equal? df25
-;;                                (-> df22
-;;                                    (dataframe-split 'grp)
-;;                                    (->> (map (lambda (df)
-;;                                                (dataframe-modify
-;;                                                 df
-;;                                                 (modify-expr (juv-mean () (mean ($ df 'juv))))))))
-;;                                    (->> (apply dataframe-append))
-;;                                    (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean))))))
-;; can't use dataframe-list-modify shorthand when performing calculation (e.g., mean) on a column
-;; because df is undefined; need long form with explicit lambda
-;; (test-assert (dataframe-equal? df25
-;;                                (-> df22
-;;                                    (dataframe-split 'grp)
-;;                                    (dataframe-list-modify
-;;                                     (modify-expr (juv-mean () (mean ($ df 'juv)))))
-;;                                    (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean))))))
-;; (test-error (-> '(4 3 5 1) (sort <)))
+                                   (->> (map (lambda (df)
+                                               (dataframe-modify
+                                                df
+                                                (modify-expr (total (adult juv) (+ adult juv)))))))
+                                   (->> (apply dataframe-append)))))
+(test-assert (dataframe-equal? df25
+                               (-> df22
+                                   (dataframe-split 'grp)
+                                   (->> (map (lambda (df)
+                                               (dataframe-modify
+                                                df
+                                                (modify-expr (juv-mean () (mean ($ df 'juv))))))))
+                                   (->> (apply dataframe-append))
+                                   (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean))))))
+(test-error (-> '(4 3 5 1) (sort <)))
 (test-end "thread-test")
 
 (test-begin "dataframe-aggregate-test")
