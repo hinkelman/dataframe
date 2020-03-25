@@ -55,6 +55,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 [`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
 [`(dataframe-modify df modify-expr)`](#df-modify)  
+[`(aggregate-expr (new-name (names) (expr)) ...)`](#aggregate-expr)  
 
 ## Dataframe record type  
 
@@ -500,8 +501,9 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ;; if new name occurs in dataframe, then column is replaced
 ;; if not, then new column is added
 
-;; if names is empty, and expr is a scalar, then the scalar is repeated to match the number of rows in the dataframe
-;; if names is empty, and expr is a list of length equal to number of rows in dataframe, then the list is used as a column
+;; if names is empty, 
+;;   and expr is a scalar, then the scalar is repeated to match the number of rows in the dataframe
+;;   and expr is a list of length equal to number of rows in dataframe, then the list is used as a column
 
 > (dataframe-modify df (modify-expr (grp (grp) (symbol->string grp))
                                     (total (adult juv) (+ adult juv))
@@ -517,4 +519,13 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
    (scalar 42 42 42 42 42)
    (lst 2 4 6 8 10))
   (grp trt adult juv total scalar lst) (5 . 7)]
+```
+
+#### <a name="aggregate-expr"></a> procedure: `(aggregate-expr (new-name (names) (expr)) ...)`  
+**returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  
+
+```
+> (aggregate-expr (adult-sum (adult) (apply + adult))
+                (juv-sum (juv) (apply + juv)))
+((adult-sum juv-sum) ((adult) (juv)) (#<procedure> #<procedure>))
 ```

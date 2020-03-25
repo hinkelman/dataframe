@@ -370,4 +370,3 @@
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 
-
