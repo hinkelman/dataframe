@@ -48,6 +48,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 ### Append and split  
 
 [`(dataframe-split df group-name ...)`](#df-split)  
+[`(dataframe-append df1 df2 ...)`](#df-append)  
 
 ### Modify and aggregate  
 
@@ -381,5 +382,29 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
   #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b") (trt "a") (adult 3) (juv 30)) (grp trt adult juv) (1 . 4)]
   #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b" "b") (trt "b" "b") (adult 4 5) (juv 40 50)) (grp trt adult juv) (2 . 4)])
 ```
+
+#### <a name="df-append"></a> procedure: `(dataframe-append df1 df2 ...)`  
+**returns:** a dataframe formed from appending only shared columns of the dataframes `df1 df2 ...`  
+
+```
+> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
+                               (trt "a" "b" "a" "b" "b")
+                               (adult 1 2 3 4 5)
+                               (juv 10 20 30 40 50))))
+
+> (apply dataframe-append (dataframe-split df 'grp 'trt))
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a" "a" "b" "b" "b") (trt "a" "b" "a" "b" "b") (adult 1 2 3 4 5) (juv 10 20 30 40 50)) (grp trt adult juv) (5 . 4)]
+
+> (define df1 (make-dataframe '((a 1 2 3) (b 10 20 30) (c 100 200 300))))
+
+> (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
+
+> (dataframe-append df1 df2)
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 1 2 3 4 5 6) (b 10 20 30 40 50 60)) (a b) (6 . 2)]
+
+> (dataframe-append df2 df1)
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 4 5 6 1 2 3) (b 40 50 60 10 20 30)) (a b) (6 . 2)]
+```
+
 
 ## Modify and aggregate  
