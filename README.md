@@ -56,6 +56,9 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 [`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
 [`(dataframe-modify df modify-expr)`](#df-modify)  
 [`(aggregate-expr (new-name (names) (expr)) ...)`](#aggregate-expr)  
+[`(dataframe-aggregate df group-names aggregate-expr)`](#df-aggregate)  
+
+### Thread first and thread last  
 
 ## Dataframe record type  
 
@@ -490,7 +493,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 
 #### <a name="df-modify"></a> procedure: `(dataframe-modify df modify-expr)`  
-**returns:** a dataframe where the dataframe `df` are sorted according to the `modify-expr`  
+**returns:** a dataframe where the columns of dataframe `df` are modified or added according to the `modify-expr`  
 
 ```
 > (define df (make-dataframe '((grp a a b b b)
@@ -508,8 +511,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 > (dataframe-modify df (modify-expr (grp (grp) (symbol->string grp))
                                     (total (adult juv) (+ adult juv))
                                     (scalar () 42)
-                                    (lst () '(2 4 6 8 10))))
-                    
+                                    (lst () '(2 4 6 8 10))))  
 #[#{dataframe dqmpcr7n11a0dimehuppd0gd9-3}
   ((grp "a" "a" "b" "b" "b")
    (trt a b a b b)
@@ -529,3 +531,36 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                 (juv-sum (juv) (apply + juv)))
 ((adult-sum juv-sum) ((adult) (juv)) (#<procedure> #<procedure>))
 ```
+
+#### <a name="df-aggregate"></a> procedure: `(dataframe-aggregate df group-names aggregate-expr)`  
+**returns:** a dataframe where the dataframe `df` was split according to list of `group-names` and aggregated according to `aggregate-expr`  
+
+```
+> (define df (make-dataframe '((grp a a b b b)
+                               (trt a b a b b)
+                               (adult 1 2 3 4 5)
+                               (juv 10 20 30 40 50))))
+                               
+> (dataframe-aggregate df
+                       '(grp)
+                       (aggregate-expr (adult-sum (adult) (apply + adult))
+                                       (juv-sum (juv) (apply + juv))))
+#[#{dataframe dqmpcr7n11a0dimehuppd0gd9-3}
+  ((grp a b)
+   (adult-sum 3 12)
+   (juv-sum 30 120))
+  (grp adult-sum juv-sum) (2 . 3)]
+
+> (dataframe-aggregate df
+                       '(grp trt)
+                       (aggregate-expr (adult-sum (adult) (apply + adult))
+                                       (juv-sum (juv) (apply + juv))))
+#[#{dataframe dqmpcr7n11a0dimehuppd0gd9-3}
+  ((grp a a b b)
+   (trt a b a b)
+   (adult-sum 1 2 3 9)
+   (juv-sum 10 20 30 90))
+  (grp trt adult-sum juv-sum) (4 . 4)]
+```
+
+## [Thread first and thread last](https://lispdreams.wordpress.com/2016/04/10/thread-first-thread-last-and-partials-oh-my/)  

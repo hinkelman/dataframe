@@ -370,3 +370,19 @@
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 
+(dataframe-aggregate df
+                     '(grp)
+                     (aggregate-expr (adult-sum (adult) (apply + adult))
+                                     (juv-sum (juv) (apply + juv))))
+
+(dataframe-aggregate df
+                     '(grp trt)
+                     (aggregate-expr (adult-sum (adult) (apply + adult))
+                                     (juv-sum (juv) (apply + juv))))
+
+#[#{dataframe dqmpcr7n11a0dimehuppd0gd9-3}
+  ((grp a a b b)
+   (trt a b a b)
+   (adult-sum 1 2 3 9)
+   (juv-sum 10 20 30 90))
+  (grp trt adult-sum juv-sum) (4 . 4)]
