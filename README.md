@@ -49,6 +49,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 [`(dataframe-split df group-name ...)`](#df-split)  
 [`(dataframe-append df1 df2 ...)`](#df-append)  
+[`(dataframe-append-all missing-value df1 df2 ...)`](#df-append-all)  
 
 ### Modify and aggregate  
 
@@ -406,5 +407,19 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 4 5 6 1 2 3) (b 40 50 60 10 20 30)) (a b) (6 . 2)]
 ```
 
+#### <a name="df-append-all"></a> procedure: `(dataframe-append-all missing-value df1 df2 ...)`  
+**returns:** a dataframe formed from appending all columns of the dataframes `df1 df2 ...` where `missing-value` is used to fill values for columns that are not common to all dataframes  
+
+```
+> (define df1 (make-dataframe '((a 1 2 3) (b 10 20 30) (c 100 200 300))))
+
+> (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
+
+> (dataframe-append-all -999 df1 df2)
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 1 2 3 4 5 6) (b 10 20 30 40 50 60) (c 100 200 300 -999 -999 -999)) (a b c) (6 . 3)]
+
+> (dataframe-append-all -999 df2 df1)
+#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 4 5 6 1 2 3) (b 40 50 60 10 20 30) (c -999 -999 -999 100 200 300)) (a b c) (6 . 3)]
+```
 
 ## Modify and aggregate  
