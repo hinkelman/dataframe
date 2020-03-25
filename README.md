@@ -54,6 +54,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 ### Modify and aggregate  
 
 [`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
+[`(dataframe-modify df modify-expr)`](#df-modify)  
 
 ## Dataframe record type  
 
@@ -349,7 +350,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 
 #### <a name="df-sort"></a> procedure: `(dataframe-sort df sort-expr)`  
-**returns:** two dataframes where the rows of dataframe `df` are partitioned according to the `filter-expr`  
+**returns:** a dataframe where the rows of dataframe `df` are sorted according to the `sort-expr`  
 
 ```
 > (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
@@ -427,10 +428,33 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ## Modify and aggregate  
 
 #### <a name="modify-expr"></a> procedure: `(modify-expr (new-name (names) (expr)) ...)`  
-**returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element list of lambda procedures based on `expr`  
+**returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  
 
 ```
 > (modify-expr (grp (grp) (symbol->string grp))
                (total (adult juv) (+ adult juv)))
 ((grp total) ((grp) (adult juv)) (#<procedure> #<procedure>))
+```
+
+#### <a name="df-modify"></a> procedure: `(dataframe-modify df modify-expr)`  
+**returns:** a dataframe where the dataframe `df` are sorted according to the `modify-expr`  
+
+```
+> (define df (make-dataframe '((grp a a b b b)
+                               (trt a b a b b)
+                               (adult 1 2 3 4 5)
+                               (juv 10 20 30 40 50))))
+                               
+;; if new name occurs in dataframe, then column is replaced
+;; if not, then new column is added
+
+;; if names is empty, and expr is a scalar, then the scalar is repeated to match the number of rows in the dataframe
+;; if names is empty, and expr is a list of length equal to number of rows in dataframe, then the list is used as a column
+
+> (dataframe-modify df (modify-expr (grp (grp) (symbol->string grp))
+                                    (total (adult juv) (+ adult juv))
+                                    (scalar () 42)
+                                    (lst () '(2 4 6 8 10))))
+                    
+#[#{dataframe dqmpcr7n11a0dimehuppd0gd9-3} ((grp "a" "a" "b" "b" "b") (trt a b a b b) (adult 1 2 3 4 5) (juv 10 20 30 40 50) (total 11 22 33 44 55) (scalar 42 42 42 42 42) (lst 2 4 6 8 10)) (grp trt adult juv total scalar lst) (5 . 7)]
 ```
