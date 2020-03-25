@@ -47,6 +47,8 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 ### Append and split  
 
+[`(dataframe-split df group-name ...)`](#df-split)  
+
 ### Modify and aggregate  
 
 ## Dataframe record type  
@@ -359,5 +361,25 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 
 ## Append and split  
+
+#### <a name="df-split"></a> procedure: `(dataframe-split df group-names ...)`  
+**returns:** two dataframes where the rows of dataframe `df` are partitioned according to the `filter-expr`  
+
+```
+> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
+                               (trt "a" "b" "a" "b" "b")
+                               (adult 1 2 3 4 5)
+                               (juv 10 20 30 40 50))))
+
+> (dataframe-split df 'grp)
+(#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a" "a") (trt "a" "b") (adult 1 2) (juv 10 20)) (grp trt adult juv) (2 . 4)]
+  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b" "b" "b") (trt "a" "b" "b") (adult 3 4 5) (juv 30 40 50)) (grp trt adult juv) (3 . 4)])
+  
+> (dataframe-split df 'grp 'trt)
+(#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a") (trt "a") (adult 1) (juv 10)) (grp trt adult juv) (1 . 4)]
+  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a") (trt "b") (adult 2) (juv 20)) (grp trt adult juv) (1 . 4)]
+  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b") (trt "a") (adult 3) (juv 30)) (grp trt adult juv) (1 . 4)]
+  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b" "b") (trt "b" "b") (adult 4 5) (juv 40 50)) (grp trt adult juv) (2 . 4)])
+```
 
 ## Modify and aggregate  
