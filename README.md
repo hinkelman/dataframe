@@ -1,6 +1,6 @@
 # Chez Scheme Dataframe Library
 
-A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, append, modify, and aggregate dataframes. 
+A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, modify, and aggregate dataframes. 
 
 ## Installation and Import
 
@@ -45,11 +45,11 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 [`(sort-expr (predicate name) ...)`](#sort-expr)  
 [`(dataframe-sort df sort-expr)`](#df-sort)  
 
-### Append and split  
+### Split, bind, and append  
 
 [`(dataframe-split df group-name ...)`](#df-split)  
-[`(dataframe-append df1 df2 ...)`](#df-append)  
-[`(dataframe-append-all missing-value df1 df2 ...)`](#df-append-all)  
+[`(dataframe-bind df1 df2 ...)`](#df-bind)  
+[`(dataframe-bind-all missing-value df1 df2 ...)`](#df-bind-all)  
 
 ### Modify and aggregate  
 
@@ -411,7 +411,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
   (grp trt adult juv) (5 . 4)]
 ```
 
-## Append and split  
+## Split, bind, and append  
 
 #### <a name="df-split"></a> procedure: `(dataframe-split df group-names ...)`  
 **returns:** list of dataframes split into unique groups by `group-names` from dataframe `df`  
@@ -433,8 +433,8 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
   #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b" "b") (trt "b" "b") (adult 4 5) (juv 40 50)) (grp trt adult juv) (2 . 4)])
 ```
 
-#### <a name="df-append"></a> procedure: `(dataframe-append df1 df2 ...)`  
-**returns:** a dataframe formed from appending only shared columns of the dataframes `df1 df2 ...`  
+#### <a name="df-bind"></a> procedure: `(dataframe-bind df1 df2 ...)`  
+**returns:** a dataframe formed from binding only shared columns of the dataframes `df1 df2 ...`  
 
 ```
 > (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
@@ -442,7 +442,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (apply dataframe-append (dataframe-split df 'grp 'trt))
+> (apply dataframe-bind (dataframe-split df 'grp 'trt))
 #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
   ((grp "a" "a" "b" "b" "b")
    (trt "a" "b" "a" "b" "b")
@@ -454,29 +454,29 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 
 > (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
 
-> (dataframe-append df1 df2)
+> (dataframe-bind df1 df2)
 #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 1 2 3 4 5 6) (b 10 20 30 40 50 60)) (a b) (6 . 2)]
 
-> (dataframe-append df2 df1)
+> (dataframe-bind df2 df1)
 #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 4 5 6 1 2 3) (b 40 50 60 10 20 30)) (a b) (6 . 2)]
 ```
 
-#### <a name="df-append-all"></a> procedure: `(dataframe-append-all missing-value df1 df2 ...)`  
-**returns:** a dataframe formed from appending all columns of the dataframes `df1 df2 ...` where `missing-value` is used to fill values for columns that are not common to all dataframes  
+#### <a name="df-bind-all"></a> procedure: `(dataframe-bind-all missing-value df1 df2 ...)`  
+**returns:** a dataframe formed from binding all columns of the dataframes `df1 df2 ...` where `missing-value` is used to fill values for columns that are not common to all dataframes  
 
 ```
 > (define df1 (make-dataframe '((a 1 2 3) (b 10 20 30) (c 100 200 300))))
 
 > (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
 
-> (dataframe-append-all -999 df1 df2)
+> (dataframe-bind-all -999 df1 df2)
 #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
   ((a 1 2 3 4 5 6)
    (b 10 20 30 40 50 60)
    (c 100 200 300 -999 -999 -999))
   (a b c) (6 . 3)]
 
-> (dataframe-append-all -999 df2 df1)
+> (dataframe-bind-all -999 df2 df1)
 #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
   ((a 4 5 6 1 2 3)
    (b 40 50 60 10 20 30)
@@ -609,7 +609,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
                   (dataframe-modify
                    df
                    (modify-expr (juv-mean () (mean ($ df 'juv))))))))
-      (->> (apply dataframe-append))
+      (->> (apply dataframe-bind))
       (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean))))
 #[#{dataframe j3vvfoehucee2musfnx4eje5e-4}
   ((grp a b)

@@ -19,11 +19,11 @@
 (define df3 (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c -999 -999 -999 7 8 9))))
 (define df4 (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
 
-(test-begin "dataframe-append-all-test")
-(test-assert (dataframe-equal? df3 (dataframe-append-all -999 df1 df2)))
-(test-assert (dataframe-equal? df4 (dataframe-append-all -999 df2 df1)))
-(test-error (dataframe-append-all -999 df3 df4 '(1 2 3)))
-(test-end "dataframe-append-all-test")
+(test-begin "dataframe-bind-all-test")
+(test-assert (dataframe-equal? df3 (dataframe-bind-all -999 df1 df2)))
+(test-assert (dataframe-equal? df4 (dataframe-bind-all -999 df2 df1)))
+(test-error (dataframe-bind-all -999 df3 df4 '(1 2 3)))
+(test-end "dataframe-bind-all-test")
 
 (test-begin "dataframe-contains?-test")
 (test-assert (dataframe-contains? df1 'b))
@@ -178,12 +178,12 @@
                                (b 4 5 6 4 5 6))))
 (define df19 (make-dataframe '((c 1 2 3))))
 
-(test-begin "dataframe-append-test")
-(test-assert (dataframe-equal? df18 (dataframe-append df1 df2)))
-(test-assert (dataframe-equal? df18 (dataframe-append df2 df1)))
-(test-error (dataframe-append df1 df19))
-(test-error (dataframe-append-all df3 df4 '(1 2 3)))
-(test-end "dataframe-append-test")
+(test-begin "dataframe-bind-test")
+(test-assert (dataframe-equal? df18 (dataframe-bind df1 df2)))
+(test-assert (dataframe-equal? df18 (dataframe-bind df2 df1)))
+(test-error (dataframe-bind df1 df19))
+(test-error (dataframe-bind-all df3 df4 '(1 2 3)))
+(test-end "dataframe-bind-test")
 
 (test-begin "dataframe->rowtable-test")
 (test-error (dataframe->rowtable 100))
@@ -223,7 +223,7 @@
                                (dataframe-filter df22 (filter-expr (grp) (symbol=? grp 'a)))))
 (test-assert (dataframe-equal? (cadr df-list)
                                (dataframe-filter df22 (filter-expr (grp) (symbol=? grp 'b)))))
-(test-assert (dataframe-equal? df22 (apply dataframe-append df-list)))
+(test-assert (dataframe-equal? df22 (apply dataframe-bind df-list)))
 (test-end "dataframe-split-test")
 
 
@@ -293,7 +293,7 @@
                                                (dataframe-modify
                                                 df
                                                 (modify-expr (total (adult juv) (+ adult juv)))))))
-                                   (->> (apply dataframe-append)))))
+                                   (->> (apply dataframe-bind)))))
 (test-assert (dataframe-equal? df25
                                (-> df22
                                    (dataframe-split 'grp)
@@ -301,7 +301,7 @@
                                                (dataframe-modify
                                                 df
                                                 (modify-expr (juv-mean () (mean ($ df 'juv))))))))
-                                   (->> (apply dataframe-append))
+                                   (->> (apply dataframe-bind))
                                    (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean))))))
 (test-error (-> '(4 3 5 1) (sort <)))
 (test-end "thread-test")

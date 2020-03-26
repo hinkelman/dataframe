@@ -7,8 +7,8 @@
    dataframe->rowtable
    dataframe?
    dataframe-aggregate
-   dataframe-append
-   dataframe-append-all
+   dataframe-bind
+   dataframe-bind-all
    dataframe-alist
    dataframe-contains?
    dataframe-dim
@@ -212,16 +212,16 @@
         (map (lambda (name) (cons name '())) names)
         (map (lambda (name vals) (cons name vals)) names ls-values)))
   
-  ;; append -----------------------------------------------------------------------------------
+  ;; bind -----------------------------------------------------------------------------------
 
-  (define (dataframe-append . dfs)
-    (let ([proc-string "(dataframe-append dfs)"])
+  (define (dataframe-bind . dfs)
+    (let ([proc-string "(dataframe-bind dfs)"])
       (check-all-dataframes dfs proc-string)
       (let ([names (apply shared-names dfs)])
         (when (null? names) (assertion-violation proc-string "no names in common across dfs"))
         (let ([alist (map (lambda (name)
                             ;; missing-value will not be used so chose arbitrary value (-999)
-                            (cons name (apply append-columns name -999 dfs)))
+                            (cons name (apply bind-columns name -999 dfs)))
                           names)])
           (make-dataframe alist)))))
   
@@ -230,15 +230,15 @@
           [rest-names (apply all-unique-names (cdr dfs))])
       (filter (lambda (name) (member name rest-names)) first-names)))
 
-  (define (dataframe-append-all missing-value . dfs)
-    (check-all-dataframes dfs "(dataframe-append-all missing-value dfs)")
+  (define (dataframe-bind-all missing-value . dfs)
+    (check-all-dataframes dfs "(dataframe-bind-all missing-value dfs)")
     (let* ([names (apply combine-names-ordered dfs)]
            [alist (map (lambda (name)
-                         (cons name (apply append-columns name missing-value dfs)))
+                         (cons name (apply bind-columns name missing-value dfs)))
                        names)])
       (make-dataframe alist)))
 
-  (define (append-columns name missing-value . dfs)
+  (define (bind-columns name missing-value . dfs)
     (apply append
            (map (lambda (df)
                   (if (dataframe-contains? df name)
@@ -519,7 +519,7 @@
 
   ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation, e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
   ;; (define (dataframe-list-modify df-list modify-expr)
-  ;;   (apply dataframe-append (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
+  ;;   (apply dataframe-bind (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
 
   (define (dataframe-modify df modify-expr)
     (let* ([names (car modify-expr)]
@@ -599,7 +599,7 @@
 
   (define (dataframe-aggregate df group-names aggregate-expr)
     (let-values ([(df-list groups-list) (dataframe-split-helper df group-names #t)])
-      (apply dataframe-append
+      (apply dataframe-bind
              (map (lambda (df groups)
                     (df-aggregate-helper df groups aggregate-expr)) df-list groups-list))))
   
