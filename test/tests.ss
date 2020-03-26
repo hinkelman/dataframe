@@ -19,6 +19,14 @@
 (define df3 (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c -999 -999 -999 7 8 9))))
 (define df4 (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
 
+(test-begin "dataframe-append-test")
+(test-assert (dataframe-equal? df2 (dataframe-append df1 (make-dataframe '((c 7 8 9))))))
+(test-assert (dataframe-equal? (dataframe-select df2 'c 'a 'b)
+                               (dataframe-append (make-dataframe '((c 7 8 9))) df1)))
+(test-error (dataframe-append df1 (make-dataframe '((c 7 8 9 10)))))
+(test-error (dataframe-append df1 (make-dataframe '((b 7 8 9)))))
+(test-end "dataframe-append-test")
+
 (test-begin "dataframe-bind-all-test")
 (test-assert (dataframe-equal? df3 (dataframe-bind-all -999 df1 df2)))
 (test-assert (dataframe-equal? df4 (dataframe-bind-all -999 df2 df1)))

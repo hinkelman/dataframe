@@ -7,9 +7,10 @@
    dataframe->rowtable
    dataframe?
    dataframe-aggregate
+   dataframe-alist
+   dataframe-append
    dataframe-bind
    dataframe-bind-all
-   dataframe-alist
    dataframe-contains?
    dataframe-dim
    dataframe-drop
@@ -211,6 +212,18 @@
     (if (null? ls-values)
         (map (lambda (name) (cons name '())) names)
         (map (lambda (name vals) (cons name vals)) names ls-values)))
+
+  ;; append -----------------------------------------------------------------------------------
+  
+  (define (dataframe-append . dfs)
+    (let ([proc-string "(dataframe-append dfs)"]
+          [rows (car (dataframe-dim (car dfs)))]
+          [all-names (apply get-all-names dfs)])
+      (check-all-dataframes dfs proc-string)
+      (check-names-unique all-names proc-string)
+      (unless (for-all (lambda (df) (= rows (car (dataframe-dim df)))) dfs)
+        (assertion-violation proc-string "all dfs must have same number of rows")))
+    (make-dataframe (apply append (map (lambda (df) (dataframe-alist df)) dfs))))
   
   ;; bind -----------------------------------------------------------------------------------
 
@@ -227,7 +240,7 @@
   
   (define (shared-names . dfs)
     (let ([first-names (dataframe-names (car dfs))]
-          [rest-names (apply all-unique-names (cdr dfs))])
+          [rest-names (apply get-all-unique-names (cdr dfs))])
       (filter (lambda (name) (member name rest-names)) first-names)))
 
   (define (dataframe-bind-all missing-value . dfs)
@@ -246,11 +259,11 @@
                       (make-list (car (dataframe-dim df)) missing-value))) 
                 dfs)))
 
-  (define (all-names . dfs)
+  (define (get-all-names . dfs)
     (apply append (map (lambda (df) (dataframe-names df)) dfs)))
 
-  (define (all-unique-names . dfs)
-    (remove-duplicates (apply all-names dfs)))
+  (define (get-all-unique-names . dfs)
+    (remove-duplicates (apply get-all-names dfs)))
 
   ;; combine names such that they stay in the order that they appear in each dataframe
   (define (combine-names-ordered . dfs)
@@ -261,7 +274,7 @@
              (loop (cdr all-names) results)]
             [else
              (loop (cdr all-names) (cons (car all-names) results))]))
-    (loop (apply all-names dfs) '()))
+    (loop (apply get-all-names dfs) '()))
   
   ;; read/write ------------------------------------------------------------------------------
 
@@ -649,4 +662,5 @@
       (make-dataframe (map cons names ls-values))))
 
   )
+
 

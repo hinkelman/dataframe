@@ -50,6 +50,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 [`(dataframe-split df group-name ...)`](#df-split)  
 [`(dataframe-bind df1 df2 ...)`](#df-bind)  
 [`(dataframe-bind-all missing-value df1 df2 ...)`](#df-bind-all)  
+[`(dataframe-append df1 df2 ...)`](#df-append)  
 
 ### Modify and aggregate  
 
@@ -229,7 +230,6 @@ Exception in (make-dataframe alist): names are not symbols
 > (dataframe-ref df '(0 2 4) 'adult 'juv)
 #[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3} ((adult 1 3 5) (juv 10 30 50)) (adult juv) (3 . 2)]
 ```
-
 
 #### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
 **returns:** a list of values for column `name` from dataframe `df`  
@@ -434,7 +434,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 
 #### <a name="df-bind"></a> procedure: `(dataframe-bind df1 df2 ...)`  
-**returns:** a dataframe formed from binding only shared columns of the dataframes `df1 df2 ...`  
+**returns:** a dataframe formed by binding only shared columns of the dataframes `df1 df2 ...`  
 
 ```
 > (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
@@ -462,7 +462,7 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 ```
 
 #### <a name="df-bind-all"></a> procedure: `(dataframe-bind-all missing-value df1 df2 ...)`  
-**returns:** a dataframe formed from binding all columns of the dataframes `df1 df2 ...` where `missing-value` is used to fill values for columns that are not common to all dataframes  
+**returns:** a dataframe formed by binding all columns of the dataframes `df1 df2 ...` where `missing-value` is used to fill values for columns that are not common to all dataframes  
 
 ```
 > (define df1 (make-dataframe '((a 1 2 3) (b 10 20 30) (c 100 200 300))))
@@ -482,6 +482,31 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
    (b 40 50 60 10 20 30)
    (c -999 -999 -999 100 200 300))
   (a b c) (6 . 3)]
+```
+
+#### <a name="df-append"></a> procedure: `(dataframe-append df1 df2 ...)`  
+**returns:** a dataframe formed by appending columns of the dataframes `df1 df2 ...`  
+
+```
+> (define df1 (make-dataframe '((a 1 2 3) (b 4 5 6))))
+
+> (define df2 (make-dataframe '((c 7 8 9) (d 10 11 12))))
+
+> (dataframe-append df1 df2)
+#[#{dataframe o6ydlodurwb4p6ft40uetno4d-3}
+  ((a 1 2 3)
+   (b 4 5 6)
+   (c 7 8 9)
+   (d 10 11 12))
+  (a b c d) (3 . 4)]
+  
+> (dataframe-append df2 df1)
+#[#{dataframe o6ydlodurwb4p6ft40uetno4d-3}
+  ((c 7 8 9)
+   (d 10 11 12)
+   (a 1 2 3)
+   (b 4 5 6))
+  (c d a b) (3 . 4)]
 ```
 
 ## Modify and aggregate  
