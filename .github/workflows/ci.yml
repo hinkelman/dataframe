@@ -31,7 +31,7 @@ jobs:
     - name : test
       run: |
             git clone https://github.com/hinkelman/dataframe
-            cd chez-stats
+            cd dataframe
             raven install srfi@1.0.0
             cd lib
             git clone https://github.com/hinkelman/dataframe
