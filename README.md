@@ -4,6 +4,9 @@
 
 A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, modify, and aggregate dataframes. 
 
+Related blog posts:  
+[A dataframe record type for Chez Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-chez-scheme/)  
+
 ## Installation and Import
 
 ```
