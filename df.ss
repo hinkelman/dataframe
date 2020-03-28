@@ -364,7 +364,7 @@
     (let ([names (car filter-expr)]
           [proc (cadr filter-expr)])
       (apply check-df-names df "(dataframe-filter df filter-expr)" names)
-      (apply map proc (map (lambda (name) ($ df name)) names))))
+      (apply map proc (map (lambda (name) (dataframe-values df name)) names))))
 
   (define (dataframe-filter df filter-expr)
     (let* ([bools (filter-map df filter-expr)]
@@ -576,7 +576,7 @@
                    [else
                     (apply check-df-names df proc-string names)
                     (apply map proc
-                           (map (lambda (name) ($ df name)) names))]))
+                           (map (lambda (name) (dataframe-values df name)) names))]))
            names-list proc-list)))
 
   ;; this helper procedure returns values for a column from a scalar or list of same length as number of df rows
@@ -625,7 +625,7 @@
   (define (aggregate-map df names-list proc-list)
     (map (lambda (names proc)
            (apply check-df-names df "(aggregate-expr new-name names expr)" names)
-           (list (apply proc (map (lambda (name) ($ df name)) names))))
+           (list (apply proc (map (lambda (name) (dataframe-values df name)) names))))
          names-list proc-list))
 
   ;; same macro as for modify-expr, but named to match the aggregate procedure
