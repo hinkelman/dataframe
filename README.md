@@ -90,7 +90,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 (a b)
 
 > (dataframe-dim df)
-(3 . 2)
+(3 . 2)                  ; (rows . columns)
 
 > (define df (make-dataframe '(("a" 1 2 3) ("b" 4 5 6))))
 
@@ -113,18 +113,14 @@ Exception in (make-dataframe alist): names are not symbols
 #### <a name="df-head"></a> procedure: `(dataframe-head df n)`  
 **returns:** a dataframe with first `n` rows from dataframe `df`  
 
-```
-> (define df (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
-
-> (dataframe-head df 3)
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3) (b 4 5 6) (c 7 8 9)) (a b c) (3 . 3)]
-```
-
 #### <a name="df-tail"></a> procedure: `(dataframe-tail df n)`  
 **returns:** a dataframe with the `n`th tail (zero-based) rows from dataframe `df`  
 
 ```
 > (define df (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
+
+> (dataframe-head df 3)
+#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3) (b 4 5 6) (c 7 8 9)) (a b c) (3 . 3)]
 
 > (dataframe-tail df 2)
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 3 1 2 3) (b 6 4 5 6) (c 9 -999 -999 -999)) (a b c) (4 . 3)]
@@ -146,6 +142,9 @@ Exception in (make-dataframe alist): names are not symbols
 #### <a name="df-write"></a> procedure: `(dataframe-write df path overwrite?)`  
 **writes:** a dataframe `df` as a Scheme object to `path`; if file exists at `path`, operation will fail unless `overwrite?` is #t  
 
+#### <a name="df-read"></a> procedure: `(dataframe-read path)`  
+**returns:** a dataframe read from `path`
+
 ```
 > (define df (make-dataframe '((grp "b" "b" "a" "b" "a")
                                (trt b b b a a)
@@ -161,13 +160,6 @@ Exception in (make-dataframe alist): names are not symbols
   (grp trt adult juv) (5 . 4)]
 
 > (dataframe-write df "df-example.scm" #t)
-```
-
-#### <a name="df-read"></a> procedure: `(dataframe-read path)`  
-**returns:** a dataframe read from `path`
-
-```
-;; example requires that you first run code for `dataframe-write`
 
 > (define df2 (dataframe-read "df-example.scm"))
 
