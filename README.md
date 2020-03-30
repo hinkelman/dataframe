@@ -6,6 +6,7 @@ A dataframe record type for Chez Scheme with procedures to select, drop, and ren
 
 Related blog posts:  
 [A dataframe record type for Chez Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-chez-scheme/)  
+[Selecting, dropping, and renaming dataframe columns in Chez Scheme](https://www.travishinkelman.com/posts/selecting-dropping-renaming-dataframe-columns-chez-scheme/)  
 
 ## Installation and Import
 
@@ -38,8 +39,8 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 [`(dataframe-select df name ...)`](#df-select)  
 [`(dataframe-drop df name ...)`](#df-drop)  
-[`(dataframe-names-update df names)`](#df-names-update)  
 [`(dataframe-rename df name-pairs)`](#df-rename)  
+[`(dataframe-rename-all df names)`](#df-rename-all)  
 
 ### Filter and sort  
 
@@ -272,20 +273,6 @@ Exception in (make-dataframe alist): names are not symbols
 #[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((b 4 5 6) (c 7 8 9)) (b c) (3 . 2)]
 ```
 
-#### <a name="df-names-update"></a> procedure: `(dataframe-names-update df names)`  
-**returns:** a dataframe with `names` replacing column names from dataframe `df`  
-
-```
-> (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
-
-> (dataframe-names-update df '(A B C))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((A 1 2 3) (B 4 5 6) (C 7 8 9)) (A B C) (3 . 3)]
-
-> (dataframe-names-update df '(A B C D))
-
-Exception in (dataframe-names-update df names): names length must be 3, not 4
-```
-
 #### <a name="df-rename"></a> procedure: `(dataframe-rename df name-pairs)`  
 **returns:** a dataframe with column names from dataframe `df` renamed according to `name-pairs`  
 
@@ -294,6 +281,20 @@ Exception in (dataframe-names-update df names): names length must be 3, not 4
 
 > (dataframe-rename df '((b Bee) (c Sea)))
 #[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((a 1 2 3) (Bee 4 5 6) (Sea 7 8 9)) (a Bee Sea) (3 . 3)]
+```
+
+#### <a name="df-rename-all"></a> procedure: `(dataframe-rename-all df names)`  
+**returns:** a dataframe with `names` replacing column names from dataframe `df`  
+
+```
+> (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
+
+> (dataframe-rename-all df '(A B C))
+#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((A 1 2 3) (B 4 5 6) (C 7 8 9)) (A B C) (3 . 3)]
+
+> (dataframe-rename-all df '(A B C D))
+
+Exception in (dataframe-rename-all df names): names length must be 3, not 4
 ```
 
 ## Filter and sort  

@@ -19,7 +19,7 @@
    dataframe-head
    dataframe-modify
    dataframe-names
-   dataframe-names-update
+   dataframe-rename-all
    dataframe-partition
    dataframe-read
    dataframe-rename
@@ -181,18 +181,17 @@
     (let ([proc-string "(dataframe df name-pairs)"])
       (check-dataframe df proc-string)
       (check-name-pairs (dataframe-names df) name-pairs proc-string))
-    (let ([alist (map (lambda (column)
-                        (let* ([name (car column)]
-                               [ls-values (cdr column)]
-                               [name-match (assoc name name-pairs)])
-                          (if name-match
-                              (cons (cadr name-match) ls-values)
-                              column)))
-                      (dataframe-alist df))])
-      (make-dataframe alist)))
+    (make-dataframe (map (lambda (column)
+                           (let* ([name (car column)]
+                                  [ls-values (cdr column)]
+                                  [name-match (assoc name name-pairs)])
+                             (if name-match
+                                 (cons (cadr name-match) ls-values)
+                                 column)))
+                         (dataframe-alist df))))
 
-  (define (dataframe-names-update df names)
-    (let ([proc-string "(dataframe-names-update df names)"])
+  (define (dataframe-rename-all df names)
+    (let ([proc-string "(dataframe-rename-all df names)"])
       (check-dataframe df proc-string)
       (check-names names proc-string)
       (let ([names-length (length names)]
@@ -662,5 +661,6 @@
       (make-dataframe (map cons names ls-values))))
 
   )
+
 
 
