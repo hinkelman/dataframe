@@ -29,6 +29,7 @@
    dataframe-ref
    dataframe-tail
    dataframe-unique
+   dataframe-update
    dataframe-values
    dataframe-write
    filter-expr
@@ -595,17 +596,13 @@
   (define (scalar? obj)
     (or (symbol? obj) (char? obj) (string? obj) (number? obj)))
 
-  ;; procedure like this seems useful  but the "API" is not consistent with dataframe-modify
-  ;; (define (dataframe-modify-selected df procedure . names)
-  ;;   (let ([proc-string "(dataframe-update df procedure names)"])
-  ;;     (check-procedure procedure proc-string)
-  ;;     (apply check-df-names df proc-string names))
-  ;;   (let ([alist (map (lambda (column)
-  ;;                       (if (member (car column) names)
-  ;;                           (list (car column) (map procedure (cdr column)))
-  ;;                           column))
-  ;;                     (dataframe-alist df))])
-  ;;     (make-dataframe alist)))
+  (define (dataframe-update df procedure . names)
+    (apply check-df-names df "(dataframe-update df procedure names)" names)
+    (make-dataframe (map (lambda (column)
+                           (if (member (car column) names)
+                               (cons (car column) (map procedure (cdr column)))
+                               column))
+                         (dataframe-alist df))))
   
   ;; aggregate  ------------------------------------------------------------------------
 
@@ -662,6 +659,4 @@
       (make-dataframe (map cons names ls-values))))
 
   )
-
-
 

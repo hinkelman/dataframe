@@ -112,12 +112,12 @@
 
 (define df10 (make-dataframe '((a 100 200 300) (b 4 5 6) (c 700 800 900))))
 
-;; (test-begin "dataframe-update-test")
-;; (test-error (dataframe-update df5 (lambda (x) (* x 100)) 'd))
-;; (test-assert (dataframe-equal? df10 (dataframe-update df5 (lambda (x) (* x 100)) 'a 'c)))
-;; (test-error (dataframe-update df5 (lambda (x) (* x 100)) 'a 'c 'd))
-;; (test-error (dataframe-update df5 "test" 'a))
-;; (test-end "dataframe-update-test")
+(test-begin "dataframe-update-test")
+(test-error (dataframe-update df5 (lambda (x) (* x 100)) 'd))
+(test-assert (dataframe-equal? df10 (dataframe-update df5 (lambda (x) (* x 100)) 'a 'c)))
+(test-error (dataframe-update df5 (lambda (x) (* x 100)) 'a 'c 'd))
+(test-error (dataframe-update df5 "test" 'a))
+(test-end "dataframe-update-test")
 
 (test-begin "dataframe-values-test")
 (test-equal '(100 200 300) (dataframe-values df10 'a))

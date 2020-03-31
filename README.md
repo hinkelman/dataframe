@@ -60,6 +60,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 ### Modify and aggregate  
 
+[`(dataframe-update df procedure name ...)`](#df-update)  
 [`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
 [`(dataframe-modify df modify-expr)`](#df-modify)  
 [`(aggregate-expr (new-name (names) (expr)) ...)`](#aggregate-expr)  
@@ -508,6 +509,24 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 ```
 
 ## Modify and aggregate  
+
+#### <a name="df-update"></a> procedure: `(dataframe-update df procedure name ...)`  
+**returns:** a dataframe where the specified columns (`names`) of dataframe `df` are updated based on `procedure`, which can only take one argument  
+
+```
+> (define df (make-dataframe '((grp a a b b b)
+                               (trt a b a b b)
+                               (adult 1 2 3 4 5)
+                               (juv 10 20 30 40 50))))
+                               
+> (dataframe-update df symbol->string 'grp 'trt)
+#[#{dataframe brzb1qny3nnhrg8y9a4rawx5r-3}
+  ((grp "a" "a" "b" "b" "b")
+   (trt "a" "b" "a" "b" "b")
+   (adult 1 2 3 4 5)
+   (juv 10 20 30 40 50))
+  (grp trt adult juv) (5 . 4)]
+```
 
 #### <a name="modify-expr"></a> procedure: `(modify-expr (new-name (names) (expr)) ...)`  
 **returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  
