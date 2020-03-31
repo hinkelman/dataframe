@@ -610,6 +610,7 @@
   ;; aggregate  ------------------------------------------------------------------------
 
   (define (dataframe-aggregate df group-names aggregate-expr)
+    (check-list group-names "group-names" "(dataframe-aggregate df group-names aggregate-expr)")
     (let-values ([(df-list groups-list) (dataframe-split-helper df group-names #t)])
       (apply dataframe-bind
              (map (lambda (df groups)

@@ -330,6 +330,7 @@
               (dataframe-aggregate df22 '(grp trt)
                                    (aggregate-expr (adult-sum (adult) (apply + adult))
                                                    (juv-sum (juv) (apply + juv))))))
+(test-error (dataframe-aggregate df22 'grp (aggregate-expr (temp (adult) (add1 adult)))))
 (test-end "dataframe-aggregate-test")
 
 (define df27 (make-dataframe '((grp "a" "a" "b" "b" "b")
