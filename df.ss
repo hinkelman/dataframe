@@ -530,35 +530,13 @@
 
   ;; modify/add columns ------------------------------------------------------------------------
 
-  ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation, e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
-  ;; (define (dataframe-list-modify df-list modify-expr)
-  ;;   (apply dataframe-bind (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
-
-  (define (dataframe-modify df modify-expr)
-    (let* ([names (car modify-expr)]
-           [ls-values (modify-map df (cadr modify-expr) (caddr modify-expr))]
-           [alist (dataframe-alist df)])
-      (check-names names "(dataframe-modify df modify-expr)")
-      (make-dataframe (alist-modify-loop alist names ls-values))))
-
-  (define (alist-modify alist name values)
-    (let ([col (cons name values)]
-          [all-names (map car alist)])
-      (if (member name all-names)
-          (map (lambda (x)
-                 (if (symbol=? x name) col (assoc x alist)))
-               all-names)                            
-          (cons-end alist col))))
-
-  (define (alist-modify-loop alist names ls-values)
-    (if (null? names)
-        alist
-        (alist-modify-loop
-         (alist-modify alist (car names) (car ls-values))
-         (cdr names) (cdr ls-values))))
-  
-  (define (cons-end ls x)
-    (reverse (cons x (reverse ls))))
+  (define (dataframe-update df procedure . names)
+    (apply check-df-names df "(dataframe-update df procedure names)" names)
+    (make-dataframe (map (lambda (column)
+                           (if (member (car column) names)
+                               (cons (car column) (map procedure (cdr column)))
+                               column))
+                         (dataframe-alist df))))
 
   (define-syntax modify-expr
     (syntax-rules ()
@@ -568,63 +546,79 @@
         (list (quote names) ...)
         (list (lambda names expr) ...))]))
 
-  (define (modify-map df names-list proc-list)
-    (let ([proc-string "(modify-expr new-name names expr)"])
-      (map (lambda (names proc)
-             (cond [(null? names)
-                    (modify-map-helper df (proc) proc-string)]
-                   [else
-                    (apply check-df-names df proc-string names)
-                    (apply map proc
-                           (map (lambda (name) (dataframe-values df name)) names))]))
-           names-list proc-list)))
+  (define (dataframe-modify df modify-expr)
+    (let ([alist (dataframe-alist df)]
+          [new-names (car modify-expr)]
+          [names-list (cadr modify-expr)]
+          [proc-list (caddr modify-expr)]
+          [proc-string "(dataframe-modify df modify-expr)"])
+      (check-dataframe df proc-string)
+      (check-names new-names proc-string)
+      (make-dataframe
+       (alist-modify-loop alist new-names names-list proc-list proc-string))))
+
+  ;; can't just map over columns because won't hold alist structure
+  ;; also don't want to map over procedures
+  ;; because want to update alist after each procedure
+  (define (alist-modify-loop alist new-names names-list proc-list who)
+    (if (null? new-names)
+        alist
+        (alist-modify-loop (alist-modify alist
+                                         (car new-names)
+                                         (modify-map alist
+                                                    (car names-list)
+                                                    (car proc-list)
+                                                    who))
+                           (cdr new-names)
+                           (cdr names-list)
+                           (cdr proc-list)
+                           who)))
+  
+  ;; update alist and or add column to end of alist
+  ;; based on whether name is already present in alist
+  (define (alist-modify alist name values)
+    (let ([col (cons name values)]
+          [all-names (map car alist)])
+      (if (member name all-names)
+          (map (lambda (x)
+                 (if (symbol=? x name) col (assoc x alist)))
+               all-names)                            
+          (cons-end alist col))))
+
+  (define (cons-end ls x)
+    (reverse (cons x (reverse ls))))
+
+  (define (modify-map alist names proc who)
+    (if (null? names)
+        (modify-map-helper alist (proc) who)
+        (apply map proc (alist-values-map alist names))))
 
   ;; this helper procedure returns values for a column from a scalar or list of same length as number of df rows
-  (define (modify-map-helper df values who)
-    (let ([df-length (car (dataframe-dim df))])
+  (define (modify-map-helper alist values who)
+    (let ([alist-rows (length (cdar alist))])
       (cond [(scalar? values)
-             (make-list df-length values)]
-            [(and (list? values) (= (length values) df-length))
+             (make-list alist-rows values)]
+            [(and (list? values) (= (length values) alist-rows))
              values]
             [else
              (assertion-violation
               who
               (string-append
                "value(s) must be scalar or list of length "
-               (number->string df-length)))])))
+               (number->string alist-rows)))])))
 
   (define (scalar? obj)
     (or (symbol? obj) (char? obj) (string? obj) (number? obj)))
 
-  (define (dataframe-update df procedure . names)
-    (apply check-df-names df "(dataframe-update df procedure names)" names)
-    (make-dataframe (map (lambda (column)
-                           (if (member (car column) names)
-                               (cons (car column) (map procedure (cdr column)))
-                               column))
-                         (dataframe-alist df))))
-  
+  ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation, e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
+  ;; (define (dataframe-list-modify df-list modify-expr)
+  ;;   (apply dataframe-bind (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
+
   ;; aggregate  ------------------------------------------------------------------------
 
-  (define (dataframe-aggregate df group-names aggregate-expr)
-    (check-list group-names "group-names" "(dataframe-aggregate df group-names aggregate-expr)")
-    (let-values ([(df-list groups-list) (dataframe-split-helper df group-names #t)])
-      (apply dataframe-bind
-             (map (lambda (df groups)
-                    (df-aggregate-helper df groups aggregate-expr)) df-list groups-list))))
+  ;; aggregate procedures are subtle different from modify procedures
+  ;; decided have procedures with redundant functionality rather than working out how to generalize them
   
-  (define (df-aggregate-helper df groups aggregate-expr)
-    (let* ([names (car aggregate-expr)]
-           [ls-values (aggregate-map df (cadr aggregate-expr) (caddr aggregate-expr))])
-      (check-names names "(dataframe-aggregate df aggregate-expr)")
-      (make-dataframe (alist-modify-loop groups names ls-values))))
-
-  (define (aggregate-map df names-list proc-list)
-    (map (lambda (names proc)
-           (apply check-df-names df "(aggregate-expr new-name names expr)" names)
-           (list (apply proc (map (lambda (name) (dataframe-values df name)) names))))
-         names-list proc-list))
-
   ;; same macro as for modify-expr, but named to match the aggregate procedure
   (define-syntax aggregate-expr
     (syntax-rules ()
@@ -633,7 +627,42 @@
         (list (quote new-name) ...)
         (list (quote names) ...)
         (list (lambda names expr) ...))]))
+  
+  (define (dataframe-aggregate df group-names aggregate-expr)
+    (let ([proc-string "(dataframe-aggregate df group-names aggregate-expr)"])
+      (check-dataframe df proc-string)
+      (check-list group-names "group-names" proc-string)
+    (let-values ([(df-list groups-list) (dataframe-split-helper df group-names #t)])
+      (apply dataframe-bind
+             (map (lambda (df groups)
+                    (df-aggregate-helper df groups aggregate-expr proc-string))
+                  df-list groups-list)))))
 
+  (define (df-aggregate-helper df groups aggregate-expr who)
+    ;; groups is an alist with one row
+    (let* ([new-names (car aggregate-expr)]
+          [names-list (cadr aggregate-expr)]
+          [proc-list (caddr aggregate-expr)]
+          [ls-values (aggregate-map df names-list proc-list)])
+      (check-names new-names who)
+      (make-dataframe
+       (alist-aggregate-loop groups new-names ls-values))))
+
+  (define (aggregate-map df names-list proc-list)
+    (map (lambda (names proc)
+           (list (apply proc (dataframe-values-map df names))))
+         names-list proc-list))
+
+  ;; can't just map over columns because won't hold alist structure
+  (define (alist-aggregate-loop groups new-names ls-values)
+    (if (null? new-names)
+        groups
+        (alist-aggregate-loop (alist-modify groups
+                                            (car new-names)
+                                            (car ls-values))
+                              (cdr new-names)
+                              (cdr ls-values))))
+  
   ;; rowtable ------------------------------------------------------------------------
 
   ;; rowtable is a bad name to describe list of rows; as used in read-csv and write-csv in (chez-stats csv)

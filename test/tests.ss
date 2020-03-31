@@ -253,7 +253,7 @@
                                (trt a b a b b)
                                (adult 1 2 3 4 5)
                                (juv 5 10 15 20 25)
-                               (total 11 22 33 44 55))))
+                               (total 6 12 18 24 30))))
 
 (test-begin "dataframe-modify-test")
 (test-assert (dataframe-equal? df23 (dataframe-modify
