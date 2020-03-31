@@ -146,7 +146,7 @@
              (check-index n n-max proc-string))
            indices))
     (make-dataframe (alist-ref (dataframe-alist df) indices names)))
-    
+  
   (define (alist-ref alist indices names)
     (let ([ls-values (alist-values-map alist names)])
       (add-names-ls-values
@@ -154,7 +154,7 @@
        (map (lambda (values)
               (map (lambda (n) (list-ref values n)) indices))
             ls-values))))
-    
+  
   ;; head/tail -----------------------------------------------------------------------------------
 
   (define (dataframe-head df n)
@@ -427,7 +427,7 @@
                             (rank-list predicate ls weight))
                           predicates ls-values weights)])
       (apply map + ls-ranks)))
-      
+  
   (define (rank-list predicate ls weight)
     (let* ([unique-sorted (sort predicate (remove-duplicates ls))]
            [ranks (map (lambda (x) (/ x weight)) (enumerate unique-sorted))]
@@ -566,9 +566,9 @@
         (alist-modify-loop (alist-modify alist
                                          (car new-names)
                                          (modify-map alist
-                                                    (car names-list)
-                                                    (car proc-list)
-                                                    who))
+                                                     (car names-list)
+                                                     (car proc-list)
+                                                     who))
                            (cdr new-names)
                            (cdr names-list)
                            (cdr proc-list)
@@ -632,18 +632,18 @@
     (let ([proc-string "(dataframe-aggregate df group-names aggregate-expr)"])
       (check-dataframe df proc-string)
       (check-list group-names "group-names" proc-string)
-    (let-values ([(df-list groups-list) (dataframe-split-helper df group-names #t)])
-      (apply dataframe-bind
-             (map (lambda (df groups)
-                    (df-aggregate-helper df groups aggregate-expr proc-string))
-                  df-list groups-list)))))
+      (let-values ([(df-list groups-list) (dataframe-split-helper df group-names #t)])
+        (apply dataframe-bind
+               (map (lambda (df groups)
+                      (df-aggregate-helper df groups aggregate-expr proc-string))
+                    df-list groups-list)))))
 
   (define (df-aggregate-helper df groups aggregate-expr who)
     ;; groups is an alist with one row
     (let* ([new-names (car aggregate-expr)]
-          [names-list (cadr aggregate-expr)]
-          [proc-list (caddr aggregate-expr)]
-          [ls-values (aggregate-map df names-list proc-list)])
+           [names-list (cadr aggregate-expr)]
+           [proc-list (caddr aggregate-expr)]
+           [ls-values (aggregate-map df names-list proc-list)])
       (check-names new-names who)
       (make-dataframe
        (alist-aggregate-loop groups new-names ls-values))))
