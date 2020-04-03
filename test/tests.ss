@@ -63,6 +63,13 @@
 (test-error (dataframes-equal df2 '((a 1 2 3))))
 (test-end "dataframe-equal?-test")
 
+(test-begin "dataframe-view-test")
+(test-equal '((a 1 2 3) (b 4 5 6) (c 7 8 9)) (dataframe-view df5))
+(test-equal '((a 1 2 3 4 5 6 7 8 9 10))
+  (dataframe-view (make-dataframe '((a 1 2 3 4 5 6 7 8 9 10 11)))))
+(test-error (dataframe-view "not a df"))
+(test-end "dataframe-view-test")
+
 (test-begin "dataframe-head-test")
 (test-assert (dataframe-equal? df2 (dataframe-head df4 3)))
 (test-error (dataframe-head '(1 2 3) 3))

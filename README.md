@@ -24,6 +24,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 ### Dataframe record type  
 
 [`(make-dataframe alist)`](#make-df)  
+[`(dataframe-view df)`](#df-view)  
 [`(dataframe-contains df name ...)`](#df-contains)  
 [`(dataframe-head df n)`](#df-head)  
 [`(dataframe-tail df n)`](#df-tail)  
@@ -100,6 +101,25 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 > (define df (make-dataframe '(("a" 1 2 3) ("b" 4 5 6))))
 
 Exception in (make-dataframe alist): names are not symbols
+```
+
+#### <a name="df-view"></a> procedure: `(dataframe-view df)`  
+**returns:** an alist of up to first 10 rows dataframe `df`  
+
+```
+> (define df (make-dataframe (list (cons 'a (iota 15))
+                                   (cons 'b (map add1 (iota 15))))))
+#[#{dataframe d1sf7z9xr7vhpys0prsns11qw-4}
+  ((a 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+   (b 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
+  (a b) (15 . 2)]
+  
+> (dataframe-alist df)
+((a 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+  (b 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15))
+  
+> (dataframe-view df)
+((a 0 1 2 3 4 5 6 7 8 9) (b 1 2 3 4 5 6 7 8 9 10))
 ```
 
 #### <a name="df-contains"></a> procedure: `(dataframe-contains df name ...)`  
@@ -185,9 +205,6 @@ Exception in (make-dataframe alist): names are not symbols
 
 > (define df (make-dataframe '((a 100 300) (b 4 6) (c 700 900))))
 
-> df
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 100 300) (b 4 6) (c 700 900)) (a b c) (2 . 3)]
-
 > (dataframe->rowtable df)
 ((a b c) (100 4 700) (300 6 900))
 ```
@@ -198,11 +215,11 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 ;; a rowtable is a row-based data structure; a dataframe is a column-based data structure
 
-> (rowtable->dataframe '((a b c) (1 4 7) (2 5 8) (3 6 9)) #t)
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3) (b 4 5 6) (c 7 8 9)) (a b c) (3 . 3)]
+> (dataframe-view (rowtable->dataframe '((a b c) (1 4 7) (2 5 8) (3 6 9)) #t))
+((a 1 2 3) (b 4 5 6) (c 7 8 9))
 
-> (rowtable->dataframe '((1 4 7) (2 5 8) (3 6 9)) #f)
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((V0 1 2 3) (V1 4 5 6) (V2 7 8 9)) (V0 V1 V2) (3 . 3)]
+> (dataframe-view (rowtable->dataframe '((1 4 7) (2 5 8) (3 6 9)) #f))
+((V0 1 2 3) (V1 4 5 6) (V2 7 8 9))
 
 > (rowtable->dataframe '(("a" "b" "c") (1 4 7) (2 5 8) (3 6 9)) #t)
 
@@ -218,16 +235,14 @@ Exception in (make-dataframe alist): names are not symbols
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (dataframe-ref df '(0 2 4))
-#[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3}
-  ((grp "a" "b" "b")
-   (trt "a" "a" "b")
-   (adult 1 3 5)
-   (juv 10 30 50))
-  (grp trt adult juv) (3 . 4)]
+> (dataframe-view (dataframe-ref df '(0 2 4)))
+((grp "a" "b" "b")
+  (trt "a" "a" "b")
+  (adult 1 3 5)
+  (juv 10 30 50))
 
-> (dataframe-ref df '(0 2 4) 'adult 'juv)
-#[#{dataframe blgxd6z9um6m4hqkq6eorahbs-3} ((adult 1 3 5) (juv 10 30 50)) (adult juv) (3 . 2)]
+> (dataframe-view (dataframe-ref df '(0 2 4) 'adult 'juv))
+((adult 1 3 5) (juv 10 30 50))
 ```
 
 #### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
@@ -254,11 +269,11 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
-> (dataframe-select df 'a)
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3)) (a) (3 . 1)]
+> (dataframe-view (dataframe-select df 'a))
+((a 1 2 3))
 
-> (dataframe-select df 'c 'b)
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((c 7 8 9) (b 4 5 6)) (c b) (3 . 2)]
+> (dataframe-view (dataframe-select df 'c 'b))
+((c 7 8 9) (b 4 5 6))
 ```
 
 #### <a name="df-drop"></a> procedure: `(dataframe-drop df name ...)`  
@@ -267,11 +282,11 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
-> (dataframe-drop df 'c 'b)
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((a 1 2 3)) (a) (3 . 1)]
+> (dataframe-view (dataframe-drop df 'c 'b))
+((a 1 2 3))
 
-> (dataframe-drop df 'a)
-#[#{dataframe cicwkcvn4jmyzsjt96biqhpwp-3} ((b 4 5 6) (c 7 8 9)) (b c) (3 . 2)]
+> (dataframe-view (dataframe-drop df 'a))
+((b 4 5 6) (c 7 8 9))
 ```
 
 #### <a name="df-rename"></a> procedure: `(dataframe-rename df name-pairs)`  
@@ -280,8 +295,8 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
-> (dataframe-rename df '((b Bee) (c Sea)))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((a 1 2 3) (Bee 4 5 6) (Sea 7 8 9)) (a Bee Sea) (3 . 3)]
+> (dataframe-view (dataframe-rename df '((b Bee) (c Sea))))
+((a 1 2 3) (Bee 4 5 6) (Sea 7 8 9))
 ```
 
 #### <a name="df-rename-all"></a> procedure: `(dataframe-rename-all df names)`  
@@ -290,8 +305,8 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
-> (dataframe-rename-all df '(A B C))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((A 1 2 3) (B 4 5 6) (C 7 8 9)) (A B C) (3 . 3)]
+> (dataframe-view (dataframe-rename-all df '(A B C)))
+((A 1 2 3) (B 4 5 6) (C 7 8 9))
 
 > (dataframe-rename-all df '(A B C D))
 
@@ -307,19 +322,16 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 > (define df (make-dataframe '((Name "Peter" "Paul" "Mary" "Peter")
                                (Pet "Rabbit" "Cat" "Dog" "Rabbit"))))
 
-> (dataframe-unique df)
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
-  ((Name "Paul" "Mary" "Peter")
-   (Pet "Cat" "Dog" "Rabbit"))
-  (Name Pet) (3 . 2)]
+> (dataframe-view (dataframe-unique df))
+((Name "Paul" "Mary" "Peter") (Pet "Cat" "Dog" "Rabbit"))
 
 > (define df2 (make-dataframe '((grp a a b b b)
                                 (trt a b a b b)
                                 (adult 1 2 3 4 5)
                                 (juv 10 20 30 40 50))))
 
-> (dataframe-unique (dataframe-select df2 'grp 'trt))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3} ((grp a a b b) (trt a b a b)) (grp trt) (4 . 2)]
+> (dataframe-view (dataframe-unique (dataframe-select df2 'grp 'trt)))
+((grp a a b b) (trt a b a b))
 ```
 
 #### <a name="filter-expr"></a> procedure: `(filter-expr (names) (expr))`  
@@ -342,21 +354,12 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (dataframe-filter df (filter-expr (adult) (> adult 3)))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
-  ((grp b b)
-   (trt b b)
-   (adult 4 5)
-   (juv 40 50))
-  (grp trt adult juv) (2 . 4)]
+> (dataframe-view (dataframe-filter df (filter-expr (adult) (> adult 3))))
+((grp b b) (trt b b) (adult 4 5) (juv 40 50))
 
-> (dataframe-filter df (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50))))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
-  ((grp b b)
-   (trt a b)
-   (adult 3 4)
-   (juv 30 40))
-  (grp trt adult juv) (2 . 4)]
+> (dataframe-view
+   (dataframe-filter df (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50)))))
+((grp b b) (trt a b) (adult 3 4) (juv 30 40))
 ```
 
 #### <a name="df-partition"></a> procedure: `(dataframe-partition df filter-expr)`  
@@ -393,21 +396,17 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (dataframe-sort df (sort-expr (string<? trt)))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
-  ((grp "a" "b" "b" "a" "b")
-   (trt "b" "b" "b" "a" "a")
-   (adult 2 4 5 1 3)
-   (juv 20 40 50 10 30))
-  (grp trt adult juv) (5 . 4)]
+> (dataframe-view (dataframe-sort df (sort-expr (string<? trt))))
+((grp "a" "b" "b" "a" "b")
+  (trt "b" "b" "b" "a" "a")
+  (adult 2 4 5 1 3)
+  (juv 20 40 50 10 30))
 
-> (dataframe-sort df (sort-expr (string<? trt) (< adult)))
-#[#{dataframe ip7681h1m7wugezzev2gzpgrk-3}
-  ((grp "b" "b" "a" "b" "a")
-   (trt "b" "b" "b" "a" "a")
-   (adult 5 4 2 3 1)
-   (juv 50 40 20 30 10))
-  (grp trt adult juv) (5 . 4)]
+> (dataframe-view (dataframe-sort df (sort-expr (string<? trt) (< adult))))
+((grp "b" "b" "a" "b" "a")
+  (trt "b" "b" "b" "a" "a")
+  (adult 5 4 2 3 1)
+  (juv 50 40 20 30 10))
 ```
 
 ## Split, bind, and append  
@@ -441,23 +440,21 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (apply dataframe-bind (dataframe-split df 'grp 'trt))
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
-  ((grp "a" "a" "b" "b" "b")
-   (trt "a" "b" "a" "b" "b")
-   (adult 1 2 3 4 5)
-   (juv 10 20 30 40 50))
-  (grp trt adult juv) (5 . 4)]
+> (dataframe-view (apply dataframe-bind (dataframe-split df 'grp 'trt)))
+((grp "a" "a" "b" "b" "b")
+  (trt "a" "b" "a" "b" "b")
+  (adult 1 2 3 4 5)
+  (juv 10 20 30 40 50))
 
 > (define df1 (make-dataframe '((a 1 2 3) (b 10 20 30) (c 100 200 300))))
 
 > (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
 
-> (dataframe-bind df1 df2)
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 1 2 3 4 5 6) (b 10 20 30 40 50 60)) (a b) (6 . 2)]
+> (dataframe-view (dataframe-bind df1 df2))
+((a 1 2 3 4 5 6) (b 10 20 30 40 50 60))
 
-> (dataframe-bind df2 df1)
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((a 4 5 6 1 2 3) (b 40 50 60 10 20 30)) (a b) (6 . 2)]
+> (dataframe-view (dataframe-bind df2 df1))
+((a 4 5 6 1 2 3) (b 40 50 60 10 20 30))
 ```
 
 #### <a name="df-bind-all"></a> procedure: `(dataframe-bind-all missing-value df1 df2 ...)`  
@@ -468,19 +465,15 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 
 > (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
 
-> (dataframe-bind-all -999 df1 df2)
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
-  ((a 1 2 3 4 5 6)
-   (b 10 20 30 40 50 60)
-   (c 100 200 300 -999 -999 -999))
-  (a b c) (6 . 3)]
+> (dataframe-view (dataframe-bind-all -999 df1 df2))
+((a 1 2 3 4 5 6)
+  (b 10 20 30 40 50 60)
+  (c 100 200 300 -999 -999 -999))
 
-> (dataframe-bind-all -999 df2 df1)
-#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3}
-  ((a 4 5 6 1 2 3)
-   (b 40 50 60 10 20 30)
-   (c -999 -999 -999 100 200 300))
-  (a b c) (6 . 3)]
+> (dataframe-view (dataframe-bind-all -999 df2 df1))
+((a 4 5 6 1 2 3)
+  (b 40 50 60 10 20 30)
+  (c -999 -999 -999 100 200 300))
 ```
 
 #### <a name="df-append"></a> procedure: `(dataframe-append df1 df2 ...)`  
@@ -491,21 +484,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 
 > (define df2 (make-dataframe '((c 7 8 9) (d 10 11 12))))
 
-> (dataframe-append df1 df2)
-#[#{dataframe o6ydlodurwb4p6ft40uetno4d-3}
-  ((a 1 2 3)
-   (b 4 5 6)
-   (c 7 8 9)
-   (d 10 11 12))
-  (a b c d) (3 . 4)]
+> (dataframe-view (dataframe-append df1 df2))
+((a 1 2 3) (b 4 5 6) (c 7 8 9) (d 10 11 12))
   
-> (dataframe-append df2 df1)
-#[#{dataframe o6ydlodurwb4p6ft40uetno4d-3}
-  ((c 7 8 9)
-   (d 10 11 12)
-   (a 1 2 3)
-   (b 4 5 6))
-  (c d a b) (3 . 4)]
+> (dataframe-view (dataframe-append df2 df1))
+((c 7 8 9) (d 10 11 12) (a 1 2 3) (b 4 5 6))
 ```
 
 ## Modify and aggregate  
@@ -519,13 +502,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
                                
-> (dataframe-update df symbol->string 'grp 'trt)
-#[#{dataframe brzb1qny3nnhrg8y9a4rawx5r-3}
-  ((grp "a" "a" "b" "b" "b")
-   (trt "a" "b" "a" "b" "b")
-   (adult 1 2 3 4 5)
-   (juv 10 20 30 40 50))
-  (grp trt adult juv) (5 . 4)]
+> (dataframe-view (dataframe-update df symbol->string 'grp 'trt))
+((grp "a" "a" "b" "b" "b")
+  (trt "a" "b" "a" "b" "b")
+  (adult 1 2 3 4 5)
+  (juv 10 20 30 40 50))
 ```
 
 #### <a name="modify-expr"></a> procedure: `(modify-expr (new-name (names) (expr)) ...)`  
@@ -632,14 +613,13 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
         (juv 10 20 30 40 50))
       (make-dataframe)
       (dataframe-modify
-       (modify-expr (total (adult juv) (+ adult juv)))))
-#[#{dataframe j3vvfoehucee2musfnx4eje5e-4}
-  ((grp a a b b b)
-   (trt a b a b b)
-   (adult 1 2 3 4 5)
-   (juv 10 20 30 40 50)
-   (total 11 22 33 44 55))
-  (grp trt adult juv total) (5 . 5)]
+       (modify-expr (total (adult juv) (+ adult juv))))
+      (dataframe-view))
+((grp a a b b b)
+  (trt a b a b b)
+  (adult 1 2 3 4 5)
+  (juv 10 20 30 40 50)
+  (total 11 22 33 44 55))
   
 > (-> '((grp a a b b b)
         (trt a b a b b)
@@ -652,14 +632,13 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                    df
                    (modify-expr (juv-mean () (mean ($ df 'juv))))))))
       (->> (apply dataframe-bind))
-      (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean))))
-#[#{dataframe j3vvfoehucee2musfnx4eje5e-4}
-  ((grp a b)
-   (trt b b)
-   (adult 2 5)
-   (juv 20 50)
-   (juv-mean 15 40))
-  (grp trt adult juv juv-mean) (2 . 5)]
+      (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean)))
+      (dataframe-view))
+((grp a b)
+  (trt b b)
+  (adult 2 5)
+  (juv 20 50)
+  (juv-mean 15 40))
 ```
 
 

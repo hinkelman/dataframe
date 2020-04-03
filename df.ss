@@ -31,6 +31,7 @@
    dataframe-unique
    dataframe-update
    dataframe-values
+   dataframe-view
    dataframe-write
    filter-expr
    make-dataframe
@@ -154,6 +155,14 @@
        (map (lambda (values)
               (map (lambda (n) (list-ref values n)) indices))
             ls-values))))
+
+  ;; view -----------------------------------------------------------------------------------
+
+  (define (dataframe-view df)
+    (check-dataframe df "(dataframe-view df)")
+    (let* ([rows (car (dataframe-dim df))]
+           [n (if (< rows 10) rows 10)])
+      (alist-head-tail (dataframe-alist df) n list-head)))
   
   ;; head/tail -----------------------------------------------------------------------------------
 
@@ -171,9 +180,10 @@
       (check-dataframe df proc-string)
       (check-integer n "n" proc-string)
       (check-index n (car (dataframe-dim df)) proc-string)
-      (make-dataframe
-       (map (lambda (col) (cons (car col) (proc (cdr col) n)))
-            (dataframe-alist df)))))
+      (make-dataframe (alist-head-tail (dataframe-alist df) n proc))))
+
+  (define (alist-head-tail alist n proc)
+    (map (lambda (col) (cons (car col) (proc (cdr col) n))) alist))
   
   ;; rename columns ---------------------------------------------------------------------------------
 
@@ -688,4 +698,3 @@
       (make-dataframe (map cons names ls-values))))
 
   )
-
