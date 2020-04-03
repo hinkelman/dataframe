@@ -31,6 +31,7 @@
    dataframe-unique
    dataframe-update
    dataframe-values
+   dataframe-values-unique
    dataframe-view
    dataframe-write
    filter-expr
@@ -309,6 +310,12 @@
 
   (define ($ df name)
     (dataframe-values df name))
+
+  (define (dataframe-values-unique df name)
+    (let ([proc-string "(dataframe-values-unique df name)"])
+      (check-dataframe df proc-string)
+      (check-names-exist df proc-string name))
+    (cdar (alist-unique (alist-select (dataframe-alist df) (list name)))))
 
   (define (alist-values alist name)
     (cdr (assoc name alist)))

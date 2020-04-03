@@ -35,6 +35,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 [`(rowtable->dataframe rt header?)`](#rows-df)  
 [`(dataframe-ref df indices name ...)`](#df-ref)  
 [`(dataframe-values df name)`](#df-values)  
+[`(dataframe-values-unique df name)`](#df-values-unique)  
 
 ### Select, drop, and rename columns  
 
@@ -248,6 +249,9 @@ Exception in (make-dataframe alist): names are not symbols
 #### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
 **returns:** a list of values for column `name` from dataframe `df`  
 
+#### <a name="df-values"></a> procedure: `(dataframe-values-unique df name)`  
+**returns:** a list of unique values for column `name` from dataframe `df`  
+
 ```
 > (define df (make-dataframe '((a 100 200 300) (b 4 5 6) (c 700 800 900))))
 
@@ -259,6 +263,14 @@ Exception in (make-dataframe alist): names are not symbols
 
 > (map (lambda (name) ($ df name)) '(c a))
 ((700 800 900) (100 200 300))
+
+> (define df1 (make-dataframe '((x a a b) (y c d e))))
+
+> (dataframe-values-unique df1 'x)
+(a b)
+
+> (dataframe-values-unique df1 'y)
+(c d e)
 ```
 
 ## Select, drop, and rename columns  

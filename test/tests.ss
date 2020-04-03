@@ -134,6 +134,16 @@
 (test-error (dataframe-values df10 'a 'b))
 (test-end "dataframe-values-test")
 
+(test-begin "dataframe-values-unique-test")
+(test-equal '(a b c) (dataframe-values-unique
+                      (make-dataframe '((x a a b b c))) 'x))
+(test-equal '(a b c) (dataframe-values-unique
+                      (make-dataframe '((x a b c))) 'x))
+(test-equal '(a) (dataframe-values-unique
+                  (make-dataframe '((x a a) (y a b))) 'x))
+(test-error (dataframe-values-unique '((x a a) (y a b)) 'z))
+(test-end "dataframe-values-unique-test")
+
 (test-begin "make-dataframe-test")
 (test-error (make-dataframe 100))
 (test-error (make-dataframe '()))
