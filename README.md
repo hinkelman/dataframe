@@ -249,7 +249,7 @@ Exception in (make-dataframe alist): names are not symbols
 #### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
 **returns:** a list of values for column `name` from dataframe `df`  
 
-#### <a name="df-values"></a> procedure: `(dataframe-values-unique df name)`  
+#### <a name="df-values-unique"></a> procedure: `(dataframe-values-unique df name)`  
 **returns:** a list of unique values for column `name` from dataframe `df`  
 
 ```
