@@ -6,7 +6,8 @@ A dataframe record type for Chez Scheme with procedures to select, drop, and ren
 
 Related blog posts:  
 [A dataframe record type for Chez Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-chez-scheme/)  
-[Selecting, dropping, and renaming dataframe columns in Chez Scheme](https://www.travishinkelman.com/posts/selecting-dropping-renaming-dataframe-columns-chez-scheme/)  
+[Select, drop, and rename dataframe columns in Chez Scheme](https://www.travishinkelman.com/posts/select-drop-rename-dataframe-columns-chez-scheme/)  
+[Split, bind, and append dataframes in Chez Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-chez-scheme/)  
 
 ## Installation and Import
 
