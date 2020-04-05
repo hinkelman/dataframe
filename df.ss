@@ -245,7 +245,7 @@
         (when (null? names) (assertion-violation proc-string "no names in common across dfs"))
         (let ([alist (map (lambda (name)
                             ;; missing-value will not be used so chose arbitrary value (-999)
-                            (cons name (apply bind-columns name -999 dfs)))
+                            (cons name (apply bind-rows name -999 dfs)))
                           names)])
           (make-dataframe alist)))))
   
@@ -258,11 +258,11 @@
     (check-all-dataframes dfs "(dataframe-bind-all missing-value dfs)")
     (let* ([names (apply combine-names-ordered dfs)]
            [alist (map (lambda (name)
-                         (cons name (apply bind-columns name missing-value dfs)))
+                         (cons name (apply bind-rows name missing-value dfs)))
                        names)])
       (make-dataframe alist)))
 
-  (define (bind-columns name missing-value . dfs)
+  (define (bind-rows name missing-value . dfs)
     (apply append
            (map (lambda (df)
                   (if (dataframe-contains? df name)
@@ -517,7 +517,7 @@
              (values (reverse alists)
                      (reverse groups))]
             [else
-             ;; group-values is asingle row of values representing one unique grouping combination
+             ;; group-values is a single row of values representing one unique grouping combination
              (let ([group-values (car ls-row-unique)]) 
                (let-values ([(keep drop) (alist-split-helper group-values group-names alist)])
                  (loop (cdr ls-row-unique)
@@ -705,3 +705,12 @@
       (make-dataframe (map cons names ls-values))))
 
   )
+
+
+
+(define-values (keep drop)
+  (dataframe-partition
+   df1 (filter-expr (trt grp) (and (string=? trt "a") (string=? grp "x")))))
+
+(define-values (df-a df-b)
+  (dataframe-partition df1 (filter-expr (trt) (string=? trt "a"))))
