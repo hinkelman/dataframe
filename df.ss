@@ -705,12 +705,3 @@
       (make-dataframe (map cons names ls-values))))
 
   )
-
-
-
-(define-values (keep drop)
-  (dataframe-partition
-   df1 (filter-expr (trt grp) (and (string=? trt "a") (string=? grp "x")))))
-
-(define-values (df-a df-b)
-  (dataframe-partition df1 (filter-expr (trt) (string=? trt "a"))))
