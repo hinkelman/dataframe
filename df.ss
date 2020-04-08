@@ -472,7 +472,6 @@
     (apply map list ls))
 
   ;; split ------------------------------------------------------------------------
-  ;; might be worth the effort to make code for split more clear
 
   (define (dataframe-split df . group-names)
     (dataframe-split-helper df group-names #f))
@@ -491,30 +490,33 @@
   ;; second value is a list of alists representing the grouping columns in the dataframe
   (define (alist-split alist group-names return-groups?)
     (let* ([ls-vals-select (map cdr (alist-select alist group-names))]
-           [ls-rows-unique (unique-ls-vals ls-vals-select #t)])
-      (let-values ([(alists groups) (alist-split-partition-loop ls-rows-unique alist group-names '() '())])
+           [group-vals (transpose (unique-ls-vals ls-vals-select #f))])
+      (let-values ([(alists groups)
+                    (alist-split-partition-loop alist group-names group-vals '() '())])
         (if return-groups?
             (values alists groups)
             alists))))
 
-  (define (alist-split-partition-loop ls-rows-unique alist group-names alists groups)
-    (cond [(null? ls-rows-unique)
-           (values (reverse alists)
-                   (reverse groups))]
+  ;; group-vals is a row-based list of unique grouping combinations
+  ;; groups-out is a list of the column-based lists (i.e., alist) of unique grouping combinations
+  (define (alist-split-partition-loop alist group-names group-vals alists-out groups-out)
+    (cond [(null? group-vals)
+           (values (reverse alists-out)
+                   (reverse groups-out))]
           [else
-           ;; group-vals is a single row of vals representing one unique grouping combination
-           (let ([group-vals (car ls-rows-unique)]) 
-             (let-values ([(keep drop) (alist-split-partition group-vals group-names alist)])
-               (alist-split-partition-loop (cdr ls-rows-unique)
-                                           drop
+           ;; group-vals-row is a single row of group-vals representing one unique grouping combination
+           (let ([group-vals-row (car group-vals)]) 
+             (let-values ([(keep drop) (alist-split-partition alist group-names group-vals-row)])
+               (alist-split-partition-loop drop
                                            group-names
-                                           (cons keep alists)
+                                           (cdr group-vals)
+                                           (cons keep alists-out)
                                            (cons (add-names-ls-vals
                                                   group-names
-                                                  (transpose (list group-vals)))
-                                                 groups))))]))
+                                                  (transpose (list group-vals-row)))
+                                                 groups-out))))]))
     
-  (define (alist-split-partition group-vals group-names alist)
+  (define (alist-split-partition alist group-names group-vals)
     (let ([names (map car alist)]
           [ls-vals (map cdr alist)]
           [bools (map-equal-ls-vals
