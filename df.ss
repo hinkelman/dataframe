@@ -367,6 +367,16 @@
     (let ([bools-vals (map cons bools vals)])
       (map cdr (filter (lambda (x) (car x)) bools-vals))))
 
+  ;; filter-ls-vals involves zipping, filtering, and unzipping every column
+  ;; alternative is to transpose to row-based,
+  ;; cons bools to rows,
+  ;; filter by car of rows,
+  ;; cdr to remove bools,
+  ;; and transpose back to column-based
+  
+  ;; I opted for zip/filter/unzip because the code is so simple
+  ;; current approach should be more efficient when lots of rows and few columns
+  ;; other approach should be more efficient when lots of columns and few rows
   (define (filter-ls-vals bools ls-vals)
     (map (lambda (vals) (filter-vals bools vals)) ls-vals))
 
@@ -522,8 +532,6 @@
                  [else equal?])])
       (map (lambda (y) (pred x y)) ls)))
 
-
-
   ;; modify/add columns ------------------------------------------------------------------------
 
   (define (dataframe-update df procedure . names)
@@ -579,7 +587,8 @@
           (map (lambda (x)
                  (if (symbol=? x name) col (assoc x alist)))
                all-names)
-          ;; need to make col an alist (by wrapping in a list) for use with append
+          ;; to get correct structure with append,
+          ;; need to make col an alist (by wrapping in a list) 
           (append alist (list col))))) 
 
   (define (modify-map alist names proc who)
