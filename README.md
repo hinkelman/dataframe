@@ -409,13 +409,13 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (dataframe-view (dataframe-sort df (sort-expr (string<? trt))))
+> (dataframe-view (dataframe-sort df (sort-expr (string>? trt))))
 ((grp "a" "b" "b" "a" "b")
   (trt "b" "b" "b" "a" "a")
   (adult 2 4 5 1 3)
   (juv 20 40 50 10 30))
 
-> (dataframe-view (dataframe-sort df (sort-expr (string<? trt) (< adult))))
+> (dataframe-view (dataframe-sort df (sort-expr (string>? trt) (> adult))))
 ((grp "b" "b" "a" "b" "a")
   (trt "b" "b" "b" "a" "a")
   (adult 5 4 2 3 1)

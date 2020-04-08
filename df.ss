@@ -375,8 +375,9 @@
   ;; and transpose back to column-based
   
   ;; I opted for zip/filter/unzip because the code is so simple
-  ;; current approach should be more efficient when lots of rows and few columns
-  ;; other approach should be more efficient when lots of columns and few rows
+  ;; current approach might be more efficient when lots of rows and few columns
+  ;; other approach might be more efficient when lots of columns and few rows
+  ;; but I don't have a good sense of relative cost of the two approaches
   (define (filter-ls-vals bools ls-vals)
     (map (lambda (vals) (filter-vals bools vals)) ls-vals))
 
@@ -398,6 +399,23 @@
     
   ;; sort ------------------------------------------------------------------------
 
+  ;; as a reminder for myself...
+  ;; < as a sort predicate is interpreted as increasing
+  ;; i.e., thing on left is smaller than thing on right
+
+  ;; like filter/partition, sort works on columns
+  ;; might be less efficient on dataframes with many columns
+  ;; than a row-based approach
+
+  (define (dataframe-sort df sort-expr)
+    (let* ([predicates (car sort-expr)]
+           [names (cadr sort-expr)]
+           [alist (dataframe-alist df)]
+           [all-names (map car alist)]
+           [ranks (sum-row-ranks alist predicates names)]
+           [ls-vals-sorted (sort-ls-vals ranks (map cdr alist))])
+      (make-dataframe (add-names-ls-vals all-names ls-vals-sorted))))
+
   (define-syntax sort-expr
     (syntax-rules ()
       [(_ (predicate name) ...)
@@ -405,22 +423,16 @@
         (list predicate ...)
         (list (quote name) ...))]))
 
-  (define (dataframe-sort df sort-expr)
-    (let* ([predicates (car sort-expr)]
-           [names (cadr sort-expr)]
-           [alist (dataframe-alist df)]
-           [all-names (map car alist)]
-           [ranks (sum-col-ranks alist predicates names)]
-           [ls-vals-sorted (ls-vals-sort > (cons ranks (map cdr alist)))])
-      (make-dataframe (add-names-ls-vals all-names (cdr ls-vals-sorted)))))
-
-  (define (ls-vals-sort predicate ls-vals)
-    (transpose (sort-ls-row predicate (transpose ls-vals))))
-
-  (define (sort-ls-row predicate ls-row)
-    (sort (lambda (x y) (predicate (car x)(car y))) ls-row))
-
-  (define (sum-col-ranks alist predicates names)
+  ;; sort list of values in increasing order by ranks
+  (define (sort-vals ranks vals)
+    (let ([ranks-vals (map cons ranks vals)])
+      (map cdr (sort (lambda (x y) (< (car x) (car y))) ranks-vals))))
+    
+  (define (sort-ls-vals ranks ls-vals)
+    (map (lambda (vals) (sort-vals ranks vals)) ls-vals))
+  
+  ;; returns the weighted sum of the ranks for each row
+  (define (sum-row-ranks alist predicates names)
     (let* ([ls-vals (alist-values-map alist names)]
            [weights (map (lambda (x) (expt 10 x)) (enumerate names))]
            [ls-ranks (map (lambda (predicate ls weight)
@@ -428,7 +440,7 @@
                           predicates ls-vals weights)])
       (apply map + ls-ranks)))
 
-  ;; returns list of weighted rank values for every value is ls 
+  ;; returns list of weighted rank values for every value in ls 
   (define (rank-list predicate ls weight)
     (let* ([unique-sorted (sort predicate (remove-duplicates ls))]
            [ranks (map (lambda (x) (/ x weight)) (enumerate unique-sorted))]
