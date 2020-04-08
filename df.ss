@@ -417,11 +417,12 @@
                             (rank-list predicate ls weight))
                           predicates ls-vals weights)])
       (apply map + ls-ranks)))
-  
+
+  ;; returns list of weighted rank values for every value is ls 
   (define (rank-list predicate ls weight)
     (let* ([unique-sorted (sort predicate (remove-duplicates ls))]
            [ranks (map (lambda (x) (/ x weight)) (enumerate unique-sorted))]
-           [lookup (map (lambda (x y) (cons x y)) unique-sorted ranks)])
+           [lookup (map cons unique-sorted ranks)]) 
       (map (lambda (x) (cdr (assoc x lookup))) ls)))
 
   ;; (define (other-names selected-names all-names)
@@ -498,16 +499,6 @@
       (let-values ([(keep drop) (partition-ls-vals bools ls-vals)])
         (values (add-names-ls-vals names keep)
                 (add-names-ls-vals names drop)))))
-  
-  ;; returns boolean list of same length as ls
-  ;; boolean list used to identify rows that are equal to focal value, x
-  (define (map-equal? x ls)
-    (let ([pred (cond
-                 [(number? x) =]
-                 [(string? x) string=?]
-                 [(symbol? x) symbol=?]
-                 [else equal?])])
-      (map (lambda (y) (pred x y)) ls)))
 
   ;; andmap-equal? probably not a good name
   ;; objective is to identify rows from ls-vals where every row matches target vals in ls
@@ -520,6 +511,18 @@
       (map (lambda (row)
              (for-all (lambda (x) (equal? x #t)) row))
            ls-row)))
+  
+  ;; returns boolean list of same length as ls
+  ;; boolean list used to identify rows that are equal to focal value, x
+  (define (map-equal? x ls)
+    (let ([pred (cond
+                 [(number? x) =]
+                 [(string? x) string=?]
+                 [(symbol? x) symbol=?]
+                 [else equal?])])
+      (map (lambda (y) (pred x y)) ls)))
+
+
 
   ;; modify/add columns ------------------------------------------------------------------------
 
@@ -609,7 +612,7 @@
 
   ;; aggregate  ------------------------------------------------------------------------
 
-  ;; aggregate procedures are subtle different from modify procedures
+  ;; aggregate procedures are subtly different from modify procedures
   ;; decided have procedures with redundant functionality rather than working out how to generalize them
   
   ;; same macro as for modify-expr, but named to match the aggregate procedure
