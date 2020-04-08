@@ -448,7 +448,57 @@
     (apply map list ls))
 
   ;; split ------------------------------------------------------------------------
+  ;; might be worth the effort to make code for split more clear
 
+  (define (dataframe-split df . group-names)
+    (dataframe-split-helper df group-names #f))
+
+  (define (dataframe-split-helper df group-names return-groups?)
+    (apply check-df-names df "(dataframe-split df group-names)" group-names)
+    (let-values ([(alists groups) (alist-split (dataframe-alist df) group-names #t)])
+      (let ([dfs (map make-dataframe alists)])
+        (if return-groups?
+            (values dfs groups)
+            dfs))))
+
+  ;; returns two values
+  ;; first value is list of alists representing all columns in the dataframe
+  ;; second value is a list of alists representing the grouping columns in the dataframe
+  (define (alist-split alist group-names return-groups?)
+    (let* ([ls-vals-select (map cdr (alist-select alist group-names))]
+           [ls-rows-unique (ls-vals-unique ls-vals-select #t)])
+      (let-values ([(alists groups) (alist-split-partition-loop ls-rows-unique alist group-names '() '())])
+        (if return-groups?
+            (values alists groups)
+            alists))))
+
+  (define (alist-split-partition-loop ls-rows-unique alist group-names alists groups)
+    (cond [(null? ls-rows-unique)
+           (values (reverse alists)
+                   (reverse groups))]
+          [else
+           ;; group-vals is a single row of vals representing one unique grouping combination
+           (let ([group-vals (car ls-rows-unique)]) 
+             (let-values ([(keep drop) (alist-split-partition group-vals group-names alist)])
+               (alist-split-partition-loop (cdr ls-rows-unique)
+                                           drop
+                                           group-names
+                                           (cons keep alists)
+                                           (cons (add-names-ls-vals
+                                                  group-names
+                                                  (transpose (list group-vals)))
+                                                 groups))))]))
+    
+  (define (alist-split-partition ls group-names alist)
+    (let ([names (map car alist)]
+          [ls-vals (map cdr alist)]
+          [bools (andmap-equal?
+                  ls
+                  (map cdr (alist-select alist group-names)))])
+      (let-values ([(keep drop) (partition-ls-vals bools ls-vals)])
+        (values (add-names-ls-vals names keep)
+                (add-names-ls-vals names drop)))))
+  
   ;; returns boolean list of same length as ls
   ;; boolean list used to identify rows that are equal to focal value, x
   (define (map-equal? x ls)
@@ -470,53 +520,6 @@
       (map (lambda (row)
              (for-all (lambda (x) (equal? x #t)) row))
            ls-row)))
-
-  (define (alist-split-helper ls group-names alist)
-    (let ([names (map car alist)]
-          [ls-vals (map cdr alist)]
-          [bools (andmap-equal?
-                  ls
-                  (map cdr (alist-select alist group-names)))])
-      (let-values ([(keep drop) (partition-ls-vals bools ls-vals)])
-        (values (add-names-ls-vals names keep)
-                (add-names-ls-vals names drop)))))
-
-  ;; returns two values
-  ;; first value is list of alists representing all columns in the dataframe
-  ;; second value is a list of alists representing the grouping columns in the dataframe
-  (define (alist-split alist group-names return-groups?)
-    (define (loop ls-row-unique alist alists groups)
-      (cond [(null? ls-row-unique)
-             (values (reverse alists)
-                     (reverse groups))]
-            [else
-             ;; group-vals is a single row of vals representing one unique grouping combination
-             (let ([group-vals (car ls-row-unique)]) 
-               (let-values ([(keep drop) (alist-split-helper group-vals group-names alist)])
-                 (loop (cdr ls-row-unique)
-                       drop
-                       (cons keep alists)
-                       (cons (add-names-ls-vals
-                              group-names
-                              (transpose (list group-vals)))
-                             groups))))])) 
-    (let* ([ls-vals-select (map cdr (alist-select alist group-names))]
-           [ls-row-unique (ls-vals-unique ls-vals-select #t)])
-      (let-values ([(alists groups) (loop ls-row-unique alist '() '())])
-        (if return-groups?
-            (values alists groups)
-            alists))))
-
-  (define (dataframe-split-helper df group-names return-groups?)
-    (apply check-df-names df "(dataframe-split df group-names)" group-names)
-    (let-values ([(alists groups) (alist-split (dataframe-alist df) group-names #t)])
-      (let ([dfs (map make-dataframe alists)])
-        (if return-groups?
-            (values dfs groups)
-            dfs))))
-
-  (define (dataframe-split df . group-names)
-    (dataframe-split-helper df group-names #f))
 
   ;; modify/add columns ------------------------------------------------------------------------
 
