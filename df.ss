@@ -49,8 +49,8 @@
   ;; alist: list at the core of a dataframe; form is '((a 1 2 3) (b "this" "that" "other"))
   ;; alists: list of alists
   ;; column: one of the lists in the alist, includes name as first element
-  ;; values: one of the lists in the alist, but with the name excluded
-  ;; ls-values: values from a alist packaged into a list, e.g., '((1 2 3) ("this" "that" "other"))
+  ;; vals: one of the lists in the alist, but with the name excluded
+  ;; ls-vals: vals from alist packaged into a list, e.g., '((1 2 3) ("this" "that" "other"))
   ;; name: column name
   ;; names: list of column names
   ;; group-names: list of column names used for grouping
@@ -150,12 +150,12 @@
     (make-dataframe (alist-ref (dataframe-alist df) indices names)))
   
   (define (alist-ref alist indices names)
-    (let ([ls-values (alist-values-map alist names)])
-      (add-names-ls-values
+    (let ([ls-vals (alist-values-map alist names)])
+      (add-names-ls-vals
        names
-       (map (lambda (values)
-              (map (lambda (n) (list-ref values n)) indices))
-            ls-values))))
+       (map (lambda (vals)
+              (map (lambda (n) (list-ref vals n)) indices))
+            ls-vals))))
 
   ;; view -----------------------------------------------------------------------------------
 
@@ -195,10 +195,10 @@
       (check-name-pairs (dataframe-names df) name-pairs proc-string))
     (make-dataframe (map (lambda (column)
                            (let* ([name (car column)]
-                                  [ls-values (cdr column)]
+                                  [ls-vals (cdr column)]
                                   [name-match (assoc name name-pairs)])
                              (if name-match
-                                 (cons (cadr name-match) ls-values)
+                                 (cons (cadr name-match) ls-vals)
                                  column)))
                          (dataframe-alist df))))
 
@@ -215,14 +215,14 @@
                                             ", not "
                                             (number->string names-length)))))
       (let* ([alist (dataframe-alist df)]
-             [ls-values (map cdr alist)])
-        (make-dataframe (add-names-ls-values names ls-values)))))
+             [ls-vals (map cdr alist)])
+        (make-dataframe (add-names-ls-vals names ls-vals)))))
 
-  ;; add names to list of values, ls-values, to create association list
-  (define (add-names-ls-values names ls-values)
-    (if (null? ls-values)
+  ;; add names to list of vals, ls-vals, to create association list
+  (define (add-names-ls-vals names ls-vals)
+    (if (null? ls-vals)
         (map (lambda (name) (cons name '())) names)
-        (map (lambda (name vals) (cons name vals)) names ls-values)))
+        (map (lambda (name vals) (cons name vals)) names ls-vals)))
 
   ;; append -----------------------------------------------------------------------------------
   
@@ -344,40 +344,12 @@
 
   ;; filter/partition ------------------------------------------------------------------------
 
-  (define (dataframe-partition df filter-expr)
-    (let* ([bools (filter-map df filter-expr)]
-           [names (dataframe-names df)]
-           [alist (dataframe-alist df)])
-      (let-values ([(keep drop) (partition-ls-values bools (map cdr alist))])
-        (values (make-dataframe (add-names-ls-values names keep))
-                (make-dataframe (add-names-ls-values names drop))))))
-
-  ;; partition list of values, ls-values, based on list of boolean values, bools
-  ;; where each sub-list is same length as bools
-  (define (partition-ls-values bools ls-values)
-    (let loop ([bools bools]
-               [ls-values ls-values]
-               [keep '()]
-               [drop '()])
-      (if (null? bools)
-          (values (map reverse keep)
-                  (map reverse drop))
-          (if (car bools)  ;; ls is list of boolean values
-              (loop (cdr bools) (map cdr ls-values) (cons-acc ls-values keep) drop)
-              (loop (cdr bools) (map cdr ls-values) keep (cons-acc ls-values drop))))))
-
-  ;; cons list of values, ls-values, (usually length one) onto accumulator, acc
-  (define (cons-acc ls-values acc)
-    (if (null? acc)
-        (map (lambda (x) (list (car x))) ls-values)
-        (map (lambda (x y) (cons x y)) (map car ls-values) acc)))
-
   (define (dataframe-filter df filter-expr)
     (let* ([bools (filter-map df filter-expr)]
            [names (dataframe-names df)]
            [alist (dataframe-alist df)]
-           [new-ls-values (filter-ls-values bools (map cdr alist))])
-      (make-dataframe (add-names-ls-values names new-ls-values))))
+           [new-ls-vals (filter-ls-vals bools (map cdr alist))])
+      (make-dataframe (add-names-ls-vals names new-ls-vals))))
 
   (define-syntax filter-expr
     (syntax-rules ()
@@ -390,14 +362,30 @@
       (apply check-df-names df "(dataframe-filter df filter-expr)" names)
       (apply map proc (dataframe-values-map df names))))
 
-  ;; filter values by list of booleans of same length as values
-  (define (filter-values bools values)
-    (let ([bools-values (map cons bools values)])
-      (map cdr (filter (lambda (x) (car x)) bools-values))))
+  ;; filter vals by list of booleans of same length as vals
+  (define (filter-vals bools vals)
+    (let ([bools-vals (map cons bools vals)])
+      (map cdr (filter (lambda (x) (car x)) bools-vals))))
 
-  (define (filter-ls-values bools ls-values)
-    (map (lambda (values) (filter-values bools values)) ls-values))
-  
+  (define (filter-ls-vals bools ls-vals)
+    (map (lambda (vals) (filter-vals bools vals)) ls-vals))
+
+  (define (dataframe-partition df filter-expr)
+    (let* ([bools (filter-map df filter-expr)]
+           [names (dataframe-names df)]
+           [alist (dataframe-alist df)])
+      (let-values ([(keep drop) (partition-ls-vals bools (map cdr alist))])
+        (values (make-dataframe (add-names-ls-vals names keep))
+                (make-dataframe (add-names-ls-vals names drop))))))
+
+  ;; two passes through ls-vals
+  ;; recursive solution might be more efficient
+  ;; currently just a shorthand way of writing two filters
+  (define (partition-ls-vals bools ls-vals)
+    (let ([keep (filter-ls-vals bools ls-vals)]
+          [drop (filter-ls-vals (map not bools) ls-vals)])
+      (values keep drop)))
+    
   ;; sort ------------------------------------------------------------------------
 
   (define-syntax sort-expr
@@ -413,21 +401,21 @@
            [alist (dataframe-alist df)]
            [all-names (map car alist)]
            [ranks (sum-col-ranks alist predicates names)]
-           [ls-values-sorted (ls-values-sort > (cons ranks (map cdr alist)))])
-      (make-dataframe (add-names-ls-values all-names (cdr ls-values-sorted)))))
+           [ls-vals-sorted (ls-vals-sort > (cons ranks (map cdr alist)))])
+      (make-dataframe (add-names-ls-vals all-names (cdr ls-vals-sorted)))))
 
-  (define (ls-values-sort predicate ls-values)
-    (transpose (sort-ls-row predicate (transpose ls-values))))
+  (define (ls-vals-sort predicate ls-vals)
+    (transpose (sort-ls-row predicate (transpose ls-vals))))
 
   (define (sort-ls-row predicate ls-row)
     (sort (lambda (x y) (predicate (car x)(car y))) ls-row))
 
   (define (sum-col-ranks alist predicates names)
-    (let* ([ls-values (alist-values-map alist names)]
+    (let* ([ls-vals (alist-values-map alist names)]
            [weights (map (lambda (x) (expt 10 x)) (enumerate names))]
            [ls-ranks (map (lambda (predicate ls weight)
                             (rank-list predicate ls weight))
-                          predicates ls-values weights)])
+                          predicates ls-vals weights)])
       (apply map + ls-ranks)))
   
   (define (rank-list predicate ls weight)
@@ -449,11 +437,11 @@
   
   (define (alist-unique alist)
     (let ([names (map car alist)]
-          [ls-values (map cdr alist)])
-      (add-names-ls-values names (ls-values-unique ls-values #f))))
+          [ls-vals (map cdr alist)])
+      (add-names-ls-vals names (ls-vals-unique ls-vals #f))))
 
-  (define (ls-values-unique ls-values row-based)
-    (let ([ls-rows (remove-duplicates (transpose ls-values))])
+  (define (ls-vals-unique ls-vals row-based)
+    (let ([ls-rows (remove-duplicates (transpose ls-vals))])
       (if row-based ls-rows (transpose ls-rows))))
 
   (define (transpose ls)
@@ -472,12 +460,12 @@
       (map (lambda (y) (pred x y)) ls)))
 
   ;; andmap-equal? probably not a good name
-  ;; objective is to identify rows from ls-values where every row matches target values in ls
-  (define (andmap-equal? ls ls-values)
-    (let* ([bools (map (lambda (x values)
-                         (map-equal? x values))
+  ;; objective is to identify rows from ls-vals where every row matches target vals in ls
+  (define (andmap-equal? ls ls-vals)
+    (let* ([bools (map (lambda (x vals)
+                         (map-equal? x vals))
                        ls
-                       ls-values)]
+                       ls-vals)]
            [ls-row (transpose bools)])
       (map (lambda (row)
              (for-all (lambda (x) (equal? x #t)) row))
@@ -485,13 +473,13 @@
 
   (define (alist-split-helper ls group-names alist)
     (let ([names (map car alist)]
-          [ls-values (map cdr alist)]
+          [ls-vals (map cdr alist)]
           [bools (andmap-equal?
                   ls
                   (map cdr (alist-select alist group-names)))])
-      (let-values ([(keep drop) (partition-ls-values bools ls-values)])
-        (values (add-names-ls-values names keep)
-                (add-names-ls-values names drop)))))
+      (let-values ([(keep drop) (partition-ls-vals bools ls-vals)])
+        (values (add-names-ls-vals names keep)
+                (add-names-ls-vals names drop)))))
 
   ;; returns two values
   ;; first value is list of alists representing all columns in the dataframe
@@ -502,18 +490,18 @@
              (values (reverse alists)
                      (reverse groups))]
             [else
-             ;; group-values is a single row of values representing one unique grouping combination
-             (let ([group-values (car ls-row-unique)]) 
-               (let-values ([(keep drop) (alist-split-helper group-values group-names alist)])
+             ;; group-vals is a single row of vals representing one unique grouping combination
+             (let ([group-vals (car ls-row-unique)]) 
+               (let-values ([(keep drop) (alist-split-helper group-vals group-names alist)])
                  (loop (cdr ls-row-unique)
                        drop
                        (cons keep alists)
-                       (cons (add-names-ls-values
+                       (cons (add-names-ls-vals
                               group-names
-                              (transpose (list group-values)))
+                              (transpose (list group-vals)))
                              groups))))])) 
-    (let* ([ls-values-select (map cdr (alist-select alist group-names))]
-           [ls-row-unique (ls-values-unique ls-values-select #t)])
+    (let* ([ls-vals-select (map cdr (alist-select alist group-names))]
+           [ls-row-unique (ls-vals-unique ls-vals-select #t)])
       (let-values ([(alists groups) (loop ls-row-unique alist '() '())])
         (if return-groups?
             (values alists groups)
@@ -578,8 +566,8 @@
   
   ;; update alist and or add column to end of alist
   ;; based on whether name is already present in alist
-  (define (alist-modify alist name values)
-    (let ([col (cons name values)]
+  (define (alist-modify alist name vals)
+    (let ([col (cons name vals)]
           [all-names (map car alist)])
       (if (member name all-names)
           (map (lambda (x)
@@ -595,13 +583,13 @@
         (modify-map-helper alist (proc) who)
         (apply map proc (alist-values-map alist names))))
 
-  ;; this helper procedure returns values for a column from a scalar or list of same length as number of df rows
-  (define (modify-map-helper alist values who)
+  ;; this helper procedure returns vals for a column from a scalar or list of same length as number of df rows
+  (define (modify-map-helper alist vals who)
     (let ([alist-rows (length (cdar alist))])
-      (cond [(scalar? values)
-             (make-list alist-rows values)]
-            [(and (list? values) (= (length values) alist-rows))
-             values]
+      (cond [(scalar? vals)
+             (make-list alist-rows vals)]
+            [(and (list? vals) (= (length vals) alist-rows))
+             vals]
             [else
              (assertion-violation
               who
@@ -645,10 +633,10 @@
     (let* ([new-names (car aggregate-expr)]
            [names-list (cadr aggregate-expr)]
            [proc-list (caddr aggregate-expr)]
-           [ls-values (aggregate-map df names-list proc-list)])
+           [ls-vals (aggregate-map df names-list proc-list)])
       (check-names new-names who)
       (make-dataframe
-       (alist-aggregate-loop groups new-names ls-values))))
+       (alist-aggregate-loop groups new-names ls-vals))))
 
   (define (aggregate-map df names-list proc-list)
     (map (lambda (names proc)
@@ -656,14 +644,14 @@
          names-list proc-list))
 
   ;; can't just map over columns because won't hold alist structure
-  (define (alist-aggregate-loop groups new-names ls-values)
+  (define (alist-aggregate-loop groups new-names ls-vals)
     (if (null? new-names)
         groups
         (alist-aggregate-loop (alist-modify groups
                                             (car new-names)
-                                            (car ls-values))
+                                            (car ls-vals))
                               (cdr new-names)
-                              (cdr ls-values))))
+                              (cdr ls-vals))))
   
   ;; rowtable ------------------------------------------------------------------------
 
@@ -672,8 +660,8 @@
   (define (dataframe->rowtable df)
     (check-dataframe df "(dataframe->rowtable df)")
     (let* ([names (dataframe-names df)]
-           [ls-values (dataframe-values-map df names)])
-      (cons names (transpose ls-values))))
+           [ls-vals (dataframe-values-map df names)])
+      (cons names (transpose ls-vals))))
 
   (define (rowtable->dataframe rt header?)
     (check-rowtable rt "(rowtable->dataframe rt header?)")
@@ -684,10 +672,10 @@
                                (make-list (length (car rt)) "V")
                                (map number->string
                                     (enumerate (car rt))))))]
-          [ls-values (if header?
-                         (transpose (cdr rt))
-                         (transpose rt))])
-      (make-dataframe (map cons names ls-values))))
+          [ls-vals (if header?
+                       (transpose (cdr rt))
+                       (transpose rt))])
+      (make-dataframe (map cons names ls-vals))))
 
   )
 
