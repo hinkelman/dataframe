@@ -372,6 +372,13 @@
         (map (lambda (x) (list (car x))) ls-values)
         (map (lambda (x y) (cons x y)) (map car ls-values) acc)))
 
+  (define (dataframe-filter df filter-expr)
+    (let* ([bools (filter-map df filter-expr)]
+           [names (dataframe-names df)]
+           [alist (dataframe-alist df)]
+           [new-ls-values (filter-ls-values bools (map cdr alist))])
+      (make-dataframe (add-names-ls-values names new-ls-values))))
+
   (define-syntax filter-expr
     (syntax-rules ()
       [(_ names expr)
@@ -381,38 +388,16 @@
     (let ([names (car filter-expr)]
           [proc (cadr filter-expr)])
       (apply check-df-names df "(dataframe-filter df filter-expr)" names)
-      (apply map proc (map (lambda (name) (dataframe-values df name)) names))))
+      (apply map proc (dataframe-values-map df names))))
 
-  (define (dataframe-filter df filter-expr)
-    (let* ([bools (filter-map df filter-expr)]
-           [names (dataframe-names df)]
-           [alist (dataframe-alist df)]
-           [new-ls-values (filter-ls-values bools (map cdr alist))])
-      (make-dataframe (add-names-ls-values names new-ls-values))))
-  
-  ;; filter list of values, ls-values, based on list of boolean values, bools
-  ;; where each sub-list is same length as bools
-  ;; could just call (partition-ls-values) and return only the first value
-  ;; but avoiding potential overhead of accumulating values that aren't used
+  ;; filter values by list of booleans of same length as values
+  (define (filter-values bools values)
+    (let ([bools-values (map cons bools values)])
+      (map cdr (filter (lambda (x) (car x)) bools-values))))
+
   (define (filter-ls-values bools ls-values)
-    (let loop ([bools bools]
-               [ls-values ls-values]
-               [results '()])
-      (if (null? bools)
-          (map reverse results)
-          (if (car bools)
-              (loop (cdr bools) (map cdr ls-values) (cons-acc ls-values results))
-              (loop (cdr bools) (map cdr ls-values) results)))))
-
-  ;; in some simple and now deleted tests
-  ;; using built-in filter function is only slightly slower than recursive version
-  ;; built-in version requires switching to row-wise and back to col-wise (based on my current scheme abilities)
-  ;; i.e., it would be faster if dataframe use row-wise structure
-
-  ;; select, mutate, aggregate are obviously better as column-wise
-  ;; filter on a single column would be faster using row-wise
-  ;; but want flexibility of filtering on multiple columns
-
+    (map (lambda (values) (filter-values bools values)) ls-values))
+  
   ;; sort ------------------------------------------------------------------------
 
   (define-syntax sort-expr
@@ -705,3 +690,4 @@
       (make-dataframe (map cons names ls-values))))
 
   )
+
