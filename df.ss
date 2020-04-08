@@ -344,6 +344,18 @@
 
   ;; filter/partition ------------------------------------------------------------------------
 
+  ;; filter-ls-vals involves zipping, filtering, and unzipping every column
+  ;; alternative is to transpose to row-based,
+  ;; cons bools to rows,
+  ;; filter by car of rows,
+  ;; cdr to remove bools,
+  ;; and transpose back to column-based
+  
+  ;; I opted for zip/filter/unzip because the code is so simple
+  ;; current approach might be more efficient when lots of rows and few columns
+  ;; other approach might be more efficient when lots of columns and few rows
+  ;; but I don't have a good sense of relative cost of the two approaches
+  
   (define (dataframe-filter df filter-expr)
     (let* ([bools (filter-map df filter-expr)]
            [names (dataframe-names df)]
@@ -366,18 +378,7 @@
   (define (filter-vals bools vals)
     (let ([bools-vals (map cons bools vals)])
       (map cdr (filter (lambda (x) (car x)) bools-vals))))
-
-  ;; filter-ls-vals involves zipping, filtering, and unzipping every column
-  ;; alternative is to transpose to row-based,
-  ;; cons bools to rows,
-  ;; filter by car of rows,
-  ;; cdr to remove bools,
-  ;; and transpose back to column-based
   
-  ;; I opted for zip/filter/unzip because the code is so simple
-  ;; current approach might be more efficient when lots of rows and few columns
-  ;; other approach might be more efficient when lots of columns and few rows
-  ;; but I don't have a good sense of relative cost of the two approaches
   (define (filter-ls-vals bools ls-vals)
     (map (lambda (vals) (filter-vals bools vals)) ls-vals))
 
@@ -523,26 +524,25 @@
                 (add-names-ls-vals names drop)))))
 
   ;; andmap-equal? probably not a good name
-  ;; objective is to identify rows from ls-vals where every row matches target vals in ls
-  (define (andmap-equal? ls ls-vals)
-    (let* ([bools (map (lambda (x vals)
-                         (map-equal? x vals))
-                       ls
-                       ls-vals)]
-           [ls-row (transpose bools)])
-      (map (lambda (row)
-             (for-all (lambda (x) (equal? x #t)) row))
-           ls-row)))
+  ;; objective is to identify rows from ls-vals where
+  ;; value in every column matches comparison value
+  ;; bools in the let are 0s and 1s (not #f and #t)
+  (define (andmap-equal? comp-vals ls-vals)
+    (let ([num-cols (length ls-vals)]
+          [bools (map (lambda (comp-val vals) (map-equal? comp-val vals))
+                       comp-vals
+                       ls-vals)])
+      (map (lambda (sum) (= num-cols sum)) (apply map + bools))))
   
-  ;; returns boolean list of same length as ls
-  ;; boolean list used to identify rows that are equal to focal value, x
-  (define (map-equal? x ls)
+  ;; returns list of 0s and 1s (#f and #t) of same length as vals
+  ;; boolean list used to identify rows that are equal to comparison value, comp-val
+  (define (map-equal? comp-val vals)
     (let ([pred (cond
-                 [(number? x) =]
-                 [(string? x) string=?]
-                 [(symbol? x) symbol=?]
+                 [(number? comp-val) =]
+                 [(string? comp-val) string=?]
+                 [(symbol? comp-val) symbol=?]
                  [else equal?])])
-      (map (lambda (y) (pred x y)) ls)))
+      (map (lambda (val) (if (pred comp-val val) 1 0)) vals)))
 
   ;; modify/add columns ------------------------------------------------------------------------
 
