@@ -516,27 +516,26 @@
   (define (alist-split-partition ls group-names alist)
     (let ([names (map car alist)]
           [ls-vals (map cdr alist)]
-          [bools (andmap-equal?
+          [bools (map-equal-ls-vals
                   ls
                   (map cdr (alist-select alist group-names)))])
       (let-values ([(keep drop) (partition-ls-vals bools ls-vals)])
         (values (add-names-ls-vals names keep)
                 (add-names-ls-vals names drop)))))
 
-  ;; andmap-equal? probably not a good name
   ;; objective is to identify rows from ls-vals where
   ;; value in every column matches comparison value
   ;; bools in the let are 0s and 1s (not #f and #t)
-  (define (andmap-equal? comp-vals ls-vals)
+  (define (map-equal-ls-vals comp-vals ls-vals)
     (let ([num-cols (length ls-vals)]
-          [bools (map (lambda (comp-val vals) (map-equal? comp-val vals))
+          [bools (map (lambda (comp-val vals) (map-equal comp-val vals))
                        comp-vals
                        ls-vals)])
       (map (lambda (sum) (= num-cols sum)) (apply map + bools))))
   
   ;; returns list of 0s and 1s (#f and #t) of same length as vals
   ;; boolean list used to identify rows that are equal to comparison value, comp-val
-  (define (map-equal? comp-val vals)
+  (define (map-equal comp-val vals)
     (let ([pred (cond
                  [(number? comp-val) =]
                  [(string? comp-val) string=?]
