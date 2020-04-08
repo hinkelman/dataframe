@@ -578,11 +578,9 @@
       (if (member name all-names)
           (map (lambda (x)
                  (if (symbol=? x name) col (assoc x alist)))
-               all-names)                            
-          (cons-end alist col))))
-
-  (define (cons-end ls x)
-    (reverse (cons x (reverse ls))))
+               all-names)
+          ;; need to make col an alist (by wrapping in a list) for use with append
+          (append alist (list col))))) 
 
   (define (modify-map alist names proc who)
     (if (null? names)
