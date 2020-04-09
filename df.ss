@@ -435,16 +435,32 @@
   ;; returns the weighted sum of the ranks for each row
   (define (sum-row-ranks alist predicates names)
     (let* ([ls-vals (alist-values-map alist names)]
-           [weights (map (lambda (x) (expt 10 x)) (enumerate names))]
+           [weights (calc-weights ls-vals)]
            [ls-ranks (map (lambda (predicate ls weight)
                             (rank-list predicate ls weight))
                           predicates ls-vals weights)])
       (apply map + ls-ranks)))
 
+  ;; calculate weights for each column
+  ;; logic is to start with arbitrary weight for first column
+  ;; and the weights for subsequent columns are the weight from
+  ;; the previous column divided by the length of unique values in the current column
+  ;; my initial solution didn't anticipate the problem of very large numbers of unique values
+  (define (calc-weights ls-vals)
+    (define (loop lengths results)
+      (if (null? lengths)
+          (reverse results)
+          (loop (cdr lengths)
+                (cons (/ (car results) (car lengths))
+                      results))))
+    (let* ([unique-vals (map remove-duplicates ls-vals)]
+           [unique-lengths (map length unique-vals)])
+      (loop (cdr unique-lengths) '(1000))))
+
   ;; returns list of weighted rank values for every value in ls 
   (define (rank-list predicate ls weight)
     (let* ([unique-sorted (sort predicate (remove-duplicates ls))]
-           [ranks (map (lambda (x) (/ x weight)) (enumerate unique-sorted))]
+           [ranks (map (lambda (x) (* x weight)) (enumerate unique-sorted))]
            [lookup (map cons unique-sorted ranks)]) 
       (map (lambda (x) (cdr (assoc x lookup))) ls)))
 
@@ -462,9 +478,11 @@
   (define (alist-unique alist)
     (let ([names (map car alist)]
           [ls-vals (map cdr alist)])
-      (add-names-ls-vals names (unique-ls-vals ls-vals #f))))
+      (add-names-ls-vals names (unique-rows ls-vals #f))))
 
-  (define (unique-ls-vals ls-vals row-based)
+  ;; takes ls-vals and returns unique rows in those ls-vals
+  ;; returns row-based or column-based result
+  (define (unique-rows ls-vals row-based)
     (let ([ls-rows (remove-duplicates (transpose ls-vals))])
       (if row-based ls-rows (transpose ls-rows))))
 
@@ -490,7 +508,7 @@
   ;; second value is a list of alists representing the grouping columns in the dataframe
   (define (alist-split alist group-names return-groups?)
     (let* ([ls-vals-select (map cdr (alist-select alist group-names))]
-           [group-vals (transpose (unique-ls-vals ls-vals-select #f))])
+           [group-vals (unique-rows ls-vals-select #t)])
       (let-values ([(alists groups)
                     (alist-split-partition-loop alist group-names group-vals '() '())])
         (if return-groups?
@@ -705,4 +723,3 @@
       (make-dataframe (map cons names ls-vals))))
 
   )
-
