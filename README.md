@@ -8,6 +8,7 @@ Related blog posts:
 [A dataframe record type for Chez Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-chez-scheme/)  
 [Select, drop, and rename dataframe columns in Chez Scheme](https://www.travishinkelman.com/posts/select-drop-rename-dataframe-columns-chez-scheme/)  
 [Split, bind, and append dataframes in Chez Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-chez-scheme/)  
+[Filter, partition, and sort dataframes in Chez Scheme](https://www.travishinkelman.com/posts/filter-partition-and-sort-dataframes-in-chez-scheme/)  
 
 ## Installation and Import
 
