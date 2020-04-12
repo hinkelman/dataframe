@@ -168,20 +168,19 @@
   ;; head/tail -----------------------------------------------------------------------------------
 
   (define (dataframe-head df n)
-    (dataframe-head-tail df n "head"))
+    (let ([proc-string  "(dataframe-head df n)"])
+      (check-dataframe df proc-string)
+      (check-integer-positive n "n" proc-string)
+      (check-index n (car (dataframe-dim df)) proc-string)
+      (make-dataframe (alist-head-tail (dataframe-alist df) n list-head))))
 
   ;; dataframe-tail is based on list-tail, which does not work the same as tail in R
   (define (dataframe-tail df n)
-    (dataframe-head-tail df n "tail"))
-
-  (define (dataframe-head-tail df n type)
-    (let ([proc-string (string-append "(dataframe-" type " df n)")]
-          [check-integer (if (string=? type "head") check-integer-positive check-integer-gte-zero)]
-          [proc (if (string=? type "head") list-head list-tail)])
+    (let ([proc-string  "(dataframe-tail df n)"])
       (check-dataframe df proc-string)
-      (check-integer n "n" proc-string)
-      (check-index n (car (dataframe-dim df)) proc-string)
-      (make-dataframe (alist-head-tail (dataframe-alist df) n proc))))
+      (check-integer-gte-zero n "n" proc-string)
+      (check-index (sub1 n) (car (dataframe-dim df)) proc-string)
+      (make-dataframe (alist-head-tail (dataframe-alist df) n list-tail))))
 
   (define (alist-head-tail alist n proc)
     (map (lambda (col) (cons (car col) (proc (cdr col) n))) alist))
