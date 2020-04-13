@@ -106,7 +106,7 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 Exception in (make-dataframe alist): names are not symbols
 ```
 
-#### <a name="df-display"></a> procedure: `(dataframe-view df n pad min-width total-width)`  
+#### <a name="df-display"></a> procedure: `(dataframe-display df n pad min-width total-width)`  
 **displays:** the dataframe `df` up to `n` rows and the number of columns that fit in `total-width` based on the amount of padding `pad` and the actual (based on contents of column) or minimum column width `min-width`; `pad`, `min-width`, and `total-width` are measured in number of characters; default values: `n = 10`, `pad = 2`, `min-width = 10`, `total-width = 80`  
 
 ```
