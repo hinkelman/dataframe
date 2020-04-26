@@ -309,11 +309,10 @@
   
   (define (dataframe-append . dfs)
     (let ([proc-string "(dataframe-append dfs)"]
-          [rows (car (dataframe-dim (car dfs)))]
           [all-names (apply get-all-names dfs)])
       (check-all-dataframes dfs proc-string)
       (check-names-unique all-names proc-string)
-      (unless (for-all (lambda (df) (= rows (car (dataframe-dim df)))) dfs)
+      (unless (apply = (map (lambda (df) (car (dataframe-dim df))) dfs))
         (assertion-violation proc-string "all dfs must have same number of rows")))
     (make-dataframe (apply append (map (lambda (df) (dataframe-alist df)) dfs))))
   

@@ -88,13 +88,12 @@
       (check-names-unique names who))
     (unless (for-all (lambda (col) (list? (cdr col))) alist)
       (assertion-violation who "values are not a list"))
-    (let ([num-rows (length (cdar alist))])
-      (unless (for-all (lambda (col) (same-length? num-rows (cdr col))) alist)
-	(assertion-violation who "columns not all same length"))))
+    (unless (apply = (map length alist))
+      (assertion-violation who "columns not all same length")))
 
   (define (check-rowtable rt who)
     (unless (and (list? rt)
-                 (for-all (lambda (row) (= (length row) (length (car rt)))) rt))
+                 (apply = (map length rt)))
       (assertion-violation who "rt is not a rowtable")))
   
   )
