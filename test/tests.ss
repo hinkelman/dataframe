@@ -1,4 +1,4 @@
-(import (dataframe df)
+(import (dataframe dataframe)
 	(srfi s64 testing))
 
 (define df1 (make-dataframe '((a 1 2 3) (b 4 5 6))))
