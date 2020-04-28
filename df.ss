@@ -17,6 +17,8 @@
    dataframe-drop
    dataframe-equal?
    dataframe-filter
+   dataframe-filter-at
+   dataframe-filter-all
    dataframe-head
    dataframe-modify
    dataframe-names
@@ -435,14 +437,15 @@
   ;; current approach might be more efficient when lots of rows and few columns
   ;; other approach might be more efficient when lots of columns and few rows
   ;; but I don't have a good sense of relative cost of the two approaches
-  
+
   (define (dataframe-filter df filter-expr)
+    (check-dataframe df "(dataframe-filter df filter-expr)")
     (let* ([bools (filter-map df filter-expr)]
            [names (dataframe-names df)]
            [alist (dataframe-alist df)]
            [new-ls-vals (filter-ls-vals bools (map cdr alist))])
       (make-dataframe (add-names-ls-vals names new-ls-vals))))
-
+      
   (define-syntax filter-expr
     (syntax-rules ()
       [(_ names expr)
@@ -477,6 +480,40 @@
     (let ([keep (filter-ls-vals bools ls-vals)]
           [drop (filter-ls-vals (map not bools) ls-vals)])
       (values keep drop)))
+
+  (define (dataframe-filter-all df predicate)
+    (df-filter-helper df
+                      predicate
+                      (dataframe-names df)
+                      "(dataframe-filter-all df predicate)"))
+
+  (define (dataframe-filter-at df predicate . names)
+    (df-filter-helper df
+                      predicate
+                      names
+                      "(dataframe-filter-at df predicate names)"))
+
+  (define (df-filter-helper df predicate names who)
+    (check-dataframe df who)
+    (let ([new-alist
+           (alist-filter-at (dataframe-alist df) predicate names)])
+      (if (null? (cdar new-alist))
+          (assertion-violation who "Filtered dataframe is empty")
+          (make-dataframe new-alist))))
+
+  ;; convert columns in ls-vals to 0s and 1s (ls-binary) based on predicate
+  ;; sum across ls-binary to create boolean list for filtering
+  (define (alist-filter-at alist predicate names)
+    (let* ([ls-vals (alist-values-map alist names)]
+           [ls-binary (map (lambda (vals)
+                         (map (lambda (val)
+                                (if (predicate val) 1 0))
+                              vals))
+                       ls-vals)]
+           [bools (map (lambda (x) (= x (length names)))
+                       (apply map + ls-binary))])
+      (add-names-ls-vals (map car alist)
+                         (filter-ls-vals bools (map cdr alist)))))
     
   ;; sort ------------------------------------------------------------------------
 

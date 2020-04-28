@@ -170,6 +170,12 @@
 (test-assert (dataframe-equal? df14 (dataframe-filter df10 (filter-expr (a) (> a 100)))))
 (test-assert (dataframe-equal? df15 (dataframe-filter df10 (filter-expr (b) (= b 5)))))
 (test-assert (dataframe-equal? df15 (dataframe-filter df10 (filter-expr (a b) (or (odd? a) (odd? b))))))
+(test-assert (dataframe-equal? (make-dataframe '((a 100 300)
+                                                (b 4 6)
+                                                (c 700 900)))
+                               (dataframe-filter-all df10 even?)))
+(test-assert (dataframe-equal? df10 (dataframe-filter-at df10 even? 'a 'c)))
+(test-error (dataframe-filter-all df10 odd?))
 (test-end "dataframe-filter-test")
 
 (define df16 (make-dataframe '((a 200)
