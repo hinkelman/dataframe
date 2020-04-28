@@ -19,7 +19,7 @@ $ git clone git://github.com/hinkelman/dataframe.git
 
 For more information on installing Chez Scheme libraries, see blog posts for [macOS and Windows](https://www.travishinkelman.com/posts/getting-started-with-chez-scheme-and-emacs/) or [Ubuntu](https://www.travishinkelman.com/posts/getting-started-with-chez-scheme-and-emacs-ubuntu/).
 
-Import all `dataframe` procedures: `(import (dataframe df))`
+Import all `dataframe` procedures: `(import (dataframe dataframe))`
 
 ## Table of Contents  
 
@@ -51,6 +51,8 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 [`(dataframe-unique df)`](#df-unique)  
 [`(filter-expr (names) (expr))`](#filter-expr)  
 [`(dataframe-filter df filter-expr)`](#df-filter)  
+[`(dataframe-filter-at df procedure name ...)`](#df-filter-at)  
+[`(dataframe-filter-all df procedure)`](#df-filter-all)  
 [`(dataframe-partition df filter-expr)`](#df-partition)  
 [`(sort-expr (predicate name) ...)`](#sort-expr)  
 [`(dataframe-sort df sort-expr)`](#df-sort)  
@@ -64,9 +66,10 @@ Import all `dataframe` procedures: `(import (dataframe df))`
 
 ### Modify and aggregate  
 
-[`(dataframe-update df procedure name ...)`](#df-update)  
 [`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
 [`(dataframe-modify df modify-expr)`](#df-modify)  
+[`(dataframe-modify-at df procedure name ...)`](#df-modify-at)  
+[`(dataframe-modify-all df procedure)`](#df-modify-all)  
 [`(aggregate-expr (new-name (names) (expr)) ...)`](#aggregate-expr)  
 [`(dataframe-aggregate df group-names aggregate-expr)`](#df-aggregate)  
 
@@ -413,6 +416,34 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
          b         b         4        40
 ```
 
+#### <a name="df-filter-at"></a> procedure: `(dataframe-filter-at df procedure name ...)`  
+**returns:** a dataframe where the rows of dataframe `df` are filtered based on `procedure` applied to specified columns (`names`)  
+
+#### <a name="df-filter-all"></a> procedure: `(dataframe-filter-all df procedure)`  
+**returns:** a dataframe where the rows of dataframe `df` are filtered based on `procedure` applied to all columns  
+
+```
+> (define df (make-dataframe '((a 1 "NA" 3)
+                               (b "NA" 5 6)
+                               (c 7 "NA" 9))))
+                               
+> (dataframe-display df)
+         a         b         c
+         1        NA         7
+        NA         5        NA
+         3         6         9
+         
+> (dataframe-display (dataframe-filter-at df number? 'a 'c))
+         a         b         c
+         1        NA         7
+         3         6         9
+         
+> (dataframe-display (dataframe-filter-all df number?))
+         a         b         c
+         3         6         9
+```
+
+
 #### <a name="df-partition"></a> procedure: `(dataframe-partition df filter-expr)`  
 **returns:** two dataframes where the rows of dataframe `df` are partitioned according to the `filter-expr`  
 
@@ -579,22 +610,6 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 
 ## Modify and aggregate  
 
-#### <a name="df-update"></a> procedure: `(dataframe-update df procedure name ...)`  
-**returns:** a dataframe where the specified columns (`names`) of dataframe `df` are updated based on `procedure`, which can only take one argument  
-
-```
-> (define df (make-dataframe '((grp a a b b b)
-                               (trt a b a b b)
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
-                               
-> (dataframe-alist (dataframe-update df symbol->string 'grp 'trt))
-((grp "a" "a" "b" "b" "b")
-  (trt "a" "b" "a" "b" "b")
-  (adult 1 2 3 4 5)
-  (juv 10 20 30 40 50))
-```
-
 #### <a name="modify-expr"></a> procedure: `(modify-expr (new-name (names) (expr)) ...)`  
 **returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  
 
@@ -634,6 +649,38 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
          b         b         5        50        55        42        10
 
 ```
+
+
+#### <a name="df-modify-at"></a> procedure: `(dataframe-modify-at df procedure name ...)`  
+**returns:** a dataframe where the specified columns (`names`) of dataframe `df` are modified based on `procedure`, which can only take one argument  
+
+#### <a name="df-modify-all"></a> procedure: `(dataframe-modify-all df procedure)`  
+**returns:** a dataframe where all columns of dataframe `df` are modified based on `procedure`, which can only take one argument  
+
+```
+> (define df (make-dataframe '((grp a a b b b)
+                               (trt a b a b b)
+                               (adult 1 2 3 4 5)
+                               (juv 10 20 30 40 50))))
+                               
+> (dataframe-alist (dataframe-modify-at df symbol->string 'grp 'trt))
+((grp "a" "a" "b" "b" "b")
+  (trt "a" "b" "a" "b" "b")
+  (adult 1 2 3 4 5)
+  (juv 10 20 30 40 50))
+  
+> (define df2 (make-dataframe '((a 1 2 3)
+                                (b 4 5 6)
+                                (c 7 8 9))))
+                                
+> (dataframe-display
+   (dataframe-modify-all df2 (lambda (x) (* x 100))))
+         a         b         c
+       100       400       700
+       200       500       800
+       300       600       900
+```
+
 
 #### <a name="aggregate-expr"></a> procedure: `(aggregate-expr (new-name (names) (expr)) ...)`  
 **returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  

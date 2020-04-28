@@ -59,7 +59,8 @@
         (modify-map-helper alist (proc) who)
         (apply map proc (alist-values-map alist names))))
 
-  ;; this helper procedure returns vals for a column from a scalar or list of same length as number of df rows
+  ;; this helper procedure returns vals for a column from
+  ;; a scalar or list of same length as number of df rows
   (define (modify-map-helper alist vals who)
     (let ([alist-rows (length (cdar alist))])
       (cond [(scalar? vals)
@@ -103,7 +104,8 @@
                column))
          alist))
 
-  ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation, e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
+  ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation,
+  ;; e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
   ;; (define (dataframe-list-modify df-list modify-expr)
   ;;   (apply dataframe-bind (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
   
