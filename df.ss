@@ -21,6 +21,8 @@
    dataframe-filter-all
    dataframe-head
    dataframe-modify
+   dataframe-modify-at
+   dataframe-modify-all
    dataframe-names
    dataframe-rename-all
    dataframe-partition
@@ -32,7 +34,6 @@
    dataframe-ref
    dataframe-tail
    dataframe-unique
-   dataframe-update
    dataframe-values
    dataframe-values-unique
    dataframe-write
@@ -482,19 +483,19 @@
       (values keep drop)))
 
   (define (dataframe-filter-all df predicate)
-    (df-filter-helper df
-                      predicate
-                      (dataframe-names df)
-                      "(dataframe-filter-all df predicate)"))
+    (df-filter-at-all-helper df
+                             predicate
+                             (dataframe-names df)
+                             "(dataframe-filter-all df predicate)"))
 
   (define (dataframe-filter-at df predicate . names)
-    (df-filter-helper df
-                      predicate
-                      names
-                      "(dataframe-filter-at df predicate names)"))
+    (df-filter-at-all-helper df
+                             predicate
+                             names
+                             "(dataframe-filter-at df predicate names)"))
 
-  (define (df-filter-helper df predicate names who)
-    (check-dataframe df who)
+  (define (df-filter-at-all-helper df predicate names who)
+    (apply check-df-names df who names)
     (let ([new-alist
            (alist-filter-at (dataframe-alist df) predicate names)])
       (if (null? (cdar new-alist))
@@ -683,14 +684,6 @@
 
   ;; modify/add columns ------------------------------------------------------------------------
 
-  (define (dataframe-update df procedure . names)
-    (apply check-df-names df "(dataframe-update df procedure names)" names)
-    (make-dataframe (map (lambda (column)
-                           (if (member (car column) names)
-                               (cons (car column) (map procedure (cdr column)))
-                               column))
-                         (dataframe-alist df))))
-
   (define-syntax modify-expr
     (syntax-rules ()
       [(_ (new-name names expr) ...)
@@ -761,6 +754,33 @@
 
   (define (scalar? obj)
     (or (symbol? obj) (char? obj) (string? obj) (number? obj)))
+
+  (define (dataframe-modify-all df procedure)
+    (df-modify-at-all-helper df
+                             procedure
+                             (dataframe-names df)
+                             "(dataframe-modify-at df procedure)"))
+  
+  (define (dataframe-modify-at df procedure . names)
+    (df-modify-at-all-helper df
+                             procedure
+                             names
+                             "(dataframe-modify-at df procedure names)"))
+
+  (define (df-modify-at-all-helper df procedure names who)
+    (apply check-df-names df who names)
+    (make-dataframe (alist-modify-at (dataframe-alist df)
+                                     procedure
+                                     names)))
+
+  ;; could just map over alist-modify but this way avoids name checking
+  ;; because columns are modified with same name, not appending new column
+  (define (alist-modify-at alist procedure names)
+    (map (lambda (column)
+           (if (member (car column) names)
+               (cons (car column) (map procedure (cdr column)))
+               column))
+         alist))
 
   ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation, e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
   ;; (define (dataframe-list-modify df-list modify-expr)
