@@ -1,6 +1,6 @@
-![](https://github.com/hinkelman/dataframe/workflows/Master/badge.svg)
-
 # Chez Scheme Dataframe Library
+
+![](https://github.com/hinkelman/dataframe/workflows/Master/badge.svg)
 
 A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, modify, and aggregate dataframes. 
 
