@@ -1,7 +1,5 @@
 # Chez Scheme Dataframe Library
 
-![](https://github.com/hinkelman/dataframe/workflows/Master/badge.svg)
-
 A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, modify, and aggregate dataframes. 
 
 Related blog posts:  
@@ -10,16 +8,13 @@ Related blog posts:
 [Split, bind, and append dataframes in Chez Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-chez-scheme/)  
 [Filter, partition, and sort dataframes in Chez Scheme](https://www.travishinkelman.com/posts/filter-partition-and-sort-dataframes-in-chez-scheme/)  
 
-## Installation and Import
+## Installation
 
-```
-$ cd ~/scheme # where '~/scheme' is the path to your Chez Scheme libraries
-$ git clone git://github.com/hinkelman/dataframe.git
-```
+Clone or download this repository. Move `dataframe.sls` and `dataframe` folder from downloaded and unzipped folder to one of the directories listed when you run `(library-directories)` in Chez Scheme. For more information on installing Chez Scheme libraries, see blog posts for [macOS and Windows](https://www.travishinkelman.com/posts/getting-started-with-chez-scheme-and-emacs/) or [Ubuntu](https://www.travishinkelman.com/posts/getting-started-with-chez-scheme-and-emacs-ubuntu/).
 
-For more information on installing Chez Scheme libraries, see blog posts for [macOS and Windows](https://www.travishinkelman.com/posts/getting-started-with-chez-scheme-and-emacs/) or [Ubuntu](https://www.travishinkelman.com/posts/getting-started-with-chez-scheme-and-emacs-ubuntu/).
+## Import
 
-Import all `dataframe` procedures: `(import (dataframe dataframe))`
+`(import (dataframe))`
 
 ## Table of Contents  
 
