@@ -1,0 +1,9 @@
+#!r6rs ; -*- mode: scheme; coding: utf-8 -*-
+(import (akku format manifest))
+
+(akku-package ("dataframe" "0.1.0")
+  (synopsis "A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, modify, and aggregate dataframes.")
+  (authors "Travis Hinkelman")
+  (license "MIT")
+  (depends ("chez-srfi" ">=0.0.0-akku <1.0.0"))
+)

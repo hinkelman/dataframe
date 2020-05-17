@@ -1,5 +1,11 @@
-(import (dataframe dataframe)
-	(srfi s64 testing))
+#!/usr/bin/env scheme-script
+;; -*- mode: scheme; coding: utf-8 -*- !#
+;; Copyright (c) 2020 Travis Hinkelman
+;; SPDX-License-Identifier: MIT
+#!r6rs
+
+(import (srfi :64 testing)
+        (dataframe))
 
 (define df1 (make-dataframe '((a 1 2 3) (b 4 5 6))))
 (define df2 (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))

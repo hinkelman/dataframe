@@ -1,4 +1,4 @@
-(library (dataframe dataframe)
+(library (dataframe)
   (export
    ->
    ->>

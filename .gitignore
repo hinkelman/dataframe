@@ -6,5 +6,15 @@
 *.scm#*
 .#*.scm
 
+*.sls~
+*.sls#*
+.#*.sls
+
+*.sps~
+*.sps#*
+.#*.sps
+
 .DS_Store
-test/.DS_Store
+
+*.akku
+*.akku.sig
