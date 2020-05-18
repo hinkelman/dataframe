@@ -8,6 +8,9 @@
           (only (dataframe helpers)
                 transpose))
 
+  ;; lack of familiarity with `format` meant reinventing the wheel
+  ;; maybe could rewrite with format directives to make more concise and less brittle
+  ;; today is not the day for that rewrite, though
   (define dataframe-display
     (case-lambda
       [(df) (df-display-helper df 10 2 10 80)]
