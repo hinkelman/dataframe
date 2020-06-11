@@ -238,22 +238,23 @@
         (make-dataframe (add-names-ls-vals names ls-vals)))))
 
   ;; thread-first and thread-last -------------------------------------------------------------
-  
-  ;; https://lispdreams.wordpress.com/2016/04/10/thread-first-thread-last-and-partials-oh-my/
+
+  ;; https://github.com/ar-nelson/srfi-197/blob/master/srfi-197.scm
   (define-syntax ->
     (syntax-rules ()
-      [(_ value) value] 
-      [(_ value (f1 . body) next ...)
-       (-> (f1 value . body) next ...)]))
-
-  (define (thread-last-helper f value . body)
-    (apply f (append body (list value))))
+      [(-> x) x]
+      [(-> x (fn . args) . rest)
+       (-> (fn x . args) . rest)]
+      [(-> x fn . rest)
+       (-> (fn x) . rest)]))
 
   (define-syntax ->>
     (syntax-rules ()
-      [(_ value) value]
-      [(_ value (f1 . body) next ...)
-       (->> (thread-last-helper f1 value . body) next ...)]))
+      [(->> x) x]
+      [(->> x (fn args ...) . rest)
+       (->> (fn args ... x) . rest)]
+      [(->> x fn . rest)
+       (->> (fn x) . rest)]))
   
   )
 
