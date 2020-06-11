@@ -12,7 +12,6 @@
                 dataframe-values-map
                 make-dataframe)
           (only (dataframe helpers)
-                check-rowtable
                 transpose))
 
   (define (dataframe->rowtable df)
@@ -22,18 +21,29 @@
       (cons names (transpose ls-vals))))
 
   (define (rowtable->dataframe rt header?)
-    (check-rowtable rt "(rowtable->dataframe rt header?)")
+    (unless (and (list? rt)
+                 (apply = (map length rt)))
+      (assertion-violation "(rowtable->dataframe rt header?)"
+			   "rt is not a rowtable"))
     (let ([names (if header?
-                     (car rt)
-                     (map string->symbol
-                          (map string-append
-                               (make-list (length (car rt)) "V")
-                               (map number->string
-                                    (enumerate (car rt))))))]
+                     (convert-header (car rt))
+		     (make-header (length (car rt))))]
           [ls-vals (if header?
                        (transpose (cdr rt))
                        (transpose rt))])
       (make-dataframe (map cons names ls-vals))))
+
+  (define (make-header n)
+    (map string->symbol
+	 (map string-append
+	      (make-list n "V")
+	      (map number->string (iota n)))))
+
+  (define (convert-header ls)
+    (unless (for-all (lambda (x) (or (string? x) (symbol? x))) ls)
+      (assertion-violation "(rowtable->dataframe rt header?)"
+			   "header row must be comprised of strings or symbols"))
+    (map (lambda (x) (if (symbol? x) x (string->symbol x))) ls))
 
   )
 

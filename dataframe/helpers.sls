@@ -14,7 +14,6 @@
    check-integer-gte-zero
    check-integer-positive
    check-list
-   check-rowtable
    check-names-unique
    check-names-symbol
    check-names
@@ -181,10 +180,6 @@
     (unless (apply = (map length alist))
       (assertion-violation who "columns not all same length")))
 
-  (define (check-rowtable rt who)
-    (unless (and (list? rt)
-                 (apply = (map length rt)))
-      (assertion-violation who "rt is not a rowtable")))
   
   )
 
