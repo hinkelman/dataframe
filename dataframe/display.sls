@@ -1,3 +1,4 @@
+
 (library (dataframe display)
   (export dataframe-display)
 
@@ -54,7 +55,7 @@
     (map (lambda (name vals vals-string)
            (if (for-all number? vals)
                (string-length name)
-               (apply max (map string-length vals-string))))
+               (apply max (map string-length (cons name vals-string)))))
          names ls-vals ls-vals-string))
 
   (define (prepare-columns names ls-vals-string widths pad min-width total-width)
