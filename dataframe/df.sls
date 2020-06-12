@@ -239,7 +239,7 @@
 
   ;; thread-first and thread-last -------------------------------------------------------------
 
-  ;; https://github.com/ar-nelson/srfi-197/blob/master/srfi-197.scm
+  ;; https://github.com/ar-nelson/srfi-197/commit/c9b326932d7352a007e25051cb204ad7e9945a45
   (define-syntax ->
     (syntax-rules ()
       [(-> x) x]
