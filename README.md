@@ -7,6 +7,7 @@ Related blog posts:
 [Select, drop, and rename dataframe columns in Chez Scheme](https://www.travishinkelman.com/posts/select-drop-rename-dataframe-columns-chez-scheme/)  
 [Split, bind, and append dataframes in Chez Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-chez-scheme/)  
 [Filter, partition, and sort dataframes in Chez Scheme](https://www.travishinkelman.com/posts/filter-partition-and-sort-dataframes-in-chez-scheme/)  
+[Modify and aggregate dataframes in Chez Scheme](https://www.travishinkelman.com/posts/modify-aggregate-dataframes-chez-scheme/)  
 
 ## Installation
 
