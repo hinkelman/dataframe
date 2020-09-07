@@ -226,7 +226,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 
 #### <a name="rows-df"></a> procedure: `(rowtable->dataframe rt header?)`  
-**returns:** a dataframe from rowtable `rt`; if `header?` is `#f` a header row is created
+**returns:** a dataframe from rowtable `rt`; if `header?` is `#f` a header row is created; string headers are automatically converted to symbols
 
 ```
 ;; a rowtable is a row-based data structure; a dataframe is a column-based data structure
@@ -243,9 +243,11 @@ Exception in (make-dataframe alist): names are not symbols
          2         5         8
          3         6         9
 
-> (rowtable->dataframe '(("a" "b" "c") (1 4 7) (2 5 8) (3 6 9)) #t)
-
-Exception in (make-dataframe alist): names are not symbols
+> (dataframe-display (rowtable->dataframe '(("a" "b" "c") (1 4 7) (2 5 8) (3 6 9)) #t))
+         a         b         c
+         1         4         7
+         2         5         8
+         3         6         9
 ```
 
 #### <a name="df-ref"></a> procedure: `(dataframe-ref df indices name ...)`  
