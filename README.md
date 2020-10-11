@@ -32,6 +32,9 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 ### Dataframe record type  
 
 [`(make-dataframe alist)`](#make-df)  
+[`(dataframe-alist)`](#dataframe-alist)  
+[`(dataframe-names df)`](#dataframe-names)  
+[`(dataframe-dim df)`](#dataframe-dim)  
 [`(dataframe-display df n pad min-width total-width)`](#df-display)  
 [`(dataframe-contains df name ...)`](#df-contains)  
 [`(dataframe-head df n)`](#df-head)  
@@ -113,6 +116,32 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 > (define df (make-dataframe '(("a" 1 2 3) ("b" 4 5 6))))
 
 Exception in (make-dataframe alist): names are not symbols
+```
+
+#### <a name="dataframe-alist"></a> procedure: `(dataframe-alist df)`  
+**returns:** an association list of the contents of dataframe `df` 
+
+```
+> (dataframe-alist (make-dataframe '((a 1 2 3) (b 4 5 6))))
+((a 1 2 3) (b 4 5 6))
+```
+
+#### <a name="dataframe-names"></a> procedure: `(dataframe-names df)`  
+**returns:** a list of symbols representing the names of columns in dataframe `df` 
+
+```
+> (dataframe-names (make-dataframe '((a 1) (b 2) (c 3) (d 4))))
+(a b c d)
+```
+
+#### <a name="dataframe-dim"></a> procedure: `(dataframe-dim df)`  
+**returns:** a pair of the number of rows and columns `(rows . columns)` in dataframe `df` 
+
+```
+> (dataframe-dim (make-dataframe '((a 1) (b 2) (c 3) (d 4))))
+(1 . 4)
+> (dataframe-dim (make-dataframe '((a 1 2 3) (b 4 5 6))))
+(3 . 2)
 ```
 
 #### <a name="df-display"></a> procedure: `(dataframe-display df n pad min-width total-width)`  
