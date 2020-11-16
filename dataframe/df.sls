@@ -201,9 +201,6 @@
     (apply check-df-names df "(dataframe-drop df names)" names)
     (make-dataframe (alist-drop (dataframe-alist df) names)))
 
-  (define (alist-drop alist names)
-    (filter (lambda (column) (not (member (car column) names))) alist))
-
 
   ;; rename columns ---------------------------------------------------------------------------------
 

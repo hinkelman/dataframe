@@ -398,4 +398,24 @@
 (test-error (dataframe-ref df27 '(2) 'total))
 (test-end "dataframe-ref-test")
 
+(define df28 (make-dataframe '((site "b" "a" "c")
+                               (habitat "grassland" "meadow" "woodland"))))
+
+(define df29 (make-dataframe '((site "c" "b" "c" "b")
+                               (day 1 1 2 2)
+                               (catch 10 12 20 24))))
+
+(test-begin "dataframe-join-test")
+(test-assert (dataframe-equal? (dataframe-left-join df28 df29 '(site) -999)
+                               (make-dataframe '((site "b" "b" "a" "c" "c")
+                                                 (habitat "grassland" "grassland" "meadow" "woodland" "woodland")
+                                                 (day 1 2 -999 1 2)
+                                                 (catch 12 24 -999 10 20)))))
+(test-assert (dataframe-equal? (dataframe-left-join df29 df28 '(site) -999)
+                               (make-dataframe '((site "c" "c" "b" "b")
+                                                 (day 1 2 1 2)
+                                                 (catch 10 20 12 24)
+                                                 (habitat "woodland" "woodland" "grassland" "grassland")))))
+(test-end "dataframe-join-test")
+
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))

@@ -3,6 +3,7 @@
    add-names-ls-vals
    alist-modify
    alist-select
+   alist-drop
    alist-values
    alist-values-map
    combine-names-ordered
@@ -74,6 +75,9 @@
 
   (define (alist-select alist names)
     (map (lambda (name) (assoc name alist)) names))
+
+  (define (alist-drop alist names)
+    (filter (lambda (column) (not (member (car column) names))) alist))
 
   (define (alist-values alist name)
     (cdr (assoc name alist)))

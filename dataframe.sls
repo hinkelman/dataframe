@@ -20,6 +20,7 @@
    dataframe-filter-at
    dataframe-filter-all
    dataframe-head
+   dataframe-left-join
    dataframe-modify
    dataframe-modify-at
    dataframe-modify-all
@@ -49,6 +50,7 @@
           (dataframe df)
           (dataframe display)
           (dataframe filter)
+          (dataframe join)
           (dataframe modify)
           (dataframe rowtable)
           (dataframe sort)
