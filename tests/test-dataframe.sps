@@ -388,7 +388,10 @@
 (test-end "dataframe-sort-test")
 
 (test-begin "dataframe-ref-test")
-(test-assert (dataframe-equal? (make-dataframe '((grp "a" "b" "b") (trt "a" "a" "b") (adult 1 3 5) (juv 10 30 50)))
+(test-assert (dataframe-equal? (make-dataframe '((grp "a" "b" "b")
+                                                 (trt "a" "a" "b")
+                                                 (adult 1 3 5)
+                                                 (juv 10 30 50)))
                                (dataframe-ref df27 '(0 2 4))))
 (test-assert (dataframe-equal? (make-dataframe '((adult 1 3 5) (juv 10 30 50)))
                                (dataframe-ref df27 '(0 2 4) 'adult 'juv)))
@@ -405,17 +408,32 @@
                                (day 1 1 2 2)
                                (catch 10 12 20 24))))
 
+(define df30 (make-dataframe '((first "sam" "bob" "sam" "dan")
+                               (last  "son" "ert" "jam" "man")
+                               (age 10 20 30 40))))
+
+(define df31 (make-dataframe '((first "sam" "bob" "dan" "bob")
+                               (last "son" "ert" "man" "ert")
+                               (game 1 1 1 2)
+                               (goals 0 1 2 3))))
+                               
+
 (test-begin "dataframe-join-test")
 (test-assert (dataframe-equal? (dataframe-left-join df28 df29 '(site) -999)
                                (make-dataframe '((site "b" "b" "a" "c" "c")
-                                                 (habitat "grassland" "grassland" "meadow" "woodland" "woodland")
+                                                 (habitat "grassland" "grassland"
+                                                          "meadow" "woodland" "woodland")
                                                  (day 1 2 -999 1 2)
                                                  (catch 12 24 -999 10 20)))))
 (test-assert (dataframe-equal? (dataframe-left-join df29 df28 '(site) -999)
                                (make-dataframe '((site "c" "c" "b" "b")
                                                  (day 1 2 1 2)
                                                  (catch 10 20 12 24)
-                                                 (habitat "woodland" "woodland" "grassland" "grassland")))))
+                                                 (habitat "woodland" "woodland"
+                                                          "grassland" "grassland")))))
+(test-error (dataframe-left-join df31 (dataframe-alist df30) '(first last) -999))
+(test-error (dataframe-left-join df29 df28 '(site day catch) -999))
+(test-error (dataframe-left-join df31 df30 '(first) -999))
 (test-end "dataframe-join-test")
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))

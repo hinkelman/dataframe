@@ -6,9 +6,9 @@
           (dataframe split)
           (only (dataframe df)
                 check-all-dataframes
-                check-names-exist
                 make-dataframe
                 dataframe-names
+                dataframe-contains?
                 dataframe-alist
                 dataframe-dim)   
           (only (dataframe helpers)
@@ -16,13 +16,13 @@
                 alist-drop))
 
   (define (dataframe-left-join df1 df2 join-names missing-value)
-    (let ([proc-string "(dataframe-left-join df1 df2 names missing-value)"]
-          [df1-not-join-names (not-in (dataframe-names df1) join-names)]
-          [df2-not-join-names (not-in (dataframe-names df2) join-names)])
+    (let ([proc-string "(dataframe-left-join df1 df2 join-names missing-value)"])
       (check-all-dataframes (list df1 df2) proc-string)
-      (apply check-names-exist df1 proc-string join-names)
-      (apply check-names-exist df2 proc-string join-names)
-      (check-names-unique (append df1-not-join-names df2-not-join-names) proc-string))
+      (check-join-names-exist df1 "df1" proc-string join-names)
+      (check-join-names-exist df2 "df2" proc-string join-names)
+      (let ([df1-not-join-names (not-in (dataframe-names df1) join-names)]
+            [df2-not-join-names (not-in (dataframe-names df2) join-names)])
+        (check-names-unique (append df1-not-join-names df2-not-join-names) proc-string)))
     (let-values ([(df1-ls df1-grp) (dataframe-split-helper df1 join-names #t)]
                  [(df2-ls df2-grp) (dataframe-split-helper df2 join-names #t)])
       (apply dataframe-bind
@@ -31,6 +31,10 @@
                         (join-match df grp df2-ls df2-grp join-names missing-value)
                         (join-no-match df df2 join-names missing-value)))
                   df1-ls df1-grp))))
+
+  (define (check-join-names-exist df df-name who names)
+    (unless (apply dataframe-contains? df names)
+      (assertion-violation who (string-append "not all join-names in " df-name))))
 
   (define (not-in xs ys)
     (filter (lambda (x) (not (member x ys))) xs))
