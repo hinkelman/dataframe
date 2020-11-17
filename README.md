@@ -36,7 +36,7 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 [`(dataframe-names df)`](#dataframe-names)  
 [`(dataframe-dim df)`](#dataframe-dim)  
 [`(dataframe-display df n pad min-width total-width)`](#df-display)  
-[`(dataframe-contains df name ...)`](#df-contains)  
+[`(dataframe-contains? df name ...)`](#df-contains)  
 [`(dataframe-head df n)`](#df-head)  
 [`(dataframe-tail df n)`](#df-tail)  
 [`(dataframe-equal? df1 df2 ...)`](#df-equal)  
@@ -164,7 +164,7 @@ Exception in (make-dataframe alist): names are not symbols
          4         5
 ```
 
-#### <a name="df-contains"></a> procedure: `(dataframe-contains df name ...)`  
+#### <a name="df-contains"></a> procedure: `(dataframe-contains? df name ...)`  
 **returns:** `#t` if all column `names` are found in dataframe `df`, `#f` otherwise  
 
 ```
