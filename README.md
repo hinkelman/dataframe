@@ -1,6 +1,6 @@
 # Chez Scheme Dataframe Library
 
-A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, modify, and aggregate dataframes. 
+A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, modify, and aggregate dataframes. 
 
 Related blog posts:  
 [A dataframe record type for Chez Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-chez-scheme/)  
@@ -71,7 +71,11 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 [`(dataframe-split df group-name ...)`](#df-split)  
 [`(dataframe-bind df1 df2 ...)`](#df-bind)  
 [`(dataframe-bind-all missing-value df1 df2 ...)`](#df-bind-all)  
-[`(dataframe-append df1 df2 ...)`](#df-append)  
+[`(dataframe-append df1 df2 ...)`](#df-append)
+
+### Join
+
+[`(dataframe-left-join df1 df2 join-names missing-value)`](#df-left-join)
 
 ### Modify and aggregate  
 
@@ -643,6 +647,59 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
          7        10         1         4
          8        11         2         5
          9        12         3         6
+```
+
+## Join
+
+#### <a name="df-left-join"></a> procedure: `(dataframe-left-join df1 df2 join-names missing-value)`  
+**returns:** a dataframe formed by joining on the shared columns, `join-names`, of the dataframes `df1` and  `df2` where `df1` is the left dataframe; rows in `df1` not matched by any rows in `df2` are filled with `missing-value`; if a row in `df1` matches multiple rows in `df2`, then rows in `df1` will be repeated for all matching rows in `df2`
+
+```
+> (define df1 (make-dataframe '((site "b" "a" "c")
+                               (habitat "grassland" "meadow" "woodland"))))
+
+> (define df2 (make-dataframe '((site "c" "b" "c" "b")
+                               (day 1 1 2 2)
+                               (catch 10 12 20 24))))
+
+> (dataframe-display (dataframe-left-join df1 df2 '(site) -999))
+      site    habitat       day     catch
+         b  grassland         1        12
+         b  grassland         2        24
+         a     meadow      -999      -999
+         c   woodland         1        10
+         c   woodland         2        20
+
+> (dataframe-display (dataframe-left-join df2 df1 '(site) -999))
+      site       day     catch    habitat
+         c         1        10   woodland
+         c         2        20   woodland
+         b         1        12  grassland
+         b         2        24  grassland
+
+> (define df3 (make-dataframe '((first "sam" "bob" "sam" "dan")
+                               (last  "son" "ert" "jam" "man")
+                               (age 10 20 30 40))))
+
+> (define df4 (make-dataframe '((first "sam" "bob" "dan" "bob")
+                               (last "son" "ert" "man" "ert")
+                               (game 1 1 1 2)
+                               (goals 0 1 2 3))))
+
+> (dataframe-display (dataframe-left-join df3 df4 '(first last) -999))
+     first      last       age      game     goals
+       sam       son        10         1         0
+       bob       ert        20         1         1
+       bob       ert        20         2         3
+       sam       jam        30      -999      -999
+       dan       man        40         1         2
+
+> (dataframe-display (dataframe-left-join df4 df3 '(first last) -999))
+     first      last      game     goals       age
+       sam       son         1         0        10
+       dan       man         1         2        40
+       bob       ert         1         1        20
+       bob       ert         2         3        20
 ```
 
 ## Modify and aggregate  
