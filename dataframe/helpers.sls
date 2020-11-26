@@ -12,6 +12,7 @@
    filter-vals
    get-all-names
    get-all-unique-names
+   cartesian-product
    check-index
    check-integer-gte-zero
    check-integer-positive
@@ -60,6 +61,17 @@
     (define (loop ls-out n)
       (if (= n 1) ls-out (loop (append ls ls-out) (sub1 n))))
     (loop ls n))
+
+  (define (cartesian-product . ls)
+    (fold-right product-of-two '(()) ls))
+
+  (define (product-of-two ls1 ls2)
+    (apply append
+           (map (lambda (x)
+                  (map (lambda (y)
+                         (cons x y))
+                       ls2))
+                ls1)))
 
   ;; ls-vals ------------------------------------------------------------------------
   

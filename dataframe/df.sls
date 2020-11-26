@@ -10,6 +10,7 @@
    dataframe?
    dataframe-alist
    dataframe-contains?
+   dataframe-crossing
    dataframe-dim
    dataframe-drop
    dataframe-equal?
@@ -66,6 +67,14 @@
                            (new alist
                                 (map car alist)
                                 (cons (length (cdar alist)) (length alist)))))))
+
+  ;; crossing/cartesian-procuct ----------------------------------------------------------------
+  
+  (define (dataframe-crossing alist)
+    (let* ([names (map car alist)]
+           [ls-vals (map cdr alist)]
+           [cart (apply map list (apply cartesian-product ls-vals))])
+      (make-dataframe (add-names-ls-vals names cart))))
 
   ;; check dataframes --------------------------------------------------------------------------
   

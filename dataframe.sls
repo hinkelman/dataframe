@@ -12,6 +12,7 @@
    dataframe-bind
    dataframe-bind-all
    dataframe-contains?
+   dataframe-crossing
    dataframe-dim
    dataframe-display
    dataframe-drop

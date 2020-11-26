@@ -38,6 +38,14 @@
        (append alist-rep
                (list (cons names-to names-to-vals))
                (list (cons values-to values-to-vals))))))
+
+ ;; (define (dataframe-spread df names-from values-from missing-value))
+
+  ;; need a proc for converting strings to symbols
+
  
   )
 
+;; (define df (make-dataframe '((day 1 3 2 2 1)
+;;                              (grp b a b a b)
+;;                              (val 10 15 20 25 30))))
