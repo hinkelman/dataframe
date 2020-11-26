@@ -4,6 +4,7 @@
    alist-modify
    alist-select
    alist-drop
+   alist-repeat-rows
    alist-values
    alist-values-map
    combine-names-ordered
@@ -22,7 +23,9 @@
    check-new-names
    check-name-pairs
    check-alist
+   not-in
    partition-ls-vals
+   rep
    remove-duplicates
    transpose
    unique-rows)
@@ -40,6 +43,23 @@
   
   (define (transpose ls)
     (apply map list ls))
+
+  (define (not-in xs ys)
+    (filter (lambda (x) (not (member x ys))) xs))
+
+  (define (rep ls n type)
+    (cond [(symbol=? type 'each)
+           (apply append (map (lambda (x) (make-list n x)) ls))]
+          [(symbol=? type 'times)
+           (rep-times ls n)]
+          [else
+           (assertion-violation "(rep ls n type)"
+                                "type must be 'each or 'times")]))
+
+  (define (rep-times ls n)
+    (define (loop ls-out n)
+      (if (= n 1) ls-out (loop (append ls ls-out) (sub1 n))))
+    (loop ls n))
 
   ;; ls-vals ------------------------------------------------------------------------
   
@@ -84,6 +104,10 @@
 
   (define (alist-values-map alist names)
     (map (lambda (name) (alist-values alist name)) names))
+
+  ;; expand an list by repeating rows n times (or each)
+  (define (alist-repeat-rows alist n type)
+    (map (lambda (ls) (cons (car ls) (rep (cdr ls) n type))) alist))
 
   ;; update alist and or add column to end of alist
   ;; based on whether name is already present in alist

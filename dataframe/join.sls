@@ -12,8 +12,10 @@
                 dataframe-alist
                 dataframe-dim)   
           (only (dataframe helpers)
+                not-in
                 check-names-unique
-                alist-drop))
+                alist-drop
+                alist-repeat-rows))
 
   (define (dataframe-left-join df1 df2 join-names missing-value)
     (let ([proc-string "(dataframe-left-join df1 df2 join-names missing-value)"])
@@ -35,9 +37,6 @@
   (define (check-join-names-exist df df-name who names)
     (unless (apply dataframe-contains? df names)
       (assertion-violation who (string-append "not all join-names in " df-name))))
-
-  (define (not-in xs ys)
-    (filter (lambda (x) (not (member x ys))) xs))
   
   ;; df1 and grp1 are elements of df1-ls and df1-grp
   (define (join-match df1 grp1 df2-ls df2-grp join-names missing-value)
@@ -46,8 +45,12 @@
            [df2-rows (car (dataframe-dim df2))]
            [alist1 (dataframe-alist df1)]
            [alist2 (dataframe-alist df2)]
-           [alist1-new (if (>= df1-rows df2-rows) alist1 (alist-repeat-rows alist1 df2-rows))]
-           [alist2-new (if (>= df2-rows df1-rows) alist2 (alist-repeat-rows alist2 df1-rows))])
+           [alist1-new (if (>= df1-rows df2-rows)
+                           alist1
+                           (alist-repeat-rows alist1 df2-rows 'times))]
+           [alist2-new (if (>= df2-rows df1-rows)
+                           alist2
+                           (alist-repeat-rows alist2 df1-rows 'times))])
       (make-dataframe
        (append alist1-new (alist-drop alist2-new join-names)))))
   
@@ -63,11 +66,5 @@
   (define (alist-fill-missing names n missing-value)
     (map (lambda (name) (cons name (make-list n missing-value))) names))
 
-  ;; expand an alist by repeating rows n times
-  (define (alist-repeat-rows alist n)
-    (map (lambda (ls)
-           (cons (car ls) (apply append (map (lambda (x) (make-list n x)) (cdr ls)))))
-         alist))
-  
   )
 

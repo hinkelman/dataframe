@@ -32,6 +32,7 @@
    dataframe-select
    dataframe-sort
    dataframe-split
+   dataframe-stack
    dataframe-ref
    dataframe-tail
    dataframe-unique
@@ -52,6 +53,7 @@
           (dataframe filter)
           (dataframe join)
           (dataframe modify)
+          (dataframe reshape)
           (dataframe rowtable)
           (dataframe sort)
           (dataframe split))

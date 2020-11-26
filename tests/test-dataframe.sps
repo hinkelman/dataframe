@@ -436,4 +436,29 @@
 (test-error (dataframe-left-join df31 df30 '(first) -999))
 (test-end "dataframe-join-test")
 
+(define df32 (make-dataframe '((day 1 2)
+                               (hour 10 11)
+                               (a 97 78)
+                               (b 84 47)
+                               (c 55 54))))
+
+(test-begin "dataframe-stack-test")
+(test-assert (dataframe-equal? (dataframe-stack df22 '(adult juv) 'stage 'count)
+                               (make-dataframe '((grp a a b b b a a b b b)
+                                                 (trt a b a b b a b a b b)
+                                                 (stage adult adult adult adult adult juv juv juv juv juv)
+                                                 (count 1 2 3 4 5 10 20 30 40 50)))))
+(test-assert (dataframe-equal? (dataframe-stack df32 '(a b c) 'site 'count)
+                               (make-dataframe '((day 1 2 1 2 1 2)
+                                                 (hour 10 11 10 11 10 11)
+                                                 (site a a b b c c)
+                                                 (count 97 78 84 47 55 54)))))
+(test-error (dataframe-stack '(1 2 3) 'stage 'count '(adult juv)))
+(test-error (dataframe-stack df22 'grp 'count '(adult juv)))
+(test-error (dataframe-stack df22 'stage "count" '(adult juv)))
+(test-error (dataframe-stack df22 'stage 'count '(adult juvenile)))
+(test-end "dataframe-stack-test")
+
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
+
+

@@ -77,6 +77,10 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 
 [`(dataframe-left-join df1 df2 join-names missing-value)`](#df-left-join)
 
+### Reshape
+
+[`(dataframe-stack df names names-to values-to)`](#df-stack)
+
 ### Modify and aggregate  
 
 [`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
@@ -702,6 +706,49 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
        bob       ert         2         3        20
 ```
 
+## Reshape
+
+#### <a name="df-stack"></a> procedure: `(dataframe-stack df names names-to values-to)`  
+**returns:** a dataframe formed by stacking pieces of a wide-format `df`; `names` is a list of column names to be combined into a single column; `names-to` is the name of the new column formed from the columns selected in `names`; `values-to` is the the name of the new column formed from the values in the columns selected in `names`
+
+```
+> (define df (make-dataframe '((day 1 2)
+                               (hour 10 11)
+                               (a 97 78)
+                               (b 84 47)
+                               (c 55 54))))
+
+> (dataframe-display (dataframe-stack df '(a b c) 'site 'count))
+       day      hour      site     count
+         1        10         a        97
+         2        11         a        78
+         1        10         b        84
+         2        11         b        47
+         1        10         c        55
+         2        11         c        54
+
+;; reshaping to long format is useful for aggregating
+> (-> '((day 1 1 2 2)
+        (hour 10 11 10 11)
+        (a 97 78 83 80)
+        (b 84 47 73 46)
+        (c 55 54 38 58))
+      (make-dataframe)
+      (dataframe-stack '(a b c) 'site 'count)
+      (dataframe-aggregate
+       '(hour site)
+       (aggregate-expr (total-count (count) (apply + count))))
+      (dataframe-display))
+
+      hour      site  total-count
+        10         a          180
+        11         a          158
+        10         b          157
+        11         b           93
+        10         c           93
+        11         c          112
+```
+
 ## Modify and aggregate  
 
 #### <a name="modify-expr"></a> procedure: `(modify-expr (new-name (names) (expr)) ...)`  
@@ -774,7 +821,6 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
        200       500       800
        300       600       900
 ```
-
 
 #### <a name="aggregate-expr"></a> procedure: `(aggregate-expr (new-name (names) (expr)) ...)`  
 **returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  
