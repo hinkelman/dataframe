@@ -33,6 +33,7 @@
    dataframe-select
    dataframe-sort
    dataframe-split
+   dataframe-spread
    dataframe-stack
    dataframe-ref
    dataframe-tail

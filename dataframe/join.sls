@@ -1,5 +1,6 @@
 (library (dataframe join)
-  (export dataframe-left-join)
+  (export dataframe-left-join
+          dataframe-left-join-all)
 
   (import (chezscheme)
           (dataframe bind)
@@ -16,6 +17,15 @@
                 check-names-unique
                 alist-drop
                 alist-repeat-rows))
+
+  (define (dataframe-left-join-all dfs join-names missing-value)
+    (let loop ([dfs (cdr dfs)]
+               [out (car dfs)])
+      (if (null? dfs)
+          out
+          (loop (cdr dfs)
+                (dataframe-left-join
+                 out (car dfs) join-names missing-value)))))
 
   (define (dataframe-left-join df1 df2 join-names missing-value)
     (let ([proc-string "(dataframe-left-join df1 df2 join-names missing-value)"])

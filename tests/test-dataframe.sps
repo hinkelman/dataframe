@@ -464,6 +464,27 @@
 (test-error (dataframe-stack df22 'stage 'count '(adult juvenile)))
 (test-end "dataframe-stack-test")
 
+;; no extra effort was made to ensure that spreading and stacking always yield same sort order
+;; if tests are failing that should be a first place to look
+(test-begin "dataframe-spread-test")
+(test-assert (dataframe-equal? (-> df32
+                                   (dataframe-stack '(a b c) 'site 'count)
+                                   (dataframe-spread 'site 'count -999))
+                               df32))
+(test-assert (dataframe-equal? (-> df22
+                                   (dataframe-stack '(adult juv) 'stage 'count)
+                                   (dataframe-spread 'stage 'count -999))
+                               df22))
+(test-assert (dataframe-equal? (-> '((day 1 2 3)
+                                     (grp "A" "B" "B")
+                                     (val 10 20 30))
+                                   (make-dataframe)
+                                   (dataframe-spread 'grp 'val -999))
+                               (make-dataframe '((day 1 2 3)
+                                                 (A 10 -999 -999)
+                                                 (B -999 20 30)))))
+(test-end "dataframe-spread-test")
+
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 
 
