@@ -20,6 +20,11 @@
 (test-error (dataframe-alist '((a 1 2 3) (b 4 5 6))))
 (test-end "dataframe-alist-test")
 
+(test-begin "dataframe-crossing-test")
+(test-assert (dataframe-equal? (dataframe-crossing '((col1 a b) (col2 c d)))
+                               (make-dataframe '((col1 a a b b) (col2 c d c d)))))
+(test-end "dataframe-crossing-test")
+
 (define df3 (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c -999 -999 -999 7 8 9))))
 (define df4 (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
 

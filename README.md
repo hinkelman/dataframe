@@ -37,6 +37,7 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 [`(dataframe-dim df)`](#dataframe-dim)  
 [`(dataframe-display df n pad min-width total-width)`](#df-display)  
 [`(dataframe-contains? df name ...)`](#df-contains)  
+[`(dataframe-crossing alist)`](#df-crossing)  
 [`(dataframe-head df n)`](#df-head)  
 [`(dataframe-tail df n)`](#df-tail)  
 [`(dataframe-equal? df1 df2 ...)`](#df-equal)  
@@ -124,6 +125,31 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 > (define df (make-dataframe '(("a" 1 2 3) ("b" 4 5 6))))
 
 Exception in (make-dataframe alist): names are not symbols
+```
+
+#### <a name="df-crossing"></a> procedure: `(dataframe-crossing alist)`  
+**returns:** a dataframe formed from the cartesian products of the columns in `alist`
+
+```
+> (dataframe-display
+   (dataframe-crossing
+    '((col1 "a" "b" "c")
+      (col2 "D" "E")
+      (col3 "f" "g")))
+   12)
+      col1      col2      col3
+         a         D         f
+         a         D         g
+         a         E         f
+         a         E         g
+         b         D         f
+         b         D         g
+         b         E         f
+         b         E         g
+         c         D         f
+         c         D         g
+         c         E         f
+         c         E         g
 ```
 
 #### <a name="dataframe-alist"></a> procedure: `(dataframe-alist df)`  
