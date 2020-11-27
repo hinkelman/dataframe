@@ -80,8 +80,8 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 
 ### Reshape
 
+[`(dataframe-stack df names names-to values-to)`](#df-stack)  
 [`(dataframe-spread df names-from values-from missing-value)`](#df-spread)  
-[`(dataframe-stack df names names-to values-to)`](#df-stack)
 
 ### Modify and aggregate  
 
