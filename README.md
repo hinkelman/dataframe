@@ -80,6 +80,7 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 
 ### Reshape
 
+[`(dataframe-spread df names-from values-from missing-value)`](#df-spread)  
 [`(dataframe-stack df names names-to values-to)`](#df-stack)
 
 ### Modify and aggregate  
@@ -514,7 +515,6 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
          3         6         9
 ```
 
-
 #### <a name="df-partition"></a> procedure: `(dataframe-partition df filter-expr)`  
 **returns:** two dataframes where the rows of dataframe `df` are partitioned according to the `filter-expr`  
 
@@ -578,8 +578,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 ## Split, bind, and append  
 
 #### <a name="df-split"></a> procedure: `(dataframe-split df group-names ...)`  
-**returns:** list of dataframes split into unique groups by `group-names` from dataframe `df`  
-
+**returns:** list of dataframes split into unique groups by `group-names` from dataframe `df`; requires that all values in each grouping column are the same type  
 ```
 > (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
                                (trt "a" "b" "a" "b" "b")
@@ -773,6 +772,32 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
         11         b           93
         10         c           93
         11         c          112
+```
+
+#### <a name="df-spread"></a> procedure: `(dataframe-spread df names-from values-from missing-value)`  
+**returns:** a dataframe formed by spreading a long format `df` into a wide-format dataframe; `names-from` is the name of the column containing the names of the new columns; `values-from` is the the name of the column containing the values that will be spread across the new columns; `missing-value` is a scalar value used to fill combinations that are not found in the long format `df`
+
+```
+> (define df1 (make-dataframe '((day 1 1 2)
+                                (grp "A" "B" "B")
+                                (val 10 20 30))))
+
+> (dataframe-display (dataframe-spread df1 'grp 'val -999))
+       day         A         B
+         1        10        20
+         2      -999        30
+
+> (define df2 (make-dataframe '((day 1 1 1 1 2 2 2 2)
+                                (hour 10 10 11 11 10 10 11 11)
+                                (grp a b a b a b a b)
+                                (val 83 78 80 105 95 77 96 99))))
+
+> (dataframe-display (dataframe-spread df2 'grp 'val -999))
+       day      hour         a         b
+         1        10        83        78
+         1        11        80       105
+         2        10        95        77
+         2        11        96        99
 ```
 
 ## Modify and aggregate  

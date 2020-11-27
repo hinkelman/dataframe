@@ -483,6 +483,11 @@
                                (make-dataframe '((day 1 2 3)
                                                  (A 10 -999 -999)
                                                  (B -999 20 30)))))
+(test-error (dataframe-spread (make-dataframe '((day 1 2 3)
+                                                (hr 10 11 12)
+                                                (val 10 20 30)))
+                              'hr 'val -999))
+(test-error (dataframe-spread (make-dataframe '((A 1 2 3) (B 4 5 6))) 'B 'C -999))
 (test-end "dataframe-spread-test")
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
