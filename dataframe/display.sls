@@ -21,7 +21,7 @@
       [(df n pad min-width total-width) (df-display-helper df n pad min-width total-width)]))
 
   (define (df-display-helper df n pad min-width total-width)
-    (let ([proc-string "(dataframe-view df)"])
+    (let ([proc-string "(dataframe-display df n pad min-width total-width)"])
       (check-dataframe df proc-string)
       (unless (> min-width pad)
         (assertion-violation proc-string "min-width must be greater than pad"))
@@ -44,11 +44,9 @@
   (define (object->string object)
     (cond [(number? object) (number->string object)]
           [(symbol? object) (symbol->string object)]
+          [(boolean? object) (if object "#t" "#f")]
           [(string? object)  object]
-          [else
-           (assertion-violation
-            "(object->string object)"
-            "object is not a number, symbol, or string")]))   
+          [else "compound data"]))
   
   ;; if a column is numeric, then potentially truncated to length of column name 
   (define (column-widths names ls-vals ls-vals-string)
