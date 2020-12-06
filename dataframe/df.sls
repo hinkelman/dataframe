@@ -124,7 +124,7 @@
     (let ([proc-string  "(dataframe-tail df n)"])
       (check-dataframe df proc-string)
       (check-integer-gte-zero n "n" proc-string)
-      (check-index (sub1 n) (car (dataframe-dim df)) proc-string)
+      (check-index (add1 n) (car (dataframe-dim df)) proc-string)
       (make-dataframe (alist-head-tail (dataframe-alist df) n list-tail))))
 
   (define (alist-head-tail alist n proc)

@@ -157,7 +157,6 @@
 (test-error (make-dataframe 100))
 (test-error (make-dataframe '()))
 (test-error (make-dataframe '(1 2 3)))
-(test-error (make-dataframe '((a (1 2 3))))) 
 (test-error (make-dataframe '(("a" 1 2 3))))
 (test-error (make-dataframe '((a 1 2 3) (a 1 2 3))))
 (test-error (make-dataframe '((a 1 2 3) (b 1 2 3 4))))

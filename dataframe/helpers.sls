@@ -210,8 +210,6 @@
       (assertion-violation who "alist is not a list"))
     (unless (list? (car alist))
       (assertion-violation who "(car alist) is not a list"))
-    (when (list? (cadar alist))
-      (assertion-violation who "(cadar alist) is a list"))
     (let ([names (map car alist)])
       (check-names-symbol names who)
       (check-names-unique names who))
