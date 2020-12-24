@@ -461,10 +461,10 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 
 ```
 > (filter-expr (adult) (> adult 3))
-((adult) #<procedure>)
+((adult) (lambda (adult) (> adult 3)))
 
 > (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50)))
-((grp juv) #<procedure>)
+((grp juv) (lambda (grp juv) (and (symbol=? grp 'b) (< juv 50))))
 ```
 
 #### <a name="df-filter"></a> procedure: `(dataframe-filter df filter-expr)`  
@@ -808,7 +808,8 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 ```
 > (modify-expr (grp (grp) (symbol->string grp))
                (total (adult juv) (+ adult juv)))
-((grp total) ((grp) (adult juv)) (#<procedure> #<procedure>))
+((grp total) ((grp) (adult juv)) ((lambda (grp) (symbol->string grp))
+                                  (lambda (adult juv) (+ adult juv))))
 ```
 
 #### <a name="df-modify"></a> procedure: `(dataframe-modify df modify-expr)`  
@@ -841,7 +842,6 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
          b         b         5        50        55        42        10
 
 ```
-
 
 #### <a name="df-modify-at"></a> procedure: `(dataframe-modify-at df procedure name ...)`  
 **returns:** a dataframe where the specified columns (`names`) of dataframe `df` are modified based on `procedure`, which can only take one argument  
@@ -878,8 +878,9 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 
 ```
 > (aggregate-expr (adult-sum (adult) (apply + adult))
-                (juv-sum (juv) (apply + juv)))
-((adult-sum juv-sum) ((adult) (juv)) (#<procedure> #<procedure>))
+                  (juv-sum (juv) (apply + juv)))
+((adult-sum juv-sum) ((adult) (juv)) ((lambda (adult) (apply + adult))
+                                      (lambda (juv) (apply + juv))))
 ```
 
 #### <a name="df-aggregate"></a> procedure: `(dataframe-aggregate df group-names aggregate-expr)`  
