@@ -2,11 +2,12 @@
 (library (dataframe display)
   (export dataframe-display)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-dataframe
                 dataframe-alist)    
           (only (dataframe helpers)
+                list-head
                 transpose))
 
   ;; lack of familiarity with `format` meant reinventing the wheel
@@ -76,7 +77,7 @@
   (define (string-adjust-length string column-width pad)
     (let* ([max-width (- column-width pad)]
            [string-new (if (> (string-length string) max-width)
-                           (string-truncate! string max-width)
+                           (substring 0 string max-width)
                            string)])
       (string-append
        (make-string (- column-width (string-length string-new)) #\ )

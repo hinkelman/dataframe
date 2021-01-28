@@ -5,13 +5,15 @@
    dataframe->rowtable
    rowtable->dataframe)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-dataframe
                 dataframe-names
                 dataframe-values-map
                 make-dataframe)
           (only (dataframe helpers)
+                iota
+                    make-list
                 transpose))
 
   (define (dataframe->rowtable df)

@@ -29,7 +29,7 @@
    dataframe-write
    make-dataframe)
 
-  (import (chezscheme)
+  (import (rnrs)
           (dataframe helpers))
 
   ;; naming conventions ----------------------------------------------------------------------

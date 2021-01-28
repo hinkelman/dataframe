@@ -5,7 +5,7 @@
           dataframe-partition
           filter-expr)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-dataframe
                 check-df-names

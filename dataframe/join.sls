@@ -2,7 +2,7 @@
   (export dataframe-left-join
           dataframe-left-join-all)
 
-  (import (chezscheme)
+  (import (rnrs)
           (dataframe bind)
           (dataframe split)
           (only (dataframe df)
@@ -13,6 +13,7 @@
                 dataframe-alist
                 dataframe-dim)   
           (only (dataframe helpers)
+                make-list
                 not-in
                 check-names-unique
                 alist-drop

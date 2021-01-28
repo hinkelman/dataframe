@@ -3,7 +3,7 @@
           dataframe-bind
           dataframe-bind-all)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-all-dataframes
                 dataframe-alist
@@ -13,6 +13,7 @@
                 dataframe-values
                 make-dataframe)   
           (only (dataframe helpers)
+                make-list
                 combine-names-ordered
                 get-all-names
                 get-all-unique-names

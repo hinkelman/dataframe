@@ -2,7 +2,7 @@
   (export dataframe-stack
           dataframe-spread)
 
-  (import (chezscheme)
+  (import (rnrs)
           (dataframe modify)
           (dataframe join)
           (dataframe split)
