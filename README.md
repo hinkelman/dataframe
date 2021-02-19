@@ -915,7 +915,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
          b         b          9        90
 ```
 
-## [Thread first and thread last](https://lispdreams.wordpress.com/2016/04/10/thread-first-thread-last-and-partials-oh-my/)  
+## Thread first and thread last
 
 #### <a name="thread-first"></a> procedure: `(-> expr ...)`  
 **returns:** an object derived from passing result of previous expression `expr` as input to *first* argument of the next `expr`  
