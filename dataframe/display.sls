@@ -122,23 +122,23 @@
     (if (not (for-all number? lst))
         (let ([widthlst (map (lambda (x) (compute-bss-width x pad)) lst)])
           (list (cons 'width (apply max widthlst))))
-        (let* ([lst (map abs lst)]
+        (let* ([neg (if (any-negative? lst) 1 0)]
+               [lst (map abs lst)]
                [siglst (map compute-sigfig lst)]
                [elst (map compute-expt lst)]
-               [esiglst (map compute-sigfig elst)]
+               [esig (apply max (map compute-sigfig elst))]
                [declst (map (lambda (x sig e)
                               (compute-decimal x sig e e-dec))
                             lst siglst elst)]
-               [neglst (map (lambda (x) (if (negative? x) 1 0)) lst)] 
                [num-type (if (> (length (filter (lambda (x) (= x e-dec)) declst)) 0) "e" "f")]
-               [widthlst (map (lambda (neg sig esig dec)
+               [widthlst (map (lambda (sig dec)
                                 (compute-num-width num-type neg sig esig dec pad))
-                              neglst siglst esiglst declst)]
+                              siglst declst)]
                [dec (if (string=? num-type "e") e-dec (apply max declst))])
           (list (cons 'num-type num-type)
                 (cons 'width (apply max widthlst))
                 (cons 'decimal dec)
-                (cons 'esigfig (apply max esiglst))))))
+                (cons 'esigfig esig)))))
   
   (define (compute-num-width num-type neg sig esig dec pad)
     (if (string=? num-type "e")
@@ -148,13 +148,15 @@
   ;; characters could be displayed naturally with format
   ;; but I wasn't sure how to handle computing their width (e.g., #\newline)
   ;; bss = boolean, string, symbol
+  ;; for reasons that I don't currently understand, this math leads to extra space in format
+  ;; (which is why I've added sub1 everywhere)
   (define (compute-bss-width object pad)
     (cond [(boolean? object)
-           (+ pad (string-length (if object "#t" "#f")))]
+           (sub1 (+ pad (string-length (if object "#t" "#f"))))]
           [(string? object) ; add 2 for quotation marks
-           (+ pad 2 (string-length object))]
+           (sub1 (+ pad 2 (string-length object)))]
           [(symbol? object)
-           (+ pad (string-length (symbol->string object)))]
+           (sub1 (+ pad (string-length (symbol->string object))))]
           [else
            (assertion-violation
             "(compute-width object pad)"
@@ -173,6 +175,9 @@
     (let ([name-widths (map (lambda (name) (compute-bss-width name pad)) names)])
       (map (lambda (name-width val-width)
              (max min-width name-width val-width)) name-widths val-widths)))
+
+  (define (any-negative? lst)
+    (> (length (filter negative? lst)) 0))
 
   (define (format-number num-type dec esig)
     (let ([dec-part (string-append "," (number->string dec))])
