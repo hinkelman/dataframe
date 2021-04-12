@@ -141,7 +141,7 @@
           [ls-vals (map cdr alist)])
       (add-names-ls-vals names (unique-rows ls-vals #f))))
 
-  ;; extract values ------------------------------------------------------------------------------
+  ;; extract values -----------------------------------------------------------------
 
   ;; returns simple list
   (define (dataframe-values df name)
@@ -162,7 +162,7 @@
   (define (dataframe-values-map df names)
     (alist-values-map (dataframe-alist df) names))
 
-  ;; dataframe-ref ------------------------------------------------------------------------------
+  ;; dataframe-ref -------------------------------------------------------------------
 
   (define dataframe-ref
     (case-lambda
