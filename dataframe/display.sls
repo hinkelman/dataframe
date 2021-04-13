@@ -66,8 +66,8 @@
               (loop (cdr preds) (cdr types)))))) 
 
   (define (get-display-value object type)
-    (cond [(member type '(boolean string symbol)) object]
-          [(number? object) (number->string object)]
+    (cond [(member type '(boolean number string symbol)) object]
+         ; [(number? object) (number->string object)]
           [(char? object) (string object)]
           [(symbol=? type 'other) "<other type>"]
           [else (string-append "<" (symbol->string type) ">")]))
@@ -147,12 +147,14 @@
 
   ;; characters could be displayed naturally with format
   ;; but I wasn't sure how to handle computing their width (e.g., #\newline)
-  ;; bss = boolean, string, symbol
+  ;; bss = boolean, string, symbol; but decided to handle numbers in mixed-type columns differently w/o changing name
   ;; for reasons that I don't currently understand, this math leads to extra space in format
   ;; (which is why I've added sub1 everywhere)
   (define (compute-bss-width object pad)
     (cond [(boolean? object)
            (sub1 (+ pad (string-length (if object "#t" "#f"))))]
+          [(number? object)
+           (sub1 (+ pad (string-length (number->string object))))]
           [(string? object) ; add 2 for quotation marks
            (sub1 (+ pad 2 (string-length object)))]
           [(symbol? object)
