@@ -193,7 +193,8 @@
   (define (dataframe-write df path overwrite?)
     (when (and (file-exists? path) (not overwrite?))
       (assertion-violation path "file already exists"))
-    (delete-file path)
+    (when (file-exists? path)
+      (delete-file path))
     (with-output-to-file path
       (lambda () (write (dataframe-alist df)))))
 
