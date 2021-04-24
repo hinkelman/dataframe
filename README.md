@@ -1,6 +1,6 @@
-# Chez Scheme Dataframe Library
+# Scheme (R6RS) Dataframe Library
 
-A dataframe record type for Chez Scheme with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes. 
+A dataframe record type with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes. 
 
 Related blog posts:  
 [A dataframe record type for Chez Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-chez-scheme/)  
@@ -8,6 +8,7 @@ Related blog posts:
 [Split, bind, and append dataframes in Chez Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-chez-scheme/)  
 [Filter, partition, and sort dataframes in Chez Scheme](https://www.travishinkelman.com/posts/filter-partition-and-sort-dataframes-in-chez-scheme/)  
 [Modify and aggregate dataframes in Chez Scheme](https://www.travishinkelman.com/posts/modify-aggregate-dataframes-chez-scheme/)  
+[Note: Blog posts all refer to Chez Scheme because `dataframe` was only recently made R6RS portable (thanks to (John Cowan)[https://github.com/johnwcowan]).]
 
 ## Installation
 
@@ -186,6 +187,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 > (define df
     (make-dataframe (list '(Boolean #t #f #t)
+                          '(Char #\y #\e #\s)
                           '(String "these" "are" "strings")
                           '(Symbol these are symbols)
                           '(Integer 1 -2 3)
@@ -195,11 +197,11 @@ Exception in (make-dataframe alist): names are not symbols
                           (list 'Other (cons 1 2) '(a b c) (make-dataframe '((a 2)))))))
                           
 > (dataframe-display df)
- dim: 3 rows x 8 cols
-  Boolean     String   Symbol  Integer       Expt       Dec4       Dec2          Other 
-       #t      these    these       1.   1.000e+6   132.1000    1234.00         <pair> 
-       #f        are      are      -2.  -1.235e+5  -157.0000    5784.00         <list> 
-       #t    strings  symbols       3.   1.235e-6    10.2340  -76833.12    <dataframe> 
+ dim: 3 rows x 9 cols
+  Boolean  Char   String   Symbol  Integer       Expt       Dec4       Dec2        Other 
+       #t     y    these    these       1.   1.000E+6   132.1000    1234.00       <pair> 
+       #f     e      are      are      -2.  -1.235E+5  -157.0000    5784.00       <list> 
+       #t     s  strings  symbols       3.   1.235E-6    10.2340  -76833.12  <dataframe>
         
 > (define df (make-dataframe (list (cons 'a (iota 15))
                                    (cons 'b (map add1 (iota 15))))))
@@ -283,7 +285,7 @@ Exception in (make-dataframe alist): names are not symbols
      b     b     4.   40. 
      a     b     2.   20. 
      b     a     3.   30. 
-     a     a     1.   10
+     a     a     1.   10.
 
 > (dataframe-write df "df-example.scm" #t)
 
@@ -609,20 +611,20 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 > (dataframe-display (dataframe-sort df (sort-expr (string>? trt))))
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
-   "a"   "b"     2.   20. 
-   "b"   "b"     4.   40. 
-   "b"   "b"     5.   50. 
-   "a"   "a"     1.   10. 
-   "b"   "a"     3.   30. 
+     a     b     2.   20. 
+     b     b     4.   40. 
+     b     b     5.   50. 
+     a     a     1.   10. 
+     b     a     3.   30. 
 
 > (dataframe-display (dataframe-sort df (sort-expr (string>? trt) (> adult))))
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
-   "b"   "b"     5.   50. 
-   "b"   "b"     4.   40. 
-   "a"   "b"     2.   20. 
-   "b"   "a"     3.   30. 
-   "a"   "a"     1.   10.  
+     b     b     5.   50. 
+     b     b     4.   40. 
+     a     b     2.   20. 
+     b     a     3.   30. 
+     a     a     1.   10. 
 ```
 
 ## Split, bind, and append  
