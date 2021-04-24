@@ -205,9 +205,6 @@
     (let ([new-names (map cadr name-pairs)])
       (check-new-names current-names new-names who)))
 
-  (define (same-length? len ls)
-    (= len (length ls)))
-  
   ;; lots of checking that will be performed every time a dataframe is created
   (define (check-alist alist who)
     (when (null? alist)
@@ -221,39 +218,40 @@
       (check-names-unique names who))
     (unless (for-all (lambda (col) (list? (cdr col))) alist)
       (assertion-violation who "values are not a list"))
-    (unless (apply = (map length alist))
-      (assertion-violation who "columns not all same length")))
-
+    (let ([col-lengths (map length alist)])
+      (unless (or (= (length col-lengths) 1)
+                  (apply = (map length alist)))
+      (assertion-violation who "columns not all same length"))))
   
-(define (make-list n x)
-  (let loop ((n n) (r '()))
-    (if (= n 0)
-      r
-    (loop (- n 1) (cons x r)))))
-  
-(define (sub1 n) (- n 1))
-(define (add1 n) (+ n 1))
+  (define (make-list n x)
+    (let loop ((n n) (r '()))
+      (if (= n 0)
+          r
+          (loop (- n 1) (cons x r)))))
 
-;; simplified SRFI 1 iota (regular version will work)
-(define (iota count)
-  (define start 0)
-  (define step 1)
-  (let loop ((n 0) (r '()))
-    (if (= n count)
-	(reverse r)
-	(loop (+ 1 n)
-		(cons (+ start (* n step)) r)))))
+  (define (sub1 n) (- n 1))
+  (define (add1 n) (+ n 1))
 
-(define (enumerate lst)
-  (iota (length lst)))
+  ;; simplified SRFI 1 iota (regular version will work)
+  (define (iota count)
+    (define start 0)
+    (define step 1)
+    (let loop ((n 0) (r '()))
+      (if (= n count)
+	  (reverse r)
+	  (loop (+ 1 n)
+	        (cons (+ start (* n step)) r)))))
 
-;; from SRFI-1 `take`
-(define (list-head lis k)
-  (let recur ((lis lis) (k k))
-    (if (zero? k) '()
-	(cons (car lis)
-	      (recur (cdr lis) (- k 1))))))
-)
+  (define (enumerate lst)
+    (iota (length lst)))
+
+  ;; from SRFI-1 `take`
+  (define (list-head lis k)
+    (let recur ((lis lis) (k k))
+      (if (zero? k) '()
+	  (cons (car lis)
+	        (recur (cdr lis) (- k 1))))))
+  )
 
 
 
