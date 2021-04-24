@@ -2,7 +2,7 @@
 (library (dataframe display)
   (export dataframe-display)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-dataframe
                 dataframe?
@@ -12,6 +12,7 @@
                 dataframe-names
                 dataframe-values-map)    
           (only (dataframe helpers)
+                list-head
                 transpose))
 
   (define dataframe-display
@@ -166,12 +167,6 @@
 
   (define (map-efp format-parts part)
     (map (lambda (lst) (extract-format-parts lst part)) format-parts))
-  
-  (define (extract-format-parts lst part)
-    (if (and (not (symbol=? part 'width))
-             (not (assoc 'num-type lst)))
-        "nan"
-        (cdr (assoc part lst))))
 
   (define (compute-column-widths names val-widths min-width pad)
     (let ([name-widths (map (lambda (name) (compute-bss-width name pad)) names)])

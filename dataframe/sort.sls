@@ -2,12 +2,13 @@
   (export dataframe-sort
           sort-expr)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-dataframe
                 dataframe-alist
                 make-dataframe)   
           (only (dataframe helpers)
+                enumerate
                 add-names-ls-vals
                 alist-values-map
                 remove-duplicates))
@@ -42,7 +43,7 @@
   ;; sort list of values in increasing order by ranks
   (define (sort-vals ranks vals)
     (let ([ranks-vals (map cons ranks vals)])
-      (map cdr (sort (lambda (x y) (< (car x) (car y))) ranks-vals))))
+      (map cdr (list-sort (lambda (x y) (< (car x) (car y))) ranks-vals))))
   
   (define (sort-ls-vals ranks ls-vals)
     (map (lambda (vals) (sort-vals ranks vals)) ls-vals))
@@ -74,7 +75,7 @@
 
   ;; returns list of weighted rank values for every value in ls 
   (define (rank-list predicate ls weight)
-    (let* ([unique-sorted (sort predicate (remove-duplicates ls))]
+    (let* ([unique-sorted (list-sort predicate (remove-duplicates ls))]
            [ranks (map (lambda (x) (* x weight)) (enumerate unique-sorted))]
            [lookup (map cons unique-sorted ranks)]) 
       (map (lambda (x) (cdr (assoc x lookup))) ls)))

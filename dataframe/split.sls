@@ -2,7 +2,7 @@
   (export dataframe-split
           dataframe-split-helper)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-df-names
                 dataframe-alist

@@ -1,5 +1,11 @@
 (library (dataframe helpers)
   (export
+   list-head
+   make-list
+   add1
+   sub1
+   iota
+   enumerate
    add-names-ls-vals
    alist-modify
    alist-select
@@ -31,7 +37,7 @@
    transpose
    unique-rows)
 
-  (import (chezscheme))
+  (import (rnrs))
 
   ;; https://stackoverflow.com/questions/8382296/scheme-remove-duplicated-numbers-from-list
   (define (remove-duplicates ls)
@@ -219,7 +225,35 @@
       (assertion-violation who "columns not all same length")))
 
   
-  )
+(define (make-list n x)
+  (let loop ((n n) (r '()))
+    (if (= n 0)
+      r
+    (loop (- n 1) (cons x r)))))
+  
+(define (sub1 n) (- n 1))
+(define (add1 n) (+ n 1))
+
+;; simplified SRFI 1 iota (regular version will work)
+(define (iota count)
+  (define start 0)
+  (define step 1)
+  (let loop ((n 0) (r '()))
+    (if (= n count)
+	(reverse r)
+	(loop (+ 1 n)
+		(cons (+ start (* n step)) r)))))
+
+(define (enumerate lst)
+  (iota (length lst)))
+
+;; from SRFI-1 `take`
+(define (list-head lis k)
+  (let recur ((lis lis) (k k))
+    (if (zero? k) '()
+	(cons (car lis)
+	      (recur (cdr lis) (- k 1))))))
+)
 
 
 

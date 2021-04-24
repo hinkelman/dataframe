@@ -4,7 +4,7 @@
           dataframe-modify-at
           modify-expr)
 
-  (import (chezscheme)
+  (import (rnrs)
           (only (dataframe df)
                 check-dataframe
                 check-df-names
@@ -12,6 +12,7 @@
                 dataframe-names
                 make-dataframe)   
           (only (dataframe helpers)
+                    make-list
                 alist-modify
                 alist-values-map
                 check-names))

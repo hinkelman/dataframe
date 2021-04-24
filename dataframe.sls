@@ -47,7 +47,7 @@
    rowtable->dataframe
    sort-expr)
 
-  (import (chezscheme)
+  (import (rnrs)
           (dataframe aggregate)
           (dataframe bind)
           (dataframe df)

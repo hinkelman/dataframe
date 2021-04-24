@@ -2,7 +2,7 @@
   (export dataframe-aggregate
           aggregate-expr)
 
-  (import (chezscheme)
+  (import (rnrs)
           (dataframe bind)
           (dataframe split)
           (only (dataframe df)
