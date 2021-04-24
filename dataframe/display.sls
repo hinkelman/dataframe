@@ -100,7 +100,7 @@
                                                   (reverse used-names) (reverse used-vals))))
                   (cons 'footer (format-footer names)))
             (let* ([width-part (string-append "~" (number->string (car cw)))]
-                   [hdr-part (string-append width-part "@s ")]
+                   [hdr-part (string-append width-part "@a ")]
                    [full-part (if (string=? (car nt) "nan")
                                   hdr-part ;; same as tbl when not numbers
                                   (string-append
