@@ -3,6 +3,7 @@
   (export dataframe-display)
 
   (import (rnrs)
+          (slib format)
           (only (dataframe df)
                 check-dataframe
                 dataframe?
@@ -12,10 +13,12 @@
                 dataframe-names
                 dataframe-values-map)    
           (only (dataframe helpers)
+                add1
+                sub1
                 list-head
                 transpose))
 
-  (define dataframe-display
+   (define dataframe-display
     (case-lambda
       [(df) (df-display-helper df 10 5 80)]
       [(df n) (df-display-helper df n 5 80)]
@@ -38,9 +41,7 @@
            [prep-vals (map prepare-non-numbers ls-vals)]
            [parts (build-format-parts names prep-vals min-width total-width 2)])
       (format #t " dim: ~d rows x ~d cols" (car dim) (cdr dim))
-      (newline)
       (format #t (cdr (assoc 'header parts)) (cadr (assoc 'rowtable parts)))
-      (newline)
       (format #t (cdr (assoc 'table parts)) (cddr (assoc 'rowtable parts)))
       (newline)
       (display (cdr (assoc 'footer parts)))))
@@ -56,9 +57,9 @@
   
   ;; `null?` needs to be before `list?` b/c null is also a list 
   (define (get-type object)
-    (let loop ([preds (list boolean? char? dataframe? date? hash-table? hashtable?
+    (let loop ([preds (list boolean? char? dataframe? hashtable?
                             null? list? number? pair? string? symbol? vector?)]
-               [types '(boolean character dataframe date hash-table hashtable
+               [types '(boolean char dataframe hashtable
                                 null list number pair string symbol vector)])
       (if (null? preds)
           "other"
@@ -67,9 +68,7 @@
               (loop (cdr preds) (cdr types)))))) 
 
   (define (get-display-value object type)
-    (cond [(member type '(boolean number string symbol)) object]
-         ; [(number? object) (number->string object)]
-          [(char? object) (string object)]
+    (cond [(member type '(boolean char number string symbol)) object]
           [(symbol=? type 'other) "<other type>"]
           [else (string-append "<" (symbol->string type) ">")]))
 
@@ -121,7 +120,7 @@
 
   (define (compute-format-parts lst e-dec pad)
     (if (not (for-all number? lst))
-        (let ([widthlst (map (lambda (x) (compute-bss-width x pad)) lst)])
+        (let ([widthlst (map (lambda (x) (compute-object-width x pad)) lst)])
           (list (cons 'width (apply max widthlst))))
         (let* ([neg (if (any-negative? lst) 1 0)]
                [lst (map abs lst)]
@@ -146,30 +145,37 @@
         (+ neg esig dec pad 3)
         (+ neg sig dec pad)))
 
-  ;; characters could be displayed naturally with format
-  ;; but I wasn't sure how to handle computing their width (e.g., #\newline)
-  ;; bss = boolean, string, symbol; but decided to handle numbers in mixed-type columns differently w/o changing name
-  ;; for reasons that I don't currently understand, this math leads to extra space in format
-  ;; (which is why I've added sub1 everywhere)
-  (define (compute-bss-width object pad)
-    (cond [(boolean? object)
-           (sub1 (+ pad (string-length (if object "#t" "#f"))))]
-          [(number? object)
-           (sub1 (+ pad (string-length (number->string object))))]
-          [(string? object) ; add 2 for quotation marks
-           (sub1 (+ pad 2 (string-length object)))]
-          [(symbol? object)
-           (sub1 (+ pad (string-length (symbol->string object))))]
-          [else
-           (assertion-violation
-            "(compute-width object pad)"
-            "object of this type was not anticipated")]))
+  ;; numbers in mixed-type columns are displayed differently than numbers in number-only columns
+  ;; for reasons that I don't currently understand, this math leads to extra space in format (hence sub1)
+  (define (compute-object-width object pad)
+    (let ([obj-width
+           (cond [(boolean? object)
+                  (string-length (if object "#t" "#f"))]
+                 [(char? object)
+                  (string-length (string object))]
+                 [(number? object)
+                  (string-length (number->string object))]
+                 [(string? object)
+                  (string-length object)]
+                 [(symbol? object)
+                  (string-length (symbol->string object))]
+                 [else
+                  (assertion-violation
+                   "(compute-width object pad)"
+                   "object of this type was not anticipated")])])
+      (sub1 (+ pad obj-width))))
 
   (define (map-efp format-parts part)
     (map (lambda (lst) (extract-format-parts lst part)) format-parts))
+  
+  (define (extract-format-parts lst part)
+    (if (and (not (symbol=? part 'width))
+             (not (assoc 'num-type lst)))
+        "nan"
+        (cdr (assoc part lst))))
 
   (define (compute-column-widths names val-widths min-width pad)
-    (let ([name-widths (map (lambda (name) (compute-bss-width name pad)) names)])
+    (let ([name-widths (map (lambda (name) (compute-object-width name pad)) names)])
       (map (lambda (name-width val-width)
              (max min-width name-width val-width)) name-widths val-widths)))
 
@@ -200,7 +206,7 @@
            [offset (/ (log (add1 (* -5 (expt 10 (sub1 (* -1 digits)))))) (log 10))])
       (if (zero? x)
           0
-          (inexact->exact
+          (exact
            (floor (- (log10 x) offset))))))
 
   ;; noticed that (log 1000 10) returned 2.999999...
@@ -217,7 +223,7 @@
     (let ([x (abs x)])
       (if (zero? x)
           1
-          (inexact->exact
+          (exact
            (add1 (floor (log10 x)))))))
 
   ;; used for displaying column names that don't fit in the specified width
@@ -237,4 +243,6 @@
                    (loop (cdr ls) (cons (car ls) (cons ", " results))))))))
 
   )
+
+
 
