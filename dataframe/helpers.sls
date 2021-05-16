@@ -39,15 +39,16 @@
 
   (import (rnrs))
 
-  ;; https://stackoverflow.com/questions/8382296/scheme-remove-duplicated-numbers-from-list
   (define (remove-duplicates ls)
-    (cond [(null? ls)
-           '()]
-          [(member (car ls) (cdr ls))
-           (remove-duplicates (cdr ls))]
-          [else
-           (cons (car ls) (remove-duplicates (cdr ls)))]))
-  
+    (let loop ([ls ls]
+               [results '()])
+      (cond [(null? ls)
+             (reverse results)]
+            [(member (car ls) (cdr ls))
+             (loop (cdr ls) results)]
+            [else
+             (loop (cdr ls) (cons (car ls) results))])))
+      
   (define (transpose ls)
     (apply map list ls))
 
