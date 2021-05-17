@@ -41,14 +41,17 @@
 
   (define (remove-duplicates ls)
     (let loop ([ls ls]
+               [ht (make-hashtable equal-hash equal?)]
                [results '()])
       (cond [(null? ls)
              (reverse results)]
-            [(member (car ls) (cdr ls))
-             (loop (cdr ls) results)]
+            [(hashtable-ref ht (car ls) #f)
+             (loop (cdr ls) ht results)]
             [else
-             (loop (cdr ls) (cons (car ls) results))])))
-      
+             ;; value is arbitrarily set to 0; key is what matters
+             (hashtable-set! ht (car ls) 0) 
+             (loop (cdr ls) ht (cons (car ls) results))])))
+    
   (define (transpose ls)
     (apply map list ls))
 
