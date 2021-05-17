@@ -251,7 +251,7 @@
                                (grp A B A B A B)
                                (resp 1 2 3 4 5 6))))
 (define df21 (make-dataframe '((trt A A B B)
-                               (grp B A A B))))
+                               (grp A B B A))))
 
 (test-begin "dataframe-unique-test")
 (test-error (dataframe-unique '((a (1 2 3)))))
