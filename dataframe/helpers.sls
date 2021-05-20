@@ -97,14 +97,27 @@
     (let ([ls-rows (remove-duplicates (transpose ls-vals))])
       (if row-based ls-rows (transpose ls-rows))))
 
-  ;; two passes through ls-vals
-  ;; recursive solution might be more efficient
-  ;; currently just a shorthand way of writing two filters
+  ;; ;; two passes through ls-vals
+  ;; ;; recursive solution might be more efficient
+  ;; ;; currently just a shorthand way of writing two filters
   (define (partition-ls-vals bools ls-vals)
     (let ([keep (filter-ls-vals bools ls-vals)]
           [drop (filter-ls-vals (map not bools) ls-vals)])
       (values keep drop)))
 
+  ;; in previous version, would pass over ls-vals twice with filter-ls-vals (with bools negated on 1 pass)
+  ;; the extra transposing in this version is faster than two passes with filter-ls-vals
+  (define (partition-ls-vals2 bools ls-vals)
+    (let loop ([bools bools]
+               [ls-rows (transpose ls-vals)]
+               [keep '()]
+               [drop '()])
+      (if (null? bools)
+          (values (transpose (reverse keep)) (transpose (reverse drop)))
+          (if (car bools)
+              (loop (cdr bools) (cdr ls-rows) (cons (car ls-rows) keep) drop)
+              (loop (cdr bools) (cdr ls-rows) keep (cons (car ls-rows) drop))))))
+              
   (define (filter-ls-vals bools ls-vals)
     (map (lambda (vals) (filter-vals bools vals)) ls-vals))
 
