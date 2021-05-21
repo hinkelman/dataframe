@@ -70,11 +70,31 @@
 (define edges
   (apply append (map (lambda (db) (get-edges db all-names-nums)) define-bodies)))
 
-(with-output-to-file (make-rel-path "network-graph" "Nodes.scm")
-  (lambda () (write all-names-nums)))
 
-(with-output-to-file (make-rel-path "network-graph" "Edges.scm")
-  (lambda () (write edges)))
+(define (write-pairs lst car-proc cdr-proc path)
+  (let ([p (open-output-file path)])
+    (let loop ([lst lst])
+      (cond [(null? lst)
+             (close-port p)]
+            [else
+             (put-string p (string-append (car-proc (caar lst))
+                                          (string #\tab)
+                                          (cdr-proc (cdar lst))))
+             (newline p)
+             (loop (cdr lst))]))))
+
+(write-pairs
+ edges
+ (lambda (x) (number->string x))
+ (lambda (x) (number->string x))
+ (make-rel-path "network-graph" "Edges.tsv"))
+
+(write-pairs
+ all-names-nums
+ (lambda (x) (symbol->string x))
+ (lambda (x) (number->string x))
+ (make-rel-path "network-graph" "Nodes.tsv"))
+
   
        
                 
