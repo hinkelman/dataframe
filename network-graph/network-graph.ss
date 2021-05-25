@@ -23,30 +23,33 @@
 (define (read-sls path)
   (with-input-from-file path read))
 
-;; get all procedure definitions; 
-(define (get-define-bodies lst)
+;; get all procedure definitions
+(define (get-defs lst)
   (filter (lambda (x) (and (pair? x) (symbol=? (car x) 'define))) lst))
 
-;; define-body is one element of the list from get-define-bodies
-(define (get-proc-name define-body)
-  (if (pair? (cadr define-body))
-      (caadr define-body)
+;; name is the procedure name
+;; def is one element of the list from get-defs
+(define (get-name def)
+  (if (pair? (cadr def))
+      (caadr def)
       ;; cadr version for definitions using lambda or case-lambda
-      (cadr define-body)))
+      (cadr def)))
 
-(define (get-edges define-body all-names-nums)
-  (let* ([proc-name (get-proc-name define-body)]
-         [proc-num (cdr (assoc proc-name all-names-nums))]
-         [out (let loop ([body (caddr define-body)]
+;; names-nums is list of pairs comprised of a procedure name and its arbitrary id #
+;; returns list of pairs using the procedure id numbers
+(define (get-edges def names-nums)
+  (let* ([name (get-name def)]
+         [num (cdr (assoc name names-nums))]
+         [out (let loop ([body (caddr def)]
                          [results '()])
                 (cond [(null? body)
                        results]
                       [(not (pair? body))
-                       (let ([name-num (assoc body all-names-nums)])
+                       (let ([name-num (assoc body names-nums)])
                          (if name-num (cons (cdr name-num) results) results))]
                       [else
                        (loop (car body) (loop (cdr body) results))]))])
-    (map (lambda (x) (cons proc-num x)) (remove-duplicates out))))
+    (map (lambda (x) (cons num x)) (remove-duplicates out))))
 
 (define (write-pairs lst car-proc cdr-proc path)
   (let ([p (open-output-file path)])
@@ -65,29 +68,44 @@
 (import (dataframe))
 (define fldr "dataframe")
 (define files (directory-list fldr))
-(define define-bodies-by-file
+
+(define defs-by-file
   (map (lambda (file)
          (cons file 
                (-> (make-rel-path fldr file)
                    (read-sls)
-                   (get-define-bodies))))
+                   (get-defs))))
        files))
-(define proc-names-by-file
+
+(define names-by-file
   (apply append
-         (map (lambda (dbbf)
+         (map (lambda (dbf)
                 (map (lambda (x)
-                       (cons (car dbbf) x))
-                     (map get-proc-name (cdr dbbf))))
-              define-bodies-by-file)))
-(define define-bodies
-  (apply append (map cdr define-bodies-by-file)))
-(define proc-names (map get-proc-name define-bodies))
-(define export-names (cdaddr (read-sls "dataframe.sls")))
-(define all-names (remove-duplicates (append export-names proc-names)))
-(define all-names-nums
-  (map (lambda (name num) (cons name num)) all-names (enumerate all-names)))
+                       (cons (car dbf) x))
+                     (map get-name (cdr dbf))))
+              defs-by-file)))
+
+;; a few procedures are constructed and exported without being defined
+(define exported-names-by-file
+  (apply append
+         (map (lambda (file)
+                (map (lambda (x)
+                       (cons file x))
+                     (cdaddr (read-sls (make-rel-path fldr file)))))
+              files)))
+
+(define all-names-by-file
+  (remove-duplicates (append exported-names-by-file names-by-file)))
+
+(define all-names
+  (map (lambda (name num) (cons name num))
+       (map cdr all-names-by-file)
+       (enumerate all-names-by-file)))
+
+(define defs
+  (apply append (map cdr defs-by-file)))
 (define edges
-  (apply append (map (lambda (db) (get-edges db all-names-nums)) define-bodies)))
+  (apply append (map (lambda (def) (get-edges def all-names)) defs)))
 
 (write-pairs
  edges
@@ -96,13 +114,13 @@
  (make-rel-path "network-graph" "Edges.tsv"))
 
 (write-pairs
- all-names-nums
+ all-names
  (lambda (x) (symbol->string x))
  (lambda (x) (number->string x))
  (make-rel-path "network-graph" "Nodes.tsv"))
 
 (write-pairs
- proc-names-by-file
+ all-names-by-file
  (lambda (x) x)
  (lambda (x) (symbol->string x))
  (make-rel-path "network-graph" "NodesByFile.tsv"))
