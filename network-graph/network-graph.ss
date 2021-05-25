@@ -40,7 +40,7 @@
 (define (get-edges def names-nums)
   (let* ([name (get-name def)]
          [num (cdr (assoc name names-nums))]
-         [out (let loop ([body (caddr def)]
+         [out (let loop ([body (cddr def)]
                          [results '()])
                 (cond [(null? body)
                        results]
