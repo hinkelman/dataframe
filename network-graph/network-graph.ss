@@ -97,10 +97,14 @@
 (define all-names-by-file
   (remove-duplicates (append exported-names-by-file names-by-file)))
 
+;; names need to be strings for sorting
+;; names need to be symbols for lookup in get-edges
 (define all-names
+  (let* ([an (map cdr all-names-by-file)]
+         [an-str (list-sort (lambda (x y) (string<? x y)) (map symbol->string an))])
   (map (lambda (name num) (cons name num))
-       (map cdr all-names-by-file)
-       (enumerate all-names-by-file)))
+       (map string->symbol an-str)
+       (enumerate all-names-by-file))))
 
 (define defs
   (apply append (map cdr defs-by-file)))
