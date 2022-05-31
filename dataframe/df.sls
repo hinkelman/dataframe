@@ -68,7 +68,7 @@
                                 (map car alist)
                                 (cons (length (cdar alist)) (length alist)))))))
 
-  ;; crossing/cartesian-procuct ----------------------------------------------------------------
+  ;; crossing/cartesian-product ----------------------------------------------------------------
   
   (define (dataframe-crossing alist)
     (let* ([names (map car alist)]
