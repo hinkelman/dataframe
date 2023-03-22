@@ -37,7 +37,7 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 [`(dataframe-alist)`](#dataframe-alist)  
 [`(dataframe-names df)`](#dataframe-names)  
 [`(dataframe-dim df)`](#dataframe-dim)  
-[`(dataframe-display df n min-width total-width)`](#df-display)  
+[`(dataframe-display df [n min-width total-width])`](#df-display)  
 [`(dataframe-contains? df name ...)`](#df-contains)  
 [`(dataframe-crossing alist)`](#df-crossing)  
 [`(dataframe-head df n)`](#df-head)  
@@ -47,7 +47,7 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 [`(dataframe-read path)`](#df-read)  
 [`(dataframe->rowtable df)`](#df-rows)  
 [`(rowtable->dataframe rt header?)`](#rows-df)  
-[`(dataframe-ref df indices name ...)`](#df-ref)  
+[`(dataframe-ref df indices [name ...])`](#df-ref)  
 [`(dataframe-values df name)`](#df-values)  
 [`(dataframe-values-unique df name)`](#df-values-unique)  
 
@@ -182,7 +182,7 @@ Exception in (make-dataframe alist): names are not symbols
 (3 . 2)
 ```
 
-#### <a name="df-display"></a> procedure: `(dataframe-display df n pad min-width total-width)`  
+#### <a name="df-display"></a> procedure: `(dataframe-display df [n min-width total-width])`  
 **displays:** the dataframe `df` up to `n` rows and the number of columns that fit in `total-width` based on the actual contents of column or minimum column width `min-width`; `min-width` and `total-width` are measured in number of characters; default values: `n = 10`,  `min-width = 5`, `total-width = 80`  
 
 ```
@@ -345,7 +345,7 @@ Exception in (make-dataframe alist): names are not symbols
     3.    6.    9. 
 ```
 
-#### <a name="df-ref"></a> procedure: `(dataframe-ref df indices name ...)`  
+#### <a name="df-ref"></a> procedure: `(dataframe-ref df indices [name ...])`  
 **returns:** a dataframe with rows specified by `indices` (zero-based) from dataframe `df`; optionally, can specify column `names` to return; defaults to all columns  
 
 ```
