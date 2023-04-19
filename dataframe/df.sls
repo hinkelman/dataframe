@@ -69,12 +69,20 @@
                                 (cons (length (cdar alist)) (length alist)))))))
 
   ;; crossing/cartesian-product ----------------------------------------------------------------
-  
-  (define (dataframe-crossing alist)
-    (let* ([names (map car alist)]
-           [ls-vals (map cdr alist)]
-           [cart (apply map list (apply cartesian-product ls-vals))])
-      (make-dataframe (add-names-ls-vals names cart))))
+
+  (define (dataframe-crossing . obj)
+    ;; doesn't currently have very informative error messages
+    (let* ([names (flatten (map (lambda (x) (if (dataframe? x)
+                                                (dataframe-names x)
+                                                (car x)))
+                                obj))]
+           ;; transpose the col-oriented alist to keep rows as a unit in the cartesian product
+           [lst (map (lambda (x) (if (dataframe? x)
+                                     (transpose (map cdr (dataframe-alist x)))
+                                     (cdr x)))
+                     obj)]
+           [ls-vals (transpose (map flatten (apply cartesian-product lst)))])
+      (make-dataframe (add-names-ls-vals names ls-vals))))
 
   ;; check dataframes --------------------------------------------------------------------------
   

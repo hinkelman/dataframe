@@ -20,9 +20,15 @@
 (test-error (dataframe-alist '((a 1 2 3) (b 4 5 6))))
 (test-end "dataframe-alist-test")
 
+(define dfc (make-dataframe '((col1 a a b b) (col2 c d c d))))
 (test-begin "dataframe-crossing-test")
-(test-assert (dataframe-equal? (dataframe-crossing '((col1 a b) (col2 c d)))
-                               (make-dataframe '((col1 a a b b) (col2 c d c d)))))
+(test-assert (dataframe-equal? (dataframe-crossing '(col1 a b) '(col2 c d)) dfc))
+(test-assert (dataframe-equal? (dataframe-crossing '(col1 a b) (make-dataframe '((col2 c d)))) dfc))
+(test-assert (dataframe-equal? (dataframe-crossing (make-dataframe '((col1 a b)))
+                                                   (make-dataframe '((col2 c d))))
+                               dfc))
+(test-error (dataframe-crossing '(col1 a b) '("col2" c d)))
+(test-error (dataframe-crossing '(col1 a b) '()))
 (test-end "dataframe-crossing-test")
 
 (define df3 (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c -999 -999 -999 7 8 9))))

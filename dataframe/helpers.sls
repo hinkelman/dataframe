@@ -16,6 +16,7 @@
    combine-names-ordered
    filter-ls-vals
    filter-vals
+   flatten
    get-all-names
    get-all-unique-names
    cartesian-product
@@ -38,6 +39,12 @@
    unique-rows)
 
   (import (rnrs))
+
+  (define (flatten x)
+    (cond ((null? x) '())
+          ((not (pair? x)) (list x))
+          (else (append (flatten (car x))
+                        (flatten (cdr x))))))
 
   (define (remove-duplicates ls)
     (let loop ([ls ls]

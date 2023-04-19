@@ -39,7 +39,7 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 [`(dataframe-dim df)`](#dataframe-dim)  
 [`(dataframe-display df [n min-width total-width])`](#df-display)  
 [`(dataframe-contains? df name ...)`](#df-contains)  
-[`(dataframe-crossing alist)`](#df-crossing)  
+[`(dataframe-crossing obj1 obj2 ...)`](#df-crossing)  
 [`(dataframe-head df n)`](#df-head)  
 [`(dataframe-tail df n)`](#df-tail)  
 [`(dataframe-equal? df1 df2 ...)`](#df-equal)  
@@ -130,30 +130,35 @@ Clone or download this repository. Move `dataframe.sls` and `dataframe` folder f
 Exception in (make-dataframe alist): names are not symbols
 ```
 
-#### <a name="df-crossing"></a> procedure: `(dataframe-crossing alist)`  
-**returns:** a dataframe formed from the cartesian products of the columns in `alist`
+#### <a name="df-crossing"></a> procedure: `(dataframe-crossing obj1 obj2 ...)`  
+**returns:** a dataframe formed from the cartesian products of `obj1`, `obj2`, etc.; objects must be either dataframes or lists with the same structure as a dataframe column, e.g., `'(col-name 1 2 3)` 
 
 ```
-> (dataframe-display
-   (dataframe-crossing
-    '((col1 "a" "b" "c")
-      (col2 "D" "E")
-      (col3 "f" "g")))
-   12)
- dim: 12 rows x 3 cols
+> (dataframe-display (dataframe-crossing '(col1 a b) '(col2 c d)))
+ dim: 4 rows x 2 cols
+  col1  col2 
+     a     c 
+     a     d 
+     b     c 
+     b     d 
+
+> (dataframe-display 
+    (dataframe-crossing '(col1 a b) (make-dataframe '((col2 c d)))))
+ dim: 4 rows x 2 cols
+  col1  col2 
+     a     c 
+     a     d 
+     b     c 
+     b     d 
+     
+> (dataframe-display 
+    (dataframe-crossing (make-dataframe '((col1 a b) (col2 c d))) '(col3 e f)))
+ dim: 4 rows x 3 cols
   col1  col2  col3 
-     a     D     f 
-     a     D     g 
-     a     E     f 
-     a     E     g 
-     b     D     f 
-     b     D     g 
-     b     E     f 
-     b     E     g 
-     c     D     f 
-     c     D     g 
-     c     E     f 
-     c     E     g 
+     a     c     e 
+     a     c     f 
+     b     d     e 
+     b     d     f 
 ```
 
 #### <a name="dataframe-alist"></a> procedure: `(dataframe-alist df)`  
