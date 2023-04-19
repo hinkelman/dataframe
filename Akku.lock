@@ -40,10 +40,10 @@
         "dedce2bc5eda6735aa5880741802a5b508b49c3b327d14b40e9fecbdf86353db")))
   ((name "laesare")
     (location
-      (url "https://archive.akkuscm.org/archive/pkg/l/laesare_1.0.0_repack.tar.xz"))
+      (url "https://archive.akkuscm.org/archive/pkg/l/laesare_1.0.1_repack.tar.xz"))
     (content
       (sha256
-        "bd9c6cf5dabc9fc961094e0bf3f7339b7ad13902cb80a1e62377d57991548d7b")))
+        "dffb043bfdbe3bcd42ad0475a61338eec4fd1b1e68bcce17c30d6e6605f2d632")))
   ((name (slib format))
     (location
       (url "http://snow-fort.org/s/peterlane.info/peter/slib/format/SLIB-3b5-r7rs/slib-format-SLIB-3b5-r7rs.tgz"))
@@ -52,7 +52,7 @@
         "5fa9e9b5a66ad7fb896fcd37c4b97e1c450c7133b2b7b917ee3d19cddf7d4cbb")))
   ((name "chez-srfi")
     (location
-      (url "https://archive.akkuscm.org/archive/pkg/c/chez-srfi_0.0.0-akku.181.7879b52_repack.tar.xz"))
+      (url "https://archive.akkuscm.org/archive/pkg/c/chez-srfi_0.0.0-akku.209.552cd37_repack.tar.xz"))
     (content
       (sha256
-        "f002bc7fc669b5980c885a5fb6770f8e016b06761e8e9755154bfa3a4f578fcb"))))
+        "f0f620f24a4765b85d3157b670e319d6cd30240bfc78f812af1f04cf6f8804e6"))))
