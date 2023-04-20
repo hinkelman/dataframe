@@ -4,7 +4,7 @@
 (akku-package ("dataframe" "0.3.0")
   (synopsis
    "A dataframe record type for Scheme (R6RS) with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes.")
-  (authors "Travis Hinkelman" "Adam Nelson")
+  (authors "Travis Hinkelman")
   (license "MIT")
   (depends ((slib format) "^3.1.5") ("chez-srfi" "^0.0.0-akku.209.552cd37"))
 )
