@@ -24,14 +24,21 @@
   ;; might be less efficient on dataframes with many columns
   ;; than a row-based approach
 
-
   (define-syntax dataframe-sort*
     (syntax-rules ()
       [(_ df (predicate name) ...)
-       (dataframe-sort*-helper df (list predicate ...) (list (quote name) ...))]))
+       (df-sort* df (list predicate ...) (list (quote name) ...))]))
 
-  (define (dataframe-sort*-helper df predicates names)
+  (define (df-sort* df predicates names)
     (check-dataframe df "(dataframe-sort* df expr ...)")
+    (df-sort df predicates names))
+
+  ;; ;; this will replace dataframe-sort below when I've changed all the macro APIs
+  ;; (define (dataframe-sort df predicates names)
+  ;;   (check-dataframe df "(dataframe-sort df predicates names)")
+  ;;   (df-sort df predicates names))
+
+  (define (df-sort df predicates names)
     (let* ([alist (dataframe-alist df)]
            [all-names (map car alist)]
            [ranks (sum-row-ranks alist predicates names)]
