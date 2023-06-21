@@ -1,5 +1,6 @@
 (library (dataframe sort)
-  (export dataframe-sort
+  (export dataframe-sort*
+          dataframe-sort
           sort-expr)
 
   (import (rnrs)
@@ -23,6 +24,20 @@
   ;; might be less efficient on dataframes with many columns
   ;; than a row-based approach
 
+
+  (define-syntax dataframe-sort*
+    (syntax-rules ()
+      [(_ df (predicate name) ...)
+       (dataframe-sort*-helper df (list predicate ...) (list (quote name) ...))]))
+
+  (define (dataframe-sort*-helper df predicates names)
+    (check-dataframe df "(dataframe-sort* df expr ...)")
+    (let* ([alist (dataframe-alist df)]
+           [all-names (map car alist)]
+           [ranks (sum-row-ranks alist predicates names)]
+           [ls-vals-sorted (sort-ls-vals ranks (map cdr alist))])
+      (make-dataframe (add-names-ls-vals all-names ls-vals-sorted))))
+  
   (define (dataframe-sort df sort-expr)
     (check-dataframe df "(dataframe-sort df sort-expr)")
     (let* ([predicates (car sort-expr)]

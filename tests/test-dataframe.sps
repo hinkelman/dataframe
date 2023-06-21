@@ -192,8 +192,8 @@
 (test-assert (dataframe-equal? df15 (dataframe-filter df10 (filter-expr (b) (= b 5)))))
 (test-assert (dataframe-equal? df15 (dataframe-filter df10 (filter-expr (a b) (or (odd? a) (odd? b))))))
 (test-assert (dataframe-equal? (make-dataframe '((a 100 300)
-                                                (b 4 6)
-                                                (c 700 900)))
+                                                 (b 4 6)
+                                                 (c 700 900)))
                                (dataframe-filter-all df10 even?)))
 (test-assert (dataframe-equal? df10 (dataframe-filter-at df10 even? 'a 'c)))
 (test-error (dataframe-filter-all df10 odd?))
@@ -388,7 +388,19 @@
                                 (trt "b" "b" "b" "a" "a")
                                 (adult 2 4 5 1 3)
                                 (juv 20 40 50 10 30)))
+              (dataframe-sort* df27 (string>? trt))))
+(test-assert (dataframe-equal?
+              (make-dataframe '((grp "a" "b" "b" "a" "b")
+                                (trt "b" "b" "b" "a" "a")
+                                (adult 2 4 5 1 3)
+                                (juv 20 40 50 10 30)))
               (dataframe-sort df27 (sort-expr (string>? trt)))))
+(test-assert (dataframe-equal?
+              (make-dataframe '((grp "b" "b" "a" "b" "a")
+                                (trt "b" "b" "b" "a" "a")
+                                (adult 5 4 2 3 1)
+                                (juv 50 40 20 30 10)))
+              (dataframe-sort* df27 (string>? trt) (> adult))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp "b" "b" "a" "b" "a")
                                 (trt "b" "b" "b" "a" "a")
@@ -426,7 +438,7 @@
                                (last "son" "ert" "man" "ert")
                                (game 1 1 1 2)
                                (goals 0 1 2 3))))
-                               
+
 
 (test-begin "dataframe-join-test")
 (test-assert (dataframe-equal? (dataframe-left-join df28 df29 '(site) -999)

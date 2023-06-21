@@ -32,6 +32,7 @@
    dataframe-rename
    dataframe-select
    dataframe-sort
+   dataframe-sort*
    dataframe-split
    dataframe-spread
    dataframe-stack
