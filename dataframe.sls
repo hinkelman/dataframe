@@ -46,8 +46,7 @@
    dataframe-write
    make-dataframe
    modify-expr
-   rowtable->dataframe
-   sort-expr)
+   rowtable->dataframe)
 
   (import (rnrs)
           (dataframe aggregate)

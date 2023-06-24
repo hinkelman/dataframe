@@ -1,7 +1,6 @@
 (library (dataframe sort)
-  (export dataframe-sort*
-          dataframe-sort
-          sort-expr)
+  (export dataframe-sort
+          dataframe-sort*)
 
   (import (rnrs)
           (only (dataframe df)
@@ -33,10 +32,9 @@
     (check-dataframe df "(dataframe-sort* df expr ...)")
     (df-sort df predicates names))
 
-  ;; ;; this will replace dataframe-sort below when I've changed all the macro APIs
-  ;; (define (dataframe-sort df predicates names)
-  ;;   (check-dataframe df "(dataframe-sort df predicates names)")
-  ;;   (df-sort df predicates names))
+  (define (dataframe-sort df predicates names)
+    (check-dataframe df "(dataframe-sort df predicates names)")
+    (df-sort df predicates names))
 
   (define (df-sort df predicates names)
     (let* ([alist (dataframe-alist df)]
@@ -45,23 +43,6 @@
            [ls-vals-sorted (sort-ls-vals ranks (map cdr alist))])
       (make-dataframe (add-names-ls-vals all-names ls-vals-sorted))))
   
-  (define (dataframe-sort df sort-expr)
-    (check-dataframe df "(dataframe-sort df sort-expr)")
-    (let* ([predicates (car sort-expr)]
-           [names (cadr sort-expr)]
-           [alist (dataframe-alist df)]
-           [all-names (map car alist)]
-           [ranks (sum-row-ranks alist predicates names)]
-           [ls-vals-sorted (sort-ls-vals ranks (map cdr alist))])
-      (make-dataframe (add-names-ls-vals all-names ls-vals-sorted))))
-
-  (define-syntax sort-expr
-    (syntax-rules ()
-      [(_ (predicate name) ...)
-       (list
-        (list predicate ...)
-        (list (quote name) ...))]))
-
   ;; sort list of values in increasing order by ranks
   (define (sort-vals ranks vals)
     (let ([ranks-vals (map cons ranks vals)])

@@ -392,36 +392,24 @@
                                 (adult 2 4 5 1 3)
                                 (juv 20 40 50 10 30)))
               (dataframe-sort* df27 (string>? trt))))
-;; (test-assert (dataframe-equal?
-;;               (make-dataframe '((grp "a" "b" "b" "a" "b")
-;;                                 (trt "b" "b" "b" "a" "a")
-;;                                 (adult 2 4 5 1 3)
-;;                                 (juv 20 40 50 10 30)))
-;;               (dataframe-sort df27 (list string>?) '(trt))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp "a" "b" "b" "a" "b")
                                 (trt "b" "b" "b" "a" "a")
                                 (adult 2 4 5 1 3)
                                 (juv 20 40 50 10 30)))
-              (dataframe-sort df27 (sort-expr (string>? trt)))))
+              (dataframe-sort df27 (list string>?) '(trt))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp "b" "b" "a" "b" "a")
                                 (trt "b" "b" "b" "a" "a")
                                 (adult 5 4 2 3 1)
                                 (juv 50 40 20 30 10)))
               (dataframe-sort* df27 (string>? trt) (> adult))))
-;; (test-assert (dataframe-equal?
-;;               (make-dataframe '((grp "b" "b" "a" "b" "a")
-;;                                 (trt "b" "b" "b" "a" "a")
-;;                                 (adult 5 4 2 3 1)
-;;                                 (juv 50 40 20 30 10)))
-;;               (dataframe-sort df27 (list string>? >) '(trt adult))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp "b" "b" "a" "b" "a")
                                 (trt "b" "b" "b" "a" "a")
                                 (adult 5 4 2 3 1)
                                 (juv 50 40 20 30 10)))
-              (dataframe-sort df27 (sort-expr (string>? trt) (> adult)))))
+              (dataframe-sort df27 (list string>? >) '(trt adult))))
 (test-end "dataframe-sort-test")
 
 (test-begin "dataframe-ref-test")
