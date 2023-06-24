@@ -2,7 +2,7 @@ bind.sls	dataframe-append
 bind.sls	dataframe-bind
 bind.sls	dataframe-bind-all
 aggregate.sls	dataframe-aggregate
-aggregate.sls	aggregate-expr
+aggregate.sls	dataframe-aggregate*
 df.sls	->
 df.sls	->>
 df.sls	$
@@ -34,9 +34,9 @@ df.sls	make-dataframe
 split.sls	dataframe-split
 split.sls	dataframe-split-helper
 modify.sls	dataframe-modify
+modify.sls	dataframe-modify*
 modify.sls	dataframe-modify-all
 modify.sls	dataframe-modify-at
-modify.sls	modify-expr
 join.sls	dataframe-left-join
 join.sls	dataframe-left-join-all
 reshape.sls	dataframe-stack
@@ -45,12 +45,13 @@ display.sls	dataframe-display
 rowtable.sls	dataframe->rowtable
 rowtable.sls	rowtable->dataframe
 sort.sls	dataframe-sort
-sort.sls	sort-expr
+sort.sls	dataframe-sort*
 filter.sls	dataframe-filter
+filter.sls	dataframe-filter*
 filter.sls	dataframe-filter-all
 filter.sls	dataframe-filter-at
 filter.sls	dataframe-partition
-filter.sls	filter-expr
+filter.sls	dataframe-partition*
 helpers.sls	list-head
 helpers.sls	make-list
 helpers.sls	add1
@@ -90,6 +91,7 @@ helpers.sls	transpose
 helpers.sls	unique-rows
 bind.sls	shared-names
 bind.sls	bind-rows
+aggregate.sls	df-aggregate
 aggregate.sls	df-aggregate-helper
 aggregate.sls	aggregate-map
 aggregate.sls	alist-aggregate-loop
@@ -102,6 +104,7 @@ split.sls	alist-split-partition-loop
 split.sls	alist-split-partition
 split.sls	map-equal-ls-vals
 split.sls	map-equal
+modify.sls	df-modify
 modify.sls	alist-modify-loop
 modify.sls	modify-map
 modify.sls	modify-map-helper
@@ -134,12 +137,14 @@ display.sls	format-footer
 display.sls	add-commas
 rowtable.sls	make-header
 rowtable.sls	convert-header
+sort.sls	df-sort
 sort.sls	sort-vals
 sort.sls	sort-ls-vals
 sort.sls	sum-row-ranks
 sort.sls	calc-weights
 sort.sls	rank-list
-filter.sls	filter-map
+filter.sls	df-filter
+filter.sls	df-partition
 filter.sls	df-filter-at-all-helper
 filter.sls	alist-filter-at
 helpers.sls	rep-times
