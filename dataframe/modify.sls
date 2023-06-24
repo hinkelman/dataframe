@@ -21,17 +21,17 @@
 
   (define-syntax dataframe-modify*
     (syntax-rules ()
-      [(_ df ((new-name names expr) ...))
+      [(_ df (new-name names expr) ...)
        (df-modify
         df
         (list (quote new-name) ...)
         (list (quote names) ...)
         (list (lambda names expr) ...)
-        "(dataframe-modify* df ((new-name names expr) ...))")]))
+        "(dataframe-modify* df (new-name names expr) ...)")]))
 
-  (define (dataframe-modify df new-names names procs)
-    (df-modify df new-names names procs
-               "(dataframe-modify df new-names names procs)"))
+  (define (dataframe-modify df new-names names . proc)
+    (df-modify df new-names names proc
+               "(dataframe-modify df new-names names proc ...)"))
 
   (define (df-modify df new-names names procs who)
     (check-dataframe df who)

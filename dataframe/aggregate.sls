@@ -18,18 +18,18 @@
 
   (define-syntax dataframe-aggregate*
     (syntax-rules ()
-      [(_ df group-names ((new-name names expr) ...))
+      [(_ df group-names (new-name names expr) ...)
        (df-aggregate
         df
         (quote group-names)
         (list (quote new-name) ...)
         (list (quote names) ...)
         (list (lambda names expr) ...)
-        "(dataframe-aggregate* df group-names ((new-name names expr) ...))")]))
+        "(dataframe-aggregate* df group-names (new-name names expr) ...)")]))
   
-  (define (dataframe-aggregate df group-names new-names names procs)
-    (df-aggregate df group-names new-names names procs
-                  "(dataframe-aggregate df group-names new-names procs)"))
+  (define (dataframe-aggregate df group-names new-names names . proc)
+    (df-aggregate df group-names new-names names proc
+                  "(dataframe-aggregate df group-names new-names proc ...)"))
 
   (define (df-aggregate df group-names new-names names procs who)
     (check-dataframe df who)

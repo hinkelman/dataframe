@@ -305,21 +305,21 @@
 (test-begin "dataframe-modify-test")
 (test-assert (dataframe-equal? df23 (dataframe-modify*
                                      df22
-                                     ((total (adult juv) (+ adult juv))))))
+                                     (total (adult juv) (+ adult juv)))))
 (test-assert (dataframe-equal? df23 (dataframe-modify
                                      df22
                                      '(total)
                                      '((adult juv))
-                                     (list (lambda (adult juv) (+ adult juv))))))
+                                     (lambda (adult juv) (+ adult juv)))))
 (test-assert (dataframe-equal? df24 (dataframe-modify*
                                      df22
-                                     ((juv (juv) (/ juv 2))))))
+                                     (juv (juv) (/ juv 2)))))
 (test-assert (dataframe-equal? df24 (dataframe-modify
                                      df22
                                      '(juv)
                                      '((juv))
-                                     (list (lambda (juv) (/ juv 2))))))
-(test-error (dataframe-modify* df22 (("test" (juv) (/ juv 2)))))
+                                     (lambda (juv) (/ juv 2)))))
+(test-error (dataframe-modify* df22 ("test" (juv) (/ juv 2))))
 (test-end "dataframe-modify-test")
 
 (test-begin "thread-test")
@@ -328,7 +328,7 @@
 (test-assert (dataframe-equal? df1
                                (-> df1
                                    (dataframe-modify*
-                                    ((c () '(7 8 9))))
+                                    (c () '(7 8 9)))
                                    (dataframe-drop 'c))))
 (test-assert (dataframe-equal? df23
                                (-> '((grp a a b b b)
@@ -337,7 +337,7 @@
                                      (juv 10 20 30 40 50))
                                    (make-dataframe)
                                    (dataframe-modify*
-                                    ((total (adult juv) (+ adult juv)))))))
+                                    (total (adult juv) (+ adult juv))))))
 (test-assert (dataframe-equal? df24
                                (-> '((grp a a b b b)
                                      (trt a b a b b)
@@ -345,19 +345,19 @@
                                      (juv 10 20 30 40 50))
                                    (make-dataframe)
                                    (dataframe-modify*
-                                    ((juv (juv) (/ juv 2)))))))
+                                    (juv (juv) (/ juv 2))))))
 (test-assert (dataframe-equal? df26
                                (-> df22
                                    (dataframe-modify*
-                                    ((juv (juv) (/ juv 2))
-                                     (total (adult juv) (+ adult juv)))))))
+                                    (juv (juv) (/ juv 2))
+                                    (total (adult juv) (+ adult juv))))))
 (test-assert (dataframe-equal? df23   
                                (-> df22
                                    (dataframe-split 'grp)
                                    (->> (map (lambda (df)
                                                (dataframe-modify*
                                                 df
-                                                ((total (adult juv) (+ adult juv)))))))
+                                                (total (adult juv) (+ adult juv))))))
                                    (->> (apply dataframe-bind)))))
 (test-assert (dataframe-equal? df25
                                (-> df22
@@ -365,7 +365,7 @@
                                    (->> (map (lambda (df)
                                                (dataframe-modify*
                                                 df
-                                                ((juv-mean () (mean ($ df 'juv))))))))
+                                                (juv-mean () (mean ($ df 'juv)))))))
                                    (->> (apply dataframe-bind))
                                    (dataframe-filter* (juv juv-mean) (> juv juv-mean)))))
 (test-error (-> '(4 3 5 1) (sort <)))
@@ -378,8 +378,8 @@
                                 (juv-sum 30 120)))
               (dataframe-aggregate* df22
                                     (grp)
-                                    ((adult-sum (adult) (apply + adult))
-                                     (juv-sum (juv) (apply + juv))))))
+                                    (adult-sum (adult) (apply + adult))
+                                    (juv-sum (juv) (apply + juv)))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp a b)
                                 (adult-sum 3 12)
@@ -388,8 +388,8 @@
                                    '(grp)
                                    '(adult-sum juv-sum)
                                    '((adult) (juv))
-                                   (list (lambda (adult) (apply + adult))
-                                         (lambda (juv) (apply + juv))))))
+                                   (lambda (adult) (apply + adult))
+                                   (lambda (juv) (apply + juv)))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp a a b b)
                                 (trt a b a b)
@@ -397,8 +397,8 @@
                                 (juv-sum 10 20 30 90)))
               (dataframe-aggregate* df22
                                     (grp trt)
-                                    ((adult-sum (adult) (apply + adult))
-                                     (juv-sum (juv) (apply + juv))))))
+                                    (adult-sum (adult) (apply + adult))
+                                    (juv-sum (juv) (apply + juv)))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp a a b b)
                                 (trt a b a b)
@@ -408,8 +408,8 @@
                                    '(grp trt)
                                    '(adult-sum juv-sum)
                                    '((adult) (juv))
-                                   (list (lambda (adult) (apply + adult))
-                                         (lambda (juv) (apply + juv))))))
+                                   (lambda (adult) (apply + adult))
+                                   (lambda (juv) (apply + juv)))))
 (test-end "dataframe-aggregate-test")
 
 (define df27 (make-dataframe '((grp "a" "a" "b" "b" "b")
