@@ -3,10 +3,10 @@
    ->
    ->>
    $
-   aggregate-expr
    dataframe->rowtable
    dataframe?
    dataframe-aggregate
+   dataframe-aggregate*
    dataframe-alist
    dataframe-append
    dataframe-bind

@@ -366,18 +366,40 @@
               (make-dataframe '((grp a b)
                                 (adult-sum 3 12)
                                 (juv-sum 30 120)))
-              (dataframe-aggregate df22 '(grp)
-                                   (aggregate-expr (adult-sum (adult) (apply + adult))
-                                                   (juv-sum (juv) (apply + juv))))))
+              (dataframe-aggregate* df22
+                                    (grp)
+                                    ((adult-sum (adult) (apply + adult))
+                                     (juv-sum (juv) (apply + juv))))))
+(test-assert (dataframe-equal?
+              (make-dataframe '((grp a b)
+                                (adult-sum 3 12)
+                                (juv-sum 30 120)))
+              (dataframe-aggregate df22
+                                   '(grp)
+                                   '(adult-sum juv-sum)
+                                   '((adult) (juv))
+                                   (list (lambda (adult) (apply + adult))
+                                         (lambda (juv) (apply + juv))))))
 (test-assert (dataframe-equal?
               (make-dataframe '((grp a a b b)
                                 (trt a b a b)
                                 (adult-sum 1 2 3 9)
                                 (juv-sum 10 20 30 90)))
-              (dataframe-aggregate df22 '(grp trt)
-                                   (aggregate-expr (adult-sum (adult) (apply + adult))
-                                                   (juv-sum (juv) (apply + juv))))))
-(test-error (dataframe-aggregate df22 'grp (aggregate-expr (temp (adult) (add1 adult)))))
+              (dataframe-aggregate* df22
+                                    (grp trt)
+                                    ((adult-sum (adult) (apply + adult))
+                                     (juv-sum (juv) (apply + juv))))))
+(test-assert (dataframe-equal?
+              (make-dataframe '((grp a a b b)
+                                (trt a b a b)
+                                (adult-sum 1 2 3 9)
+                                (juv-sum 10 20 30 90)))
+              (dataframe-aggregate df22
+                                   '(grp trt)
+                                   '(adult-sum juv-sum)
+                                   '((adult) (juv))
+                                   (list (lambda (adult) (apply + adult))
+                                         (lambda (juv) (apply + juv))))))
 (test-end "dataframe-aggregate-test")
 
 (define df27 (make-dataframe '((grp "a" "a" "b" "b" "b")
