@@ -47,9 +47,9 @@
   (define (dataframe-filter df names proc)
     (df-filter df names proc "(dataframe-filter df names proc)"))
 
-  (define (df-filter df names proc proc-desc)
-    (check-dataframe df proc-desc)
-    (apply check-df-names df proc-desc names)
+  (define (df-filter df names proc who)
+    (check-dataframe df who)
+    (apply check-df-names df who names)
     (let* ([bools (apply map proc (dataframe-values-map df names))]
            [names (dataframe-names df)]
            [alist (dataframe-alist df)]
@@ -65,9 +65,9 @@
   (define (dataframe-partition df names proc)
     (df-partition df names proc "(dataframe-partition df names proc)"))
 
-  (define (df-partition df names proc proc-desc)
-    (check-dataframe df proc-desc)
-    (apply check-df-names df proc-desc names)
+  (define (df-partition df names proc who)
+    (check-dataframe df who)
+    (apply check-df-names df who names)
     (let* ([bools (apply map proc (dataframe-values-map df names))]
            [names (dataframe-names df)]
            [alist (dataframe-alist df)])
