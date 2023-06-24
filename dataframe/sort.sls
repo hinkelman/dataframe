@@ -26,17 +26,14 @@
   (define-syntax dataframe-sort*
     (syntax-rules ()
       [(_ df (predicate name) ...)
-       (df-sort* df (list predicate ...) (list (quote name) ...))]))
-
-  (define (df-sort* df predicates names)
-    (check-dataframe df "(dataframe-sort* df expr ...)")
-    (df-sort df predicates names))
+       (df-sort df (list predicate ...) (list (quote name) ...)
+                "(dataframe-sort* df expr ...)")]))
 
   (define (dataframe-sort df predicates names)
-    (check-dataframe df "(dataframe-sort df predicates names)")
-    (df-sort df predicates names))
+    (df-sort df predicates names "(dataframe-sort df predicates names)"))
 
-  (define (df-sort df predicates names)
+  (define (df-sort df predicates names who)
+    (check-dataframe df who)
     (let* ([alist (dataframe-alist df)]
            [all-names (map car alist)]
            [ranks (sum-row-ranks alist predicates names)]
