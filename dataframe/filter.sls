@@ -42,10 +42,10 @@
     (syntax-rules ()
       [(_ df names expr)
        (df-filter df (quote names) (lambda names expr)
-                  "(datframe-filter* df names expr)")]))
+                  "(dataframe-filter* df names expr)")]))
 
-  (define (dataframe-filter df names proc)
-    (df-filter df names proc "(dataframe-filter df names proc)"))
+  (define (dataframe-filter df names procedure)
+    (df-filter df names procedure "(dataframe-filter df names procedure)"))
 
   (define (df-filter df names proc who)
     (check-dataframe df who)
@@ -60,10 +60,10 @@
     (syntax-rules ()
       [(_ df names expr)
        (df-partition df (quote names) (lambda names expr)
-                     "(datframe-partition* df names expr)")]))
+                     "(dataframe-partition* df names expr)")]))
 
-  (define (dataframe-partition df names proc)
-    (df-partition df names proc "(dataframe-partition df names proc)"))
+  (define (dataframe-partition df names procedure)
+    (df-partition df names procedure "(dataframe-partition df names procedure)"))
 
   (define (df-partition df names proc who)
     (check-dataframe df who)

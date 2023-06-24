@@ -57,13 +57,14 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Filter and sort  
 
 [`(dataframe-unique df)`](#df-unique)  
-[`(filter-expr (names) (expr))`](#filter-expr)  
-[`(dataframe-filter df filter-expr)`](#df-filter)  
-[`(dataframe-filter-at df procedure name ...)`](#df-filter-at)  
-[`(dataframe-filter-all df procedure)`](#df-filter-all)  
-[`(dataframe-partition df filter-expr)`](#df-partition)  
-[`(sort-expr (predicate name) ...)`](#sort-expr)  
-[`(dataframe-sort df sort-expr)`](#df-sort)  
+[`(dataframe-filter df names procedure)`](#df-filter)  
+[`(dataframe-filter* df names expr)`](#df-filter*)  
+[`(dataframe-filter-at df predicate name ...)`](#df-filter-at)  
+[`(dataframe-filter-all df predicate)`](#df-filter-all)  
+[`(dataframe-partition df names procedure)`](#df-partition)  
+[`(dataframe-partition* df names expr)`](#df-partition*)  
+[`(dataframe-sort df predicates names)`](#df-sort)  
+[`(dataframe-sort* df (predicate name) ...)`](#df-sort*)  
 
 ### Split, bind, and append  
 
@@ -83,12 +84,12 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ### Modify and aggregate  
 
-[`(modify-expr (new-name (names) (expr)) ...)`](#modify-expr)  
-[`(dataframe-modify df modify-expr)`](#df-modify)  
+[`(dataframe-modify df new-names names procedure ...)`](#df-modify)  
+[`(dataframe-modify* df (new-names names expr) ...)`](#df-modify*)  
 [`(dataframe-modify-at df procedure name ...)`](#df-modify-at)  
 [`(dataframe-modify-all df procedure)`](#df-modify-all)  
-[`(aggregate-expr (new-name (names) (expr)) ...)`](#aggregate-expr)  
-[`(dataframe-aggregate df group-names aggregate-expr)`](#df-aggregate)  
+[`(dataframe-aggregate df group-names new-names names procedure ...)`](#df-aggregate)  
+[`(dataframe-aggregate* df group-names (new-name names expr) ...)`](#df-aggregate*)  
 
 ### Thread first and thread last  
 
@@ -131,6 +132,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 ```
 > (dataframe-display (dataframe-crossing '(col1 a b) '(col2 c d)))
+
  dim: 4 rows x 2 cols
   col1  col2 
      a     c 
@@ -140,6 +142,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 > (dataframe-display 
     (dataframe-crossing '(col1 a b) (make-dataframe '((col2 c d)))))
+
  dim: 4 rows x 2 cols
   col1  col2 
      a     c 
@@ -149,6 +152,7 @@ Exception in (make-dataframe alist): names are not symbols
      
 > (dataframe-display 
     (dataframe-crossing (make-dataframe '((col1 a b) (col2 c d))) '(col3 e f)))
+
  dim: 4 rows x 3 cols
   col1  col2  col3 
      a     c     e 
@@ -199,6 +203,7 @@ Exception in (make-dataframe alist): names are not symbols
                           (list 'Other (cons 1 2) '(a b c) (make-dataframe '((a 2)))))))
                           
 > (dataframe-display df)
+
  dim: 3 rows x 9 cols
   Boolean  Char   String   Symbol  Integer       Expt       Dec4       Dec2        Other 
        #t     y    these    these       1.   1.000E+6   132.1000    1234.00       <pair> 
@@ -209,6 +214,7 @@ Exception in (make-dataframe alist): names are not symbols
                                    (cons 'b (map add1 (iota 15))))))
   
 > (dataframe-display df 5)
+
  dim: 15 rows x 2 cols
      a     b 
     0.    1. 
@@ -241,6 +247,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999))))
 
 > (dataframe-display (dataframe-head df 3))
+
  dim: 3 rows x 3 cols
      a     b     c 
     1.    4.    7. 
@@ -248,6 +255,7 @@ Exception in (make-dataframe alist): names are not symbols
     3.    6.    9. 
 
 > (dataframe-display (dataframe-tail df 2))
+
  dim: 3 rows x 3 cols
      a     b      c 
     1.    4.  -999. 
@@ -281,6 +289,7 @@ Exception in (make-dataframe alist): names are not symbols
                                (juv 50 40 20 30 10))))
 
 > (dataframe-display df)
+
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
      b     b     5.   50. 
@@ -294,6 +303,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df2 (dataframe-read "df-example.scm"))
 
 > (dataframe-display df2)
+
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
      b     b     5.   50. 
@@ -323,6 +333,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 > (dataframe-display 
     (rowtable->dataframe '((a b c) (1 4 7) (2 5 8) (3 6 9)) #t))
+
  dim: 3 rows x 3 cols
      a     b     c 
     1.    4.    7. 
@@ -331,6 +342,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 > (dataframe-display 
     (rowtable->dataframe '((1 4 7) (2 5 8) (3 6 9)) #f))
+
  dim: 3 rows x 3 cols
     V0    V1    V2 
     1.    4.    7. 
@@ -339,6 +351,7 @@ Exception in (make-dataframe alist): names are not symbols
 
 > (dataframe-display 
     (rowtable->dataframe '(("a" "b" "c") (1 4 7) (2 5 8) (3 6 9)) #t))
+
  dim: 3 rows x 3 cols
      a     b     c 
     1.    4.    7. 
@@ -356,6 +369,7 @@ Exception in (make-dataframe alist): names are not symbols
                                (juv 10 20 30 40 50))))
 
 > (dataframe-display (dataframe-ref df '(0 2 4)))
+
  dim: 3 rows x 4 cols
    grp   trt  adult   juv 
      a     a     1.   10. 
@@ -363,6 +377,7 @@ Exception in (make-dataframe alist): names are not symbols
      b     b     5.   5
 
 > (dataframe-display (dataframe-ref df '(0 2 4) 'adult 'juv))
+
  dim: 3 rows x 2 cols
   adult   juv 
      1.   10. 
@@ -406,6 +421,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
 > (dataframe-display (dataframe-select df 'a))
+
  dim: 3 rows x 1 cols
      a 
     1. 
@@ -413,6 +429,7 @@ Exception in (make-dataframe alist): names are not symbols
     3. 
 
 > (dataframe-display (dataframe-select df 'c 'b))
+
  dim: 3 rows x 2 cols
      c     b 
     7.    4. 
@@ -427,6 +444,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
 > (dataframe-display (dataframe-drop df 'c 'b))
+
  dim: 3 rows x 1 cols
      a 
     1. 
@@ -434,6 +452,7 @@ Exception in (make-dataframe alist): names are not symbols
     3.
 
 > (dataframe-display (dataframe-drop df 'a))
+
  dim: 3 rows x 2 cols
      b     c 
     4.    7. 
@@ -451,6 +470,7 @@ Exception in (make-dataframe alist): names are not symbols
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
 > (dataframe-display (dataframe-rename df '((b Bee) (c Sea))))
+
  dim: 3 rows x 3 cols
      a   Bee   Sea 
     1.    4.    7. 
@@ -458,6 +478,7 @@ Exception in (make-dataframe alist): names are not symbols
     3.    6.    9. 
 
 > (dataframe-display (dataframe-rename-all df '(A B C)))
+
  dim: 3 rows x 3 cols
      A     B     C 
     1.    4.    7. 
@@ -478,6 +499,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (Pet "Rabbit" "Cat" "Dog" "Rabbit"))))
 
 > (dataframe-display (dataframe-unique df))
+
  dim: 3 rows x 2 cols
      Name       Pet 
      Paul       Cat 
@@ -491,6 +513,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 
 > (dataframe-display 
     (dataframe-unique (dataframe-select df2 'grp 'trt)))
+
  dim: 4 rows x 2 cols
    grp   trt 
      a     a 
@@ -499,19 +522,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      b     b 
 ```
 
-#### <a name="filter-expr"></a> procedure: `(filter-expr (names) (expr))`  
-**returns:** a list where the first element is a list of column `names` and the second element is a lambda procedure based on `expr`  
+#### <a name="df-filter"></a> procedure: `(dataframe-filter df names procedure)`  
+**returns:** a dataframe where the rows of dataframe `df` are filtered based on `procedure` applied to columns `names`
 
-```
-> (filter-expr (adult) (> adult 3))
-((adult) (lambda (adult) (> adult 3)))
-
-> (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50)))
-((grp juv) (lambda (grp juv) (and (symbol=? grp 'b) (< juv 50))))
-```
-
-#### <a name="df-filter"></a> procedure: `(dataframe-filter df filter-expr)`  
-**returns:** a dataframe where the rows of dataframe `df` are filtered according to the `filter-expr`  
+#### <a name="df-filter*"></a> procedure: `(dataframe-filter* df names expr)`  
+**returns:** a dataframe where the rows of dataframe `df` are filtered based on `expr` applied to columns `names`
 
 ```
 > (define df (make-dataframe '((grp a a b b b)
@@ -519,15 +534,31 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (dataframe-display 
-    (dataframe-filter df (filter-expr (adult) (> adult 3))))
+> (dataframe-display (dataframe-filter df '(adult) (lambda (adult) (> adult 3))))
+
  dim: 2 rows x 4 cols
    grp   trt  adult   juv 
      b     b     4.   40. 
      b     b     5.   50. 
 
-> (dataframe-display
-   (dataframe-filter df (filter-expr (grp juv) (and (symbol=? grp 'b) (< juv 50)))))
+> (dataframe-display (dataframe-filter* df (adult) (> adult 3)))
+
+ dim: 2 rows x 4 cols
+   grp   trt  adult   juv 
+     b     b     4.   40. 
+     b     b     5.   50. 
+
+> (dataframe-display 
+    (dataframe-filter df '(grp juv) (lambda (grp juv) (and (symbol=? grp 'b) (< juv 50)))))
+
+ dim: 2 rows x 4 cols
+   grp   trt  adult   juv 
+     b     a     3.   30. 
+     b     b     4.   40. 
+
+> (dataframe-display 
+    (dataframe-filter* df (grp juv) (and (symbol=? grp 'b) (< juv 50))))
+
  dim: 2 rows x 4 cols
    grp   trt  adult   juv 
      b     a     3.   30. 
@@ -535,7 +566,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 ```
 
 #### <a name="df-filter-at"></a> procedure: `(dataframe-filter-at df procedure name ...)`  
-**returns:** a dataframe where the rows of dataframe `df` are filtered based on `procedure` applied to specified columns (`names`)  
+**returns:** a dataframe where the rows of dataframe `df` are filtered based on `procedure` applied to columns `names`  
 
 #### <a name="df-filter-all"></a> procedure: `(dataframe-filter-all df procedure)`  
 **returns:** a dataframe where the rows of dataframe `df` are filtered based on `procedure` applied to all columns  
@@ -546,6 +577,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (c 7 "NA" 9))))
 
 > (dataframe-display df)
+
   dim: 3 rows x 3 cols
      a     b     c 
      1    NA     7 
@@ -553,19 +585,24 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      3     6     9 
          
 > (dataframe-display (dataframe-filter-at df number? 'a 'c))
+
  dim: 2 rows x 3 cols
      a     b     c 
     1.    NA    7. 
     3.     6    9. 
          
 > (dataframe-display (dataframe-filter-all df number?))
+
  dim: 1 rows x 3 cols
      a     b     c 
     3.    6.    9. 
 ```
 
-#### <a name="df-partition"></a> procedure: `(dataframe-partition df filter-expr)`  
-**returns:** two dataframes where the rows of dataframe `df` are partitioned according to the `filter-expr`  
+#### <a name="df-partition"></a> procedure: `(dataframe-partition df names procedure)`  
+**returns:** two dataframes where the rows of dataframe `df` are partitioned based on `procedure` applied to columns `names`  
+
+#### <a name="df-partition*"></a> procedure: `(dataframe-partition* df names expr)`  
+**returns:** two dataframes where the rows of dataframe `df` are partitioned based on `expr` applied to columns `names`  
 
 ```
 > (define df (make-dataframe '((grp a a b b b)
@@ -574,15 +611,19 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 
 > (define-values (keep drop) 
-    (dataframe-partition df (filter-expr (adult) (> adult 3))))
+    (dataframe-partition df '(adult) (lambda (adult) (> adult 3))))
+> (define-values (keep drop) 
+    (dataframe-partition* df (adult) (> adult 3)))
 
 > (dataframe-display keep)
+
  dim: 2 rows x 4 cols
    grp   trt  adult   juv 
      b     b     4.   40. 
      b     b     5.   50. 
 
 > (dataframe-display drop)
+
  dim: 3 rows x 4 cols
    grp   trt  adult   juv 
      a     a     1.   10. 
@@ -590,19 +631,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      b     a     3.   30. 
 ```
 
-#### <a name="sort-expr"></a> procedure: `(sort-expr (predicate name) ...)`  
-**returns:** a list where the first element is a list of `predicate` procedures and the second element is a list of column `names`  
+#### <a name="df-sort"></a> procedure: `(dataframe-sort df predicates names)`  
+**returns:** a dataframe where the rows of dataframe `df` are sorted according a list of `predicate` procedures acting on a list of column `names` 
 
-```
-> (sort-expr (string<? trt))
-((#<procedure string<?>) (trt))
-
-> (sort-expr (string<? trt) (< adult))
-((#<procedure string<?> #<procedure <>) (trt adult))
-```
-
-#### <a name="df-sort"></a> procedure: `(dataframe-sort df sort-expr)`  
-**returns:** a dataframe where the rows of dataframe `df` are sorted according to the `sort-expr`  
+#### <a name="df-sort*"></a> procedure: `(dataframe-sort* df (predicate name) ...)`  
+**returns:** a dataframe where the rows of dataframe `df` are sorted according to the `predicate name` pairings
 
 ```
 > (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
@@ -610,7 +643,8 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
 
-> (dataframe-display (dataframe-sort df (sort-expr (string>? trt))))
+> (dataframe-display (dataframe-sort df (list string>?) '(trt)))
+
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
      a     b     2.   20. 
@@ -619,7 +653,28 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      a     a     1.   10. 
      b     a     3.   30. 
 
-> (dataframe-display (dataframe-sort df (sort-expr (string>? trt) (> adult))))
+> (dataframe-display (dataframe-sort* df (string>? trt)))
+
+ dim: 5 rows x 4 cols
+   grp   trt  adult   juv 
+     a     b     2.   20. 
+     b     b     4.   40. 
+     b     b     5.   50. 
+     a     a     1.   10. 
+     b     a     3.   30. 
+
+> (dataframe-display (dataframe-sort df (list string>? >) '(trt adult)))
+
+ dim: 5 rows x 4 cols
+   grp   trt  adult   juv 
+     b     b     5.   50. 
+     b     b     4.   40. 
+     a     b     2.   20. 
+     b     a     3.   30. 
+     a     a     1.   10. 
+
+> (dataframe-display (dataframe-sort* df (string>? trt) (> adult)))
+
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
      b     b     5.   50. 
@@ -663,6 +718,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 
 > (dataframe-display (apply dataframe-bind (dataframe-split df 'grp 'trt)))
+
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
      a     a     1.   10. 
@@ -676,6 +732,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 > (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
 
 > (dataframe-display (dataframe-bind df1 df2))
+
  dim: 6 rows x 2 cols
      a     b 
     1.   10. 
@@ -686,6 +743,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
     6.   60. 
 
 > (dataframe-display (dataframe-bind df2 df1))
+
  dim: 6 rows x 2 cols
      a     b 
     4.   40. 
@@ -696,6 +754,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
     3.   30. 
 
 > (dataframe-display (dataframe-bind-all -999 df1 df2))
+
  dim: 6 rows x 3 cols
      a     b      c 
     1.   10.   100. 
@@ -706,6 +765,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
     6.   60.  -999.  
 
 > (dataframe-display (dataframe-bind-all -999 df2 df1))
+
  dim: 6 rows x 3 cols
      a     b      c 
     4.   40.  -999. 
@@ -725,6 +785,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 > (define df2 (make-dataframe '((c 7 8 9) (d 10 11 12))))
 
 > (dataframe-display (dataframe-append df1 df2))
+
  dim: 3 rows x 4 cols
      a     b     c     d 
     1.    4.    7.   10. 
@@ -732,6 +793,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
     3.    6.    9.   12. 
   
 > (dataframe-display (dataframe-append df2 df1))
+
  dim: 3 rows x 4 cols
      c     d     a     b 
     7.   10.    1.    4. 
@@ -753,6 +815,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (catch 10 12 20 24))))
 
 > (dataframe-display (dataframe-left-join df1 df2 '(site) -999))
+
  dim: 5 rows x 4 cols
   site      habitat    day  catch 
      b    grassland     1.    12. 
@@ -762,6 +825,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      c     woodland     2.    20.  
 
 > (dataframe-display (dataframe-left-join df2 df1 '(site) -999))
+
  dim: 4 rows x 4 cols
   site   day  catch      habitat 
      c    1.    10.     woodland 
@@ -779,6 +843,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (goals 0 1 2 3))))
 
 > (dataframe-display (dataframe-left-join df3 df4 '(first last) -999))
+
  dim: 5 rows x 5 cols
   first   last   age   game  goals 
     sam    son   10.     1.     0. 
@@ -788,6 +853,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
     dan    man   40.     1.     2. 
 
 > (dataframe-display (dataframe-left-join df4 df3 '(first last) -999))
+
  dim: 4 rows x 5 cols
   first   last  game  goals   age 
     sam    son    1.     0.   10. 
@@ -809,6 +875,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (c 55 54))))
 
 > (dataframe-display (dataframe-stack df '(a b c) 'site 'count))
+
  dim: 6 rows x 4 cols
    day  hour  site  count 
     1.   10.     a    97. 
@@ -826,9 +893,9 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
         (c 55 54 38 58))
       (make-dataframe)
       (dataframe-stack '(a b c) 'site 'count)
-      (dataframe-aggregate
-       '(hour site)
-       (aggregate-expr (total-count (count) (apply + count))))
+      (dataframe-aggregate*
+       (hour site)
+       (total-count (count) (apply + count)))
       (dataframe-display))
 
  dim: 6 rows x 3 cols
@@ -850,6 +917,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                 (val 10 20 30))))
 
 > (dataframe-display (dataframe-spread df1 'grp 'val -999))
+
  dim: 2 rows x 3 cols
    day      A     B 
     1.    10.   20. 
@@ -861,6 +929,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                 (val 83 78 80 105 95 77 96 99))))
 
 > (dataframe-display (dataframe-spread df2 'grp 'val -999))
+
  dim: 4 rows x 4 cols
    day  hour     a     b 
     1.   10.   83.   78. 
@@ -871,18 +940,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 
 ## Modify and aggregate  
 
-#### <a name="modify-expr"></a> procedure: `(modify-expr (new-name (names) (expr)) ...)`  
-**returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  
+#### <a name="df-modify"></a> procedure: `(dataframe-modify df new-names names procedure ...)`  
+**returns:** a dataframe where the columns `names` of dataframe `df` are modified or added according to the `procedure`  
 
-```
-> (modify-expr (grp (grp) (symbol->string grp))
-               (total (adult juv) (+ adult juv)))
-((grp total) ((grp) (adult juv)) ((lambda (grp) (symbol->string grp))
-                                  (lambda (adult juv) (+ adult juv))))
-```
-
-#### <a name="df-modify"></a> procedure: `(dataframe-modify df modify-expr)`  
-**returns:** a dataframe where the columns of dataframe `df` are modified or added according to the `modify-expr`  
+#### <a name="df-modify*"></a> procedure: `(dataframe-modify* df (new-name names expr) ...)`  
+**returns:** a dataframe where the columns `names` of dataframe `df` are modified or added according to the `expr`  
 
 ```
 > (define df (make-dataframe '((grp a a b b b)
@@ -898,10 +960,28 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 ;;   and expr is a list of length equal to number of rows in dataframe, then the list is used as a column
 
 > (dataframe-display
-   (dataframe-modify df (modify-expr (grp (grp) (symbol->string grp))
-                                     (total (adult juv) (+ adult juv))
-                                     (scalar () 42)
-                                     (lst () '(2 4 6 8 10)))))
+   (dataframe-modify df
+                     '(grp total scalar lst)
+                     '((grp) (adult juv) () ())
+                     (lambda (grp) (symbol->string grp))  ;; dataframe-display doesn't show this change
+                     (lambda (adult juv) (+ adult juv))
+                     (lambda () 42)
+                     (lambda () '(2 4 6 8 10))))
+                                     
+ dim: 5 rows x 7 cols
+   grp   trt  adult   juv  total  scalar   lst 
+     a     a     1.   10.    11.     42.    2. 
+     a     b     2.   20.    22.     42.    4. 
+     b     a     3.   30.    33.     42.    6. 
+     b     b     4.   40.    44.     42.    8. 
+     b     b     5.   50.    55.     42.   10. 
+
+> (dataframe-display
+   (dataframe-modify* df
+                      (grp (grp) (symbol->string grp))    ;; dataframe-display doesn't show this change
+                      (total (adult juv) (+ adult juv))
+                      (scalar () 42)
+                      (lst () '(2 4 6 8 10))))
                                      
  dim: 5 rows x 7 cols
    grp   trt  adult   juv  total  scalar   lst 
@@ -926,6 +1006,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
                                
 > (dataframe-display (dataframe-modify-at df symbol->string 'grp 'trt))
+
  dim: 5 rows x 4 cols
    grp   trt  adult   juv 
      a     a     1.   10. 
@@ -940,6 +1021,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                 
 > (dataframe-display
    (dataframe-modify-all df2 (lambda (x) (* x 100))))
+
  dim: 3 rows x 3 cols
      a     b     c 
   100.  400.  700. 
@@ -947,30 +1029,36 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
   300.  600.  900. 
 ```
 
-#### <a name="aggregate-expr"></a> procedure: `(aggregate-expr (new-name (names) (expr)) ...)`  
-**returns:** a list where the first element is a list of new column names `new-name`, the second element is a list of lists of column `names`, and the third element is list of lambda procedures based on `expr`  
+#### <a name="df-aggregate"></a> procedure: `(dataframe-aggregate df group-names new-names names procedure ...)`  
+**returns:** a dataframe where the dataframe `df` is split according to list of `group-names` and aggregated according to the `procedure` applied to column(s) `names`
 
-```
-> (aggregate-expr (adult-sum (adult) (apply + adult))
-                  (juv-sum (juv) (apply + juv)))
-((adult-sum juv-sum) ((adult) (juv)) ((lambda (adult) (apply + adult))
-                                      (lambda (juv) (apply + juv))))
-```
-
-#### <a name="df-aggregate"></a> procedure: `(dataframe-aggregate df group-names aggregate-expr)`  
-**returns:** a dataframe where the dataframe `df` was split according to list of `group-names` and aggregated according to `aggregate-expr`  
+#### <a name="df-aggregate*"></a> procedure: `(dataframe-aggregate* df group-names (new-name names expr) ...)`  
+**returns:** a dataframe where the dataframe `df` is split according to list of `group-names` and aggregated according to the `expr` applied to column(s) `names`  
 
 ```
 > (define df (make-dataframe '((grp a a b b b)
                                (trt a b a b b)
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
-                               
+
 > (dataframe-display
    (dataframe-aggregate df
                         '(grp)
-                        (aggregate-expr (adult-sum (adult) (apply + adult))
-                                        (juv-sum (juv) (apply + juv)))))
+                        '(adult-sum juv-sum)
+                        '((adult) (juv))
+                        (lambda (adult) (apply + adult))
+                        (lambda (juv) (apply + juv))))    
+                                                                
+ dim: 2 rows x 3 cols
+   grp  adult-sum  juv-sum 
+     a         3.      30. 
+     b        12.     120. 
+
+> (dataframe-display
+   (dataframe-aggregate* df
+                         (grp)
+                         (adult-sum (adult) (apply + adult))
+                         (juv-sum (juv) (apply + juv))))
                                         
  dim: 2 rows x 3 cols
    grp  adult-sum  juv-sum 
@@ -980,8 +1068,23 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 > (dataframe-display
    (dataframe-aggregate df
                         '(grp trt)
-                        (aggregate-expr (adult-sum (adult) (apply + adult))
-                                        (juv-sum (juv) (apply + juv)))))
+                        '(adult-sum juv-sum)
+                        '((adult) (juv))
+                        (lambda (adult) (apply + adult))
+                        (lambda (juv) (apply + juv))))
+
+ dim: 4 rows x 4 cols
+   grp   trt  adult-sum  juv-sum 
+     a     a         1.      10. 
+     a     b         2.      20. 
+     b     a         3.      30. 
+     b     b         9.      90. 
+
+> (dataframe-display
+   (dataframe-aggregate* df
+                         (grp trt)
+                         (adult-sum (adult) (apply + adult))
+                         (juv-sum (juv) (apply + juv))))
                                         
  dim: 4 rows x 4 cols
    grp   trt  adult-sum  juv-sum 
@@ -1014,8 +1117,8 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
         (adult 1 2 3 4 5)
         (juv 10 20 30 40 50))
       (make-dataframe)
-      (dataframe-modify
-       (modify-expr (total (adult juv) (+ adult juv))))
+      (dataframe-modify*
+       (total (adult juv) (+ adult juv)))
       (dataframe-display))
       
  dim: 5 rows x 5 cols
@@ -1033,11 +1136,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
       (make-dataframe)
       (dataframe-split 'grp)
       (->> (map (lambda (df)
-                  (dataframe-modify
+                  (dataframe-modify*
                    df
-                   (modify-expr (juv-mean () (mean ($ df 'juv))))))))
+                   (juv-mean () (mean ($ df 'juv)))))))
       (->> (apply dataframe-bind))
-      (dataframe-filter (filter-expr (juv juv-mean) (> juv juv-mean)))
+      (dataframe-filter* (juv juv-mean) (> juv juv-mean))
       (dataframe-display))
        
  dim: 2 rows x 5 cols

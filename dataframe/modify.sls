@@ -29,9 +29,9 @@
         (list (lambda names expr) ...)
         "(dataframe-modify* df (new-name names expr) ...)")]))
 
-  (define (dataframe-modify df new-names names . proc)
-    (df-modify df new-names names proc
-               "(dataframe-modify df new-names names proc ...)"))
+  (define (dataframe-modify df new-names names . procedure)
+    (df-modify df new-names names procedure
+               "(dataframe-modify df new-names names procedure ...)"))
 
   (define (df-modify df new-names names procs who)
     (check-dataframe df who)
@@ -113,4 +113,3 @@
   ;;   (apply dataframe-bind (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
   
   )
-

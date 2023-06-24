@@ -27,9 +27,9 @@
         (list (lambda names expr) ...)
         "(dataframe-aggregate* df group-names (new-name names expr) ...)")]))
   
-  (define (dataframe-aggregate df group-names new-names names . proc)
-    (df-aggregate df group-names new-names names proc
-                  "(dataframe-aggregate df group-names new-names proc ...)"))
+  (define (dataframe-aggregate df group-names new-names names . procedure)
+    (df-aggregate df group-names new-names names procedure
+                  "(dataframe-aggregate df group-names new-names procedure ...)"))
 
   (define (df-aggregate df group-names new-names names procs who)
     (check-dataframe df who)
@@ -62,4 +62,3 @@
                               (cdr new-names)
                               (cdr ls-vals))))
   )
-

@@ -27,7 +27,7 @@
     (syntax-rules ()
       [(_ df (predicate name) ...)
        (df-sort df (list predicate ...) (list (quote name) ...)
-                "(dataframe-sort* df expr ...)")]))
+                "(dataframe-sort* df (predicate name) ...)")]))
 
   (define (dataframe-sort df predicates names)
     (df-sort df predicates names "(dataframe-sort df predicates names)"))
