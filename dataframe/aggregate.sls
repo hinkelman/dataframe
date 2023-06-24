@@ -25,7 +25,7 @@
         (list (quote new-name) ...)
         (list (quote names) ...)
         (list (lambda names expr) ...)
-        "(dataframe-aggregate* df group-names (new-name names expr))")]))
+        "(dataframe-aggregate* df group-names ((new-name names expr) ...))")]))
   
   (define (dataframe-aggregate df group-names new-names names procs)
     (df-aggregate df group-names new-names names procs
