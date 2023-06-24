@@ -24,6 +24,7 @@
    dataframe-head
    dataframe-left-join
    dataframe-modify
+   dataframe-modify*
    dataframe-modify-at
    dataframe-modify-all
    dataframe-names
@@ -45,7 +46,6 @@
    dataframe-values-unique
    dataframe-write
    make-dataframe
-   modify-expr
    rowtable->dataframe)
 
   (import (rnrs)

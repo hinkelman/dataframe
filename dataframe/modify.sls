@@ -1,8 +1,8 @@
 (library (dataframe modify)
   (export dataframe-modify
+          dataframe-modify*
           dataframe-modify-all
-          dataframe-modify-at
-          modify-expr)
+          dataframe-modify-at)
 
   (import (rnrs)
           (only (dataframe df)
@@ -12,31 +12,33 @@
                 dataframe-names
                 make-dataframe)   
           (only (dataframe helpers)
-                    make-list
+                make-list
                 alist-modify
                 alist-values-map
                 check-names))
 
   ;; modify/add columns ------------------------------------------------------------------------
 
-  (define-syntax modify-expr
+  (define-syntax dataframe-modify*
     (syntax-rules ()
-      [(_ (new-name names expr) ...)
-       (list
+      [(_ df ((new-name names expr) ...))
+       (df-modify
+        df
         (list (quote new-name) ...)
         (list (quote names) ...)
-        (list (lambda names expr) ...))]))
+        (list (lambda names expr) ...)
+        "(dataframe-modify* df ((new-name names expr) ...))")]))
 
-  (define (dataframe-modify df modify-expr)
-    (let ([alist (dataframe-alist df)]
-          [new-names (car modify-expr)]
-          [names-list (cadr modify-expr)]
-          [proc-list (caddr modify-expr)]
-          [proc-string "(dataframe-modify df modify-expr)"])
-      (check-dataframe df proc-string)
-      (check-names new-names proc-string)
+  (define (dataframe-modify df new-names names procs)
+    (df-modify df new-names names procs
+               "(dataframe-modify df new-names names procs)"))
+
+  (define (df-modify df new-names names procs who)
+    (check-dataframe df who)
+    (check-names new-names who)
+    (let ([alist (dataframe-alist df)])
       (make-dataframe
-       (alist-modify-loop alist new-names names-list proc-list proc-string))))
+       (alist-modify-loop alist new-names names procs who))))
 
   ;; can't just map over columns because won't hold alist structure
   ;; also don't want to map over procedures
