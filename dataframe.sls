@@ -18,6 +18,7 @@
    dataframe-drop
    dataframe-equal?
    dataframe-filter
+   dataframe-filter*
    dataframe-filter-at
    dataframe-filter-all
    dataframe-head
@@ -28,6 +29,7 @@
    dataframe-names
    dataframe-rename-all
    dataframe-partition
+   dataframe-partition*
    dataframe-read
    dataframe-rename
    dataframe-select
@@ -42,7 +44,6 @@
    dataframe-values
    dataframe-values-unique
    dataframe-write
-   filter-expr
    make-dataframe
    modify-expr
    rowtable->dataframe

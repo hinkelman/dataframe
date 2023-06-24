@@ -1,9 +1,10 @@
 (library (dataframe filter)
   (export dataframe-filter
+          dataframe-filter*
           dataframe-filter-all
           dataframe-filter-at
           dataframe-partition
-          filter-expr)
+          dataframe-partition*)
 
   (import (rnrs)
           (only (dataframe df)
@@ -17,6 +18,7 @@
                 add-names-ls-vals
                 alist-values-map
                 filter-ls-vals
+                flatten
                 partition-ls-vals))
 
   ;; filter/partition ------------------------------------------------------------------------
@@ -33,27 +35,40 @@
   ;; other approach might be more efficient when lots of columns and few rows
   ;; but I don't have a good sense of relative cost of the two approaches
 
-  (define (dataframe-filter df filter-expr)
-    (check-dataframe df "(dataframe-filter df filter-expr)")
-    (let* ([bools (filter-map df filter-expr)]
+  ;; wanted this syntax: (dataframe-filter* df expr)
+  ;; tried to flatten the expression to extract symbols that are names
+  ;; but I couldn't figure out how to unquote the extracted names
+  (define-syntax dataframe-filter*
+    (syntax-rules ()
+      [(_ df names expr)
+       (df-filter df (quote names) (lambda names expr)
+                  "(datframe-filter* df names expr)")]))
+
+  (define (dataframe-filter df names proc)
+    (df-filter df names proc "(dataframe-filter df names proc)"))
+
+  (define (df-filter df names proc proc-desc)
+    (check-dataframe df proc-desc)
+    (apply check-df-names df proc-desc names)
+    (let* ([bools (apply map proc (dataframe-values-map df names))]
            [names (dataframe-names df)]
            [alist (dataframe-alist df)]
            [new-ls-vals (filter-ls-vals bools (map cdr alist))])
       (make-dataframe (add-names-ls-vals names new-ls-vals))))
-  
-  (define-syntax filter-expr
-    (syntax-rules ()
-      [(_ names expr)
-       (list (quote names) (lambda names expr))]))
 
-  (define (filter-map df filter-expr)
-    (let ([names (car filter-expr)]
-          [proc (cadr filter-expr)])
-      (apply check-df-names df "(dataframe-filter df filter-expr)" names)
-      (apply map proc (dataframe-values-map df names))))
-  
-  (define (dataframe-partition df filter-expr)
-    (let* ([bools (filter-map df filter-expr)]
+  (define-syntax dataframe-partition*
+    (syntax-rules ()
+      [(_ df names expr)
+       (df-partition df (quote names) (lambda names expr)
+                     "(datframe-partition* df names expr)")]))
+
+  (define (dataframe-partition df names proc)
+    (df-partition df names proc "(dataframe-partition df names proc)"))
+
+  (define (df-partition df names proc proc-desc)
+    (check-dataframe df proc-desc)
+    (apply check-df-names df proc-desc names)
+    (let* ([bools (apply map proc (dataframe-values-map df names))]
            [names (dataframe-names df)]
            [alist (dataframe-alist df)])
       (let-values ([(keep drop) (partition-ls-vals bools (map cdr alist))])
