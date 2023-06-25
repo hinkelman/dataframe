@@ -947,7 +947,7 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 **returns:** a dataframe where the columns `names` of dataframe `df` are modified or added according to the `expr`  
 
 ```
-> (define df (make-dataframe '((grp a a b b b)
+> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
                                (trt a b a b b)
                                (adult 1 2 3 4 5)
                                (juv 10 20 30 40 50))))
@@ -960,37 +960,38 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
 ;;   and expr is a list of length equal to number of rows in dataframe, then the list is used as a column
 
 > (dataframe-display
-   (dataframe-modify df
-                     '(grp total scalar lst)
-                     '((grp) (adult juv) () ())
-                     (lambda (grp) (symbol->string grp))  ;; dataframe-display doesn't show this change
-                     (lambda (adult juv) (+ adult juv))
-                     (lambda () 42)
-                     (lambda () '(2 4 6 8 10))))
+   (dataframe-modify
+    df
+    '(grp total scalar lst)
+    '((grp) (adult juv) () ())
+    (lambda (grp) (string-upcase grp))  
+    (lambda (adult juv) (+ adult juv))
+    (lambda () 42)
+    (lambda () '(2 4 6 8 10))))
                                      
  dim: 5 rows x 7 cols
    grp   trt  adult   juv  total  scalar   lst 
-     a     a     1.   10.    11.     42.    2. 
-     a     b     2.   20.    22.     42.    4. 
-     b     a     3.   30.    33.     42.    6. 
-     b     b     4.   40.    44.     42.    8. 
-     b     b     5.   50.    55.     42.   10. 
+     A     a     1.   10.    11.     42.    2. 
+     A     b     2.   20.    22.     42.    4. 
+     B     a     3.   30.    33.     42.    6. 
+     B     b     4.   40.    44.     42.    8. 
+     B     b     5.   50.    55.     42.   10. 
 
 > (dataframe-display
-   (dataframe-modify* df
-                      (grp (grp) (symbol->string grp))    ;; dataframe-display doesn't show this change
-                      (total (adult juv) (+ adult juv))
-                      (scalar () 42)
-                      (lst () '(2 4 6 8 10))))
+   (dataframe-modify*
+    df
+    (grp (grp) (string-upcase grp))    
+    (total (adult juv) (+ adult juv))
+    (scalar () 42)
+    (lst () '(2 4 6 8 10))))
                                      
  dim: 5 rows x 7 cols
    grp   trt  adult   juv  total  scalar   lst 
-     a     a     1.   10.    11.     42.    2. 
-     a     b     2.   20.    22.     42.    4. 
-     b     a     3.   30.    33.     42.    6. 
-     b     b     4.   40.    44.     42.    8. 
-     b     b     5.   50.    55.     42.   10. 
-
+     A     a     1.   10.    11.     42.    2. 
+     A     b     2.   20.    22.     42.    4. 
+     B     a     3.   30.    33.     42.    6. 
+     B     b     4.   40.    44.     42.    8. 
+     B     b     5.   50.    55.     42.   10. 
 ```
 
 #### <a name="df-modify-at"></a> procedure: `(dataframe-modify-at df procedure name ...)`  
@@ -1042,12 +1043,13 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
                                (juv 10 20 30 40 50))))
 
 > (dataframe-display
-   (dataframe-aggregate df
-                        '(grp)
-                        '(adult-sum juv-sum)
-                        '((adult) (juv))
-                        (lambda (adult) (apply + adult))
-                        (lambda (juv) (apply + juv))))    
+   (dataframe-aggregate
+    df
+    '(grp)
+    '(adult-sum juv-sum)
+    '((adult) (juv))
+    (lambda (adult) (apply + adult))
+    (lambda (juv) (apply + juv)))) 
                                                                 
  dim: 2 rows x 3 cols
    grp  adult-sum  juv-sum 
@@ -1055,10 +1057,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      b        12.     120. 
 
 > (dataframe-display
-   (dataframe-aggregate* df
-                         (grp)
-                         (adult-sum (adult) (apply + adult))
-                         (juv-sum (juv) (apply + juv))))
+   (dataframe-aggregate*
+    df
+    (grp)
+    (adult-sum (adult) (apply + adult))
+    (juv-sum (juv) (apply + juv))))
                                         
  dim: 2 rows x 3 cols
    grp  adult-sum  juv-sum 
@@ -1066,12 +1069,13 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      b        12.     120. 
 
 > (dataframe-display
-   (dataframe-aggregate df
-                        '(grp trt)
-                        '(adult-sum juv-sum)
-                        '((adult) (juv))
-                        (lambda (adult) (apply + adult))
-                        (lambda (juv) (apply + juv))))
+   (dataframe-aggregate
+    df
+    '(grp trt)
+    '(adult-sum juv-sum)
+    '((adult) (juv))
+    (lambda (adult) (apply + adult))
+    (lambda (juv) (apply + juv))))
 
  dim: 4 rows x 4 cols
    grp   trt  adult-sum  juv-sum 
@@ -1081,10 +1085,11 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
      b     b         9.      90. 
 
 > (dataframe-display
-   (dataframe-aggregate* df
-                         (grp trt)
-                         (adult-sum (adult) (apply + adult))
-                         (juv-sum (juv) (apply + juv))))
+   (dataframe-aggregate*
+    df
+    (grp trt)
+    (adult-sum (adult) (apply + adult))
+    (juv-sum (juv) (apply + juv))))
                                         
  dim: 4 rows x 4 cols
    grp   trt  adult-sum  juv-sum 
