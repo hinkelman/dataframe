@@ -222,9 +222,8 @@
 
   ;; rename columns ---------------------------------------------------------------------------------
 
-  ;; name-pairs is of form '((old-name1 new-name1) (old-name2 new-name2))
-  (define (dataframe-rename df name-pairs)
-    (let ([proc-string "(dataframe df name-pairs)"])
+  (define (dataframe-rename df . name-pairs)
+    (let ([proc-string "(dataframe df '(old-name new-name) ...)"])
       (check-dataframe df proc-string)
       (check-name-pairs (dataframe-names df) name-pairs proc-string))
     (make-dataframe (map (lambda (column)

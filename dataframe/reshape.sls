@@ -60,7 +60,7 @@
                                   (let* ([nf1 (cadar grp)]
                                          [nf2 (if (symbol? nf1) nf1 (string->symbol nf1))])
                                     (dataframe-drop
-                                     (dataframe-rename df-local (list (list values-from nf2)))
+                                     (dataframe-rename df-local (list values-from nf2))
                                      names-from)))
                                 df-ls df-grp)])
             (dataframe-left-join-all (cons left-df df-ls-mod) not-spread-names missing-value))))))

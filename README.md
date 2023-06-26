@@ -51,7 +51,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 [`(dataframe-select df name ...)`](#df-select)  
 [`(dataframe-drop df name ...)`](#df-drop)  
-[`(dataframe-rename df name-pairs)`](#df-rename)  
+[`(dataframe-rename df name-pairs ...)`](#df-rename)  
 [`(dataframe-rename-all df names)`](#df-rename-all)  
 
 ### Filter and sort  
@@ -460,8 +460,8 @@ Exception in (make-dataframe alist): names are not symbols
     6.    9. 
 ```
 
-#### <a name="df-rename"></a> procedure: `(dataframe-rename df name-pairs)`  
-**returns:** a dataframe with column names from dataframe `df` renamed according to `name-pairs`  
+#### <a name="df-rename"></a> procedure: `(dataframe-rename df name-pairs ...)`  
+**returns:** a dataframe with column names from dataframe `df` renamed according to `name-pairs`, which takes the form `'(old-name new-name)` 
 
 #### <a name="df-rename-all"></a> procedure: `(dataframe-rename-all df names)`  
 **returns:** a dataframe with `names` replacing column names from dataframe `df`  
@@ -469,7 +469,7 @@ Exception in (make-dataframe alist): names are not symbols
 ```
 > (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
 
-> (dataframe-display (dataframe-rename df '((b Bee) (c Sea))))
+> (dataframe-display (dataframe-rename df '(b Bee) '(c Sea)))
 
  dim: 3 rows x 3 cols
      a   Bee   Sea 

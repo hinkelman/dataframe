@@ -104,12 +104,12 @@
 (define df9 (make-dataframe '((A 1 2 3) (b 4 5 6) (scary7 7 8 9))))
 
 (test-begin "dataframe-rename-test")
-(test-assert (dataframe-equal? df8 (dataframe-rename df5 '((c scary7)))))
-(test-assert (dataframe-equal? df9 (dataframe-rename df5 '((a A) (c scary7)))))
+(test-assert (dataframe-equal? df8 (dataframe-rename df5 '(c scary7))))
+(test-assert (dataframe-equal? df9 (dataframe-rename df5 '(a A) '(c scary7))))
 ;; same dataframe is returned when old names are not found
-(test-assert (dataframe-equal? df8 (dataframe-rename df8 '((d D)))))
-(test-error (dataframe-rename 100 '((a A))))
-(test-error (dataframe-rename df5 '((a c))))
+(test-assert (dataframe-equal? df8 (dataframe-rename df8 '(d D))))
+(test-error (dataframe-rename 100 '(a A)))
+(test-error (dataframe-rename df5 '(a c)))
 (test-end "dataframe-rename-test")
 
 (test-begin "dataframe-rename-all-test")
