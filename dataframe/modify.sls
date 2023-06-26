@@ -34,8 +34,13 @@
                "(dataframe-modify df new-names names procedure ...)"))
 
   (define (df-modify df new-names names procs who)
+    ;; can't check new-names here because they might be duplicated b/c
+    ;; different expr acting on the same column
     (check-dataframe df who)
-    (check-names new-names who)
+    (unless (= (length new-names) (length names) (length procs))
+      (assertion-violation
+       who
+       "new-names, names, and procedures lists must be the same length"))
     (let ([alist (dataframe-alist df)])
       (make-dataframe
        (alist-modify-loop alist new-names names procs who))))
@@ -43,18 +48,18 @@
   ;; can't just map over columns because won't hold alist structure
   ;; also don't want to map over procedures
   ;; because want to update alist after each procedure
-  (define (alist-modify-loop alist new-names names-list proc-list who)
+  (define (alist-modify-loop alist new-names names procedures who)
     (if (null? new-names)
         alist
         (alist-modify-loop (alist-modify alist
                                          (car new-names)
                                          (modify-map alist
-                                                     (car names-list)
-                                                     (car proc-list)
+                                                     (car names)
+                                                     (car procedures)
                                                      who))
                            (cdr new-names)
-                           (cdr names-list)
-                           (cdr proc-list)
+                           (cdr names)
+                           (cdr procedures)
                            who)))
   
   (define (modify-map alist names proc who)
