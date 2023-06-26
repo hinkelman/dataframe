@@ -225,7 +225,7 @@
   (define (check-name-pairs current-names name-pairs who)
     ;; not very thorough checking of ways a name-pair could be malformed
     (unless (for-all pair? name-pairs)
-      (assertion-violation who "names not of form '((old-name1 new-name1) (old-name2 new-name2))"))
+      (assertion-violation who "names not of form '(old-name new-name) ..."))
     (let ([new-names (map cadr name-pairs)])
       (check-new-names current-names new-names who)))
 
