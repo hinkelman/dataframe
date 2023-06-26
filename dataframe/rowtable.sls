@@ -13,7 +13,7 @@
                 make-dataframe)
           (only (dataframe helpers)
                 iota
-                    make-list
+                make-list
                 transpose))
 
   (define (dataframe->rowtable df)
@@ -41,11 +41,22 @@
 	      (make-list n "V")
 	      (map number->string (iota n)))))
 
-  (define (convert-header ls)
-    (unless (for-all (lambda (x) (or (string? x) (symbol? x))) ls)
-      (assertion-violation "(rowtable->dataframe rt header?)"
-			   "header row must be comprised of strings or symbols"))
-    (map (lambda (x) (if (symbol? x) x (string->symbol x))) ls))
+  (define (convert-header lst)
+    (unless (for-all (lambda (x) (or (string? x) (symbol? x))) lst)
+      (assertion-violation
+       "(rowtable->dataframe rt header?)"
+       "header row must be comprised of strings or symbols"))
+    (map (lambda (x) (if (symbol? x)
+                         x
+                         (string->symbol (replace-space x #\-))))
+         lst))
+
+  ;; it's possible to convert strings with spaces into symbols
+  ;; but they are not fun to work with
+  (define (replace-space str replacement)
+    (let ([lst (string->list str)])
+      (list->string
+       (map (lambda (x) (if (char=? x #\space) replacement x)) lst))))
 
   )
 
