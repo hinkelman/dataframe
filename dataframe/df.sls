@@ -45,8 +45,7 @@
   ;; group-names: list of column names used for grouping
   ;; df: single dataframe
   ;; dfs (or df-list): list of dataframes
-  ;; name-pairs: alist used in dataframe-rename; form is '((old-name1 new-name1) (old-name2 new-name2))
-  ;; ls: generic list
+  ;; ls or lst: generic list
   ;; x: generic object
   ;; procedure:  procedure
   ;; procedures: list of procedures
