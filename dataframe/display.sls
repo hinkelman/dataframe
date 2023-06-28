@@ -29,7 +29,11 @@
     (let ([proc-string "(dataframe-display df n min-width total-width)"])
       (check-dataframe df proc-string)
       (unless (> total-width min-width)
-        (assertion-violation proc-string "total-width must be greater than min-width")))
+        (assertion-violation
+         proc-string "total-width must be greater than min-width"))
+      (unless (> (car (dataframe-dim df)) 0)
+        (assertion-violation
+         proc-string "df has zero rows")))
     (let* ([dim (dataframe-dim df)]
            [rows (car dim)]
            [n-actual (if (< rows n) rows n)])
