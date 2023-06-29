@@ -48,15 +48,40 @@
        "header row must be comprised of strings or symbols"))
     (map (lambda (x) (if (symbol? x)
                          x
-                         (string->symbol (replace-space x #\-))))
+                         (string->symbol (replace-special x #\-))))
          lst))
 
-  ;; it's possible to convert strings with spaces into symbols
-  ;; but they are not fun to work with
-  (define (replace-space str replacement)
+  ;; it's possible to convert strings with special characters into symbols
+  ;; but they are difficult to work with
+  (define (replace-special str replacement)
     (let ([lst (string->list str)])
       (list->string
-       (map (lambda (x) (if (char=? x #\space) replacement x)) lst))))
+       (map (lambda (x) (if (member x special) replacement x)) lst))))
+
+  (define special
+    '(#\` #\@ #\# #\( #\) #\+
+      #\[ #\] #\{ #\} #\|
+      #\; #\' #\" #\,
+      #\space #\tab #\newline))
+  
+  ;; ;; after going through the exercise below of identifying the good symbols
+  ;; ;; I realized that the list of problem characters would be shorter
+  ;; (define upper-alpha
+  ;;   (map (lambda (x) (integer->char (+ x 65))) (iota 26)))
+
+  ;; (define lower-alpha
+  ;;   (map char-downcase upper-alpha))
+
+  ;; (define numbers
+  ;;   (map (lambda (x) (integer->char (+ x 48))) (iota 10)))
+
+  ;; ;; special characters that are accepted b/c convert to symbols
+  ;; (define special
+  ;;   '(#\~ #\! #\$ #\% #\^ #\& #\* #\- #\_ #\=
+  ;;     #\: #\? #\/ #\. #\< #\>))
+
+  ;; (define good-char
+  ;;   (append upper-alpha lower-alpha numbers special))
 
   )
 
