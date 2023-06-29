@@ -7,10 +7,12 @@
           (dataframe split)
           (only (dataframe df)
                 check-dataframe
-                dataframe-values-map
                 make-dataframe)   
           (only (dataframe helpers)
-                alist-modify
+                add-names-ls-vals
+                alist-ref
+                alist-select
+                alist-values-map
                 check-list
                 check-names))
 
@@ -35,30 +37,28 @@
     (check-dataframe df who)
     (check-names new-names who)
     (check-list group-names "group-names" who)
-    (let-values ([(df-list groups-list) (dataframe-split-helper df group-names #t)])
+    ;; alists is a list of alists
+    (let ([alists (dataframe-split-helper2 df group-names who)])
       (apply dataframe-bind
-             (map (lambda (df groups)
-                    (df-aggregate-helper df groups new-names names procs))
-                  df-list groups-list))))
+             (map (lambda (alist)
+                    (df-aggregate-helper alist group-names new-names names procs))
+                  alists))))
     
-  (define (df-aggregate-helper df groups new-names names procs)
-    ;; groups is an alist with one row
-    (let ([ls-vals (aggregate-map df names procs)])
-      (make-dataframe
-       (alist-aggregate-loop groups new-names ls-vals))))
+  (define (df-aggregate-helper alist group-names new-names names procs)
+    ;; all values in the group columns of a split alist will be the same
+    ;; need just the first row (index 0)
+    (let ([alist-grp (alist-ref alist '(0) group-names)]
+          [alist-agg (aggregate-map alist new-names names procs)])
+      (make-dataframe (append alist-grp alist-agg))))
 
-  (define (aggregate-map df names-list proc-list)
-    (map (lambda (names proc)
-           (list (apply proc (dataframe-values-map df names))))
-         names-list proc-list))
-
-  ;; can't just map over columns because won't hold alist structure
-  (define (alist-aggregate-loop groups new-names ls-vals)
-    (if (null? new-names)
-        groups
-        (alist-aggregate-loop (alist-modify groups
-                                            (car new-names)
-                                            (car ls-vals))
-                              (cdr new-names)
-                              (cdr ls-vals))))
+  ;; names-list would be, e.g., '((col1 col2) (col2 col3))
+  ;; proc-list would be, e.g.,  (list (lambda (col1 col2) (do something))
+  ;;                                  (lamdda (col2 col3) (do something else)))
+  ;; returns a single row alist with the aggregated values
+  (define (aggregate-map alist new-names names-list proc-list)
+    (add-names-ls-vals
+     new-names
+     (map (lambda (names proc)
+            (list (apply proc (alist-values-map alist names))))
+          names-list proc-list)))
   )

@@ -1,6 +1,7 @@
 (library (dataframe split)
   (export dataframe-split
-          dataframe-split-helper)
+          dataframe-split-helper
+          dataframe-split-helper2)
 
   (import (rnrs)
           (only (dataframe df)
@@ -20,11 +21,13 @@
   ;; split ------------------------------------------------------------------------
 
   (define (dataframe-split df . group-names)
-    (dataframe-split-helper2
-     df
-     group-names
-     "(datframe-split df group-names)"))
+    (map make-dataframe
+         (dataframe-split-helper2
+          df
+          group-names
+          "(datframe-split df group-names)")))
 
+  ;; returns list of alists that are split by groups in group-names
   (define (dataframe-split-helper2 df group-names who)
     (apply check-df-names df who group-names)
     (let* ([names (dataframe-names df)]
@@ -37,8 +40,7 @@
            [grp-indexes (enumerate ls-rows-grp)]
            [ls-rows-indexed (index-ls-rows ls-rows ls-rows-select ls-rows-grp grp-indexes)]
            [ls-rows-indexed-split (split-ls-rows ls-rows-indexed grp-indexes)])
-      (map (lambda (x) (make-dataframe (ls-rows-indexed->alist x names)))
-           ls-rows-indexed-split)))
+      (map (lambda (x) (ls-rows-indexed->alist x names)) ls-rows-indexed-split)))
   
   (define (index-ls-rows ls-rows ls-rows-select ls-rows-grp grp-indexes)
     (map (lambda (ls-row ls-row-select)
