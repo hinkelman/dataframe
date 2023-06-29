@@ -13,7 +13,6 @@
                 make-dataframe)   
           (only (dataframe helpers)
                 make-list
-                alist-modify
                 alist-values-map
                 check-names))
 
@@ -61,6 +60,19 @@
                            (cdr names)
                            (cdr procedures)
                            who)))
+
+  ;; update alist and or add column to end of alist
+  ;; based on whether name is already present in alist
+  (define (alist-modify alist name vals)
+    (let ([col (cons name vals)]
+          [all-names (map car alist)])
+      (if (member name all-names)
+          (map (lambda (x)
+                 (if (symbol=? x name) col (assoc x alist)))
+               all-names)
+          ;; to get correct structure with append,
+          ;; need to make col an alist (by wrapping in a list) 
+          (append alist (list col))))) 
   
   (define (modify-map alist names proc who)
     (if (null? names)

@@ -7,7 +7,6 @@
    iota
    enumerate
    add-names-ls-vals
-   alist-modify
    alist-select
    alist-drop
    alist-ref
@@ -159,19 +158,6 @@
   ;; expand an list by repeating rows n times (or each)
   (define (alist-repeat-rows alist n type)
     (map (lambda (ls) (cons (car ls) (rep (cdr ls) n type))) alist))
-
-  ;; update alist and or add column to end of alist
-  ;; based on whether name is already present in alist
-  (define (alist-modify alist name vals)
-    (let ([col (cons name vals)]
-          [all-names (map car alist)])
-      (if (member name all-names)
-          (map (lambda (x)
-                 (if (symbol=? x name) col (assoc x alist)))
-               all-names)
-          ;; to get correct structure with append,
-          ;; need to make col an alist (by wrapping in a list) 
-          (append alist (list col))))) 
 
   (define (get-all-names . alists)
     (apply append (map (lambda (alist) (map car alist)) alists)))
