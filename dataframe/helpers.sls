@@ -10,6 +10,7 @@
    alist-modify
    alist-select
    alist-drop
+   alist-ref
    alist-repeat-rows
    alist-values
    alist-values-map
@@ -58,7 +59,7 @@
              ;; value is arbitrarily set to 0; key is what matters
              (hashtable-set! ht (car ls) 0) 
              (loop (cdr ls) ht (cons (car ls) results))])))
-    
+  
   (define (transpose ls)
     (apply map list ls))
 
@@ -124,7 +125,7 @@
           (if (car bools)
               (loop (cdr bools) (cdr ls-rows) (cons (car ls-rows) keep) drop)
               (loop (cdr bools) (cdr ls-rows) keep (cons (car ls-rows) drop))))))
-              
+  
   (define (filter-ls-vals bools ls-vals)
     (map (lambda (vals) (filter-vals bools vals)) ls-vals))
 
@@ -146,6 +147,14 @@
 
   (define (alist-values-map alist names)
     (map (lambda (name) (alist-values alist name)) names))
+
+  (define (alist-ref alist indices names)
+    (let ([ls-vals (alist-values-map alist names)])
+      (add-names-ls-vals
+       names
+       (map (lambda (vals)
+              (map (lambda (n) (list-ref vals n)) indices))
+            ls-vals))))
 
   ;; expand an list by repeating rows n times (or each)
   (define (alist-repeat-rows alist n type)
@@ -245,7 +254,7 @@
     (let ([col-lengths (map length alist)])
       (unless (or (= (length col-lengths) 1)
                   (apply = (map length alist)))
-      (assertion-violation who "columns not all same length"))))
+        (assertion-violation who "columns not all same length"))))
   
   (define (make-list n x)
     (let loop ((n n) (r '()))

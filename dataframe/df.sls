@@ -187,14 +187,6 @@
            indices))
     (make-dataframe (alist-ref (dataframe-alist df) indices names)))
   
-  (define (alist-ref alist indices names)
-    (let ([ls-vals (alist-values-map alist names)])
-      (add-names-ls-vals
-       names
-       (map (lambda (vals)
-              (map (lambda (n) (list-ref vals n)) indices))
-            ls-vals))))
-
   ;; read/write ------------------------------------------------------------------------------
   
   (define (dataframe-write df path overwrite?)
