@@ -6,20 +6,62 @@
           (only (dataframe df)
                 check-df-names
                 dataframe-alist
+                dataframe-names
                 make-dataframe)   
           (only (dataframe helpers)
                 add-names-ls-vals
                 alist-select
+                enumerate
                 partition-ls-vals
+                remove-duplicates
                 transpose
                 unique-rows))
 
   ;; split ------------------------------------------------------------------------
 
   (define (dataframe-split df . group-names)
-    (dataframe-split-helper df group-names #f))
+    (dataframe-split-helper2
+     df
+     group-names
+     "(datframe-split df group-names)"))
 
-  ;; also used in dataframe-aggregate
+  (define (dataframe-split-helper2 df group-names who)
+    (apply check-df-names df who group-names)
+    (let* ([names (dataframe-names df)]
+           [alist (dataframe-alist df)]
+           [ls-vals (map cdr alist)]
+           [ls-vals-select (map cdr (alist-select alist group-names))]
+           [ls-rows (transpose ls-vals)]
+           [ls-rows-select (transpose ls-vals-select)]
+           [ls-rows-grp (remove-duplicates ls-rows-select)]
+           [grp-indexes (enumerate ls-rows-grp)]
+           [ls-rows-indexed (index-ls-rows ls-rows ls-rows-select ls-rows-grp grp-indexes)]
+           [ls-rows-indexed-split (split-ls-rows ls-rows-indexed grp-indexes)])
+      (map (lambda (x) (make-dataframe (ls-rows-indexed->alist x names)))
+           ls-rows-indexed-split)))
+  
+  (define (index-ls-rows ls-rows ls-rows-select ls-rows-grp grp-indexes)
+    (map (lambda (ls-row ls-row-select)
+           (let* ([bool-index (map (lambda (ls-row-grp grp-index)
+                                     (cons (equal? ls-row-select ls-row-grp) grp-index))
+                                   ls-rows-grp grp-indexes)]
+                  ;; this should filter down to a list of one element
+                  [i (cdar (filter (lambda (x) (car x)) bool-index))])
+             (cons i ls-row)))
+         ls-rows ls-rows-select))
+
+  (define (split-ls-rows ls-rows-indexed grp-indexes)
+    (map (lambda (index)
+           (filter (lambda (ls-row) (= (car ls-row) index)) ls-rows-indexed))
+         grp-indexes))
+
+  (define (ls-rows-indexed->alist ls-rows-indexed names)
+    (let ([ls-rows (map cdr ls-rows-indexed)])
+      (add-names-ls-vals names (transpose ls-rows))))
+  
+
+
+  ;; also used in dataframe-aggregate and dataframe-left-join
   (define (dataframe-split-helper df group-names return-groups?)
     (apply check-df-names df "(dataframe-split df group-names)" group-names)
     (let-values ([(alists groups) (alist-split (dataframe-alist df) group-names #t)])
@@ -35,31 +77,40 @@
     (let* ([ls-vals-select (map cdr (alist-select alist group-names))]
            [group-vals (unique-rows ls-vals-select #t)])
       (let-values ([(alists groups)
-                    (alist-split-partition-loop alist group-names group-vals '() '())])
+                    (alist-split-partition alist group-names group-vals)])
         (if return-groups?
             (values alists groups)
             alists))))
 
   ;; group-vals is a row-based list of unique grouping combinations
   ;; groups-out is a list of the column-based lists (i.e., alist) of unique grouping combinations
-  (define (alist-split-partition-loop alist group-names group-vals alists-out groups-out)
-    (cond [(null? group-vals)
-           (values (reverse alists-out)
-                   (reverse groups-out))]
-          [else
-           ;; group-vals-row is a single row of group-vals representing one unique grouping combination
-           (let ([group-vals-row (car group-vals)]) 
-             (let-values ([(keep drop) (alist-split-partition alist group-names group-vals-row)])
-               (alist-split-partition-loop drop
-                                           group-names
-                                           (cdr group-vals)
-                                           (cons keep alists-out)
-                                           (cons (add-names-ls-vals
-                                                  group-names
-                                                  (transpose (list group-vals-row)))
-                                                 groups-out))))]))
-  
   (define (alist-split-partition alist group-names group-vals)
+    (let loop ([alist alist]
+               [group-names group-names]
+               [group-vals group-vals]
+               [alists-out '()]
+               [groups-out '()])
+      (cond [(null? group-vals)
+             (values (reverse alists-out)
+                     (reverse groups-out))]
+            [else
+             ;; group-vals-row is a single row of group-vals
+             ;; representing one unique grouping combination
+             (let ([group-vals-row (car group-vals)]) 
+               (let-values ([(keep drop)
+                             (alist-split-partition-helper
+                              alist group-names group-vals-row)])
+                 (loop drop
+                       group-names
+                       (cdr group-vals)
+                       (cons keep alists-out)
+                       (cons (add-names-ls-vals
+                              group-names
+                              (transpose (list group-vals-row)))
+                             groups-out))))])))
+  
+  
+  (define (alist-split-partition-helper alist group-names group-vals)
     (let ([names (map car alist)]
           [ls-vals (map cdr alist)]
           [bools (map-equal-ls-vals
