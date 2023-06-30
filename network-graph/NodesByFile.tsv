@@ -88,7 +88,6 @@ helpers.sls	partition-ls-vals
 helpers.sls	rep
 helpers.sls	remove-duplicates
 helpers.sls	transpose
-helpers.sls	unique-rows
 bind.sls	shared-names
 bind.sls	bind-rows
 aggregate.sls	df-aggregate
