@@ -9,14 +9,13 @@
                 check-all-dataframes
                 make-dataframe
                 dataframe-names
-                dataframe-contains?
-                dataframe-alist
-                dataframe-dim)   
+                dataframe-contains?)   
           (only (dataframe helpers)
                 make-list
                 not-in
                 check-names-unique
                 alist-drop
+                alist-ref
                 alist-repeat-rows))
 
   (define (dataframe-left-join-all dfs join-names missing-value)
@@ -29,50 +28,67 @@
                  out (car dfs) join-names missing-value)))))
 
   (define (dataframe-left-join df1 df2 join-names missing-value)
-    (let ([proc-string "(dataframe-left-join df1 df2 join-names missing-value)"])
-      (check-all-dataframes (list df1 df2) proc-string)
-      (check-join-names-exist df1 "df1" proc-string join-names)
-      (check-join-names-exist df2 "df2" proc-string join-names)
-      (let ([df1-not-join-names (not-in (dataframe-names df1) join-names)]
-            [df2-not-join-names (not-in (dataframe-names df2) join-names)])
-        (check-names-unique (append df1-not-join-names df2-not-join-names) proc-string)))
-    (let-values ([(df1-ls df1-grp) (dataframe-split-helper df1 join-names #t)]
-                 [(df2-ls df2-grp) (dataframe-split-helper df2 join-names #t)])
-      (apply dataframe-bind
-             (map (lambda (df grp)
-                    (if (> (length (filter (lambda (x) (equal? x grp)) df2-grp)) 0)
-                        (join-match df grp df2-ls df2-grp join-names missing-value)
-                        (join-no-match df df2 join-names missing-value)))
-                  df1-ls df1-grp))))
+    (let ([who "(dataframe-left-join df1 df2 join-names missing-value)"])
+      (check-all-dataframes (list df1 df2) who)
+      (check-join-names-exist df1 "df1" who join-names)
+      (check-join-names-exist df2 "df2" who join-names)
+      (let ([df1-not-join-names
+             (not-in (dataframe-names df1) join-names)]
+            [df2-not-join-names
+             (not-in (dataframe-names df2) join-names)])
+        (check-names-unique (append df1-not-join-names df2-not-join-names) who))
+      (let ([alists1 (dataframe-split-helper2 df1 join-names who)]
+            [alists2 (dataframe-split-helper2 df2 join-names who)])
+        (apply dataframe-bind
+               (df-left-join-helper alists1 alists2 join-names missing-value)))))
 
   (define (check-join-names-exist df df-name who names)
     (unless (apply dataframe-contains? df names)
       (assertion-violation who (string-append "not all join-names in " df-name))))
-  
-  ;; df1 and grp1 are elements of df1-ls and df1-grp
-  (define (join-match df1 grp1 df2-ls df2-grp join-names missing-value)
-    (let* ([df2 (cdr (assoc grp1 (map cons df2-grp df2-ls)))]
-           [df1-rows (car (dataframe-dim df1))]
-           [df2-rows (car (dataframe-dim df2))]
-           [alist1 (dataframe-alist df1)]
-           [alist2 (dataframe-alist df2)]
-           [alist1-new (if (>= df1-rows df2-rows)
+
+  (define (df-left-join-helper alists1 alists2 join-names missing-value)
+    (map (lambda (alist)
+           ;; grp is a simple list
+           ;; grps2 is a list of lists equal to the length of alists2
+           (let* ([grp (get-join-group alist join-names)]
+                  [grps2 (map (lambda (x) (get-join-group x join-names)) alists2)]
+                  [grps2-alists2 (map (lambda (grp alist) (cons grp alist)) grps2 alists2)]
+                  [grp-match (assoc grp grps2-alists2)])
+             (if grp-match
+                 ;; the cdr of grp-match is the alist2 that has the same grps
+                 (join-match alist (cdr grp-match) join-names missing-value)
+                 ;; all alists in alists2 have the same columns so just need one
+                 (join-no-match alist (car alists2) join-names missing-value))))
+         alists1))
+
+  ;; takes an alist and returns the values from the first row of the join columns
+  ;; assumes that all values in join-names columns are the same because alist was split
+  (define (get-join-group alist join-names)
+    (map cadr (alist-ref alist '(0) join-names)))
+
+  ;; drop join-names columns from alist2 so that they aren't duplicated in the append
+  ;; repeat rows for whichever alist has fewer
+  (define (join-match alist1 alist2 join-names missing-value)
+    (let* ([n1 (length (cdar alist1))]
+           [n2 (length (cdar alist2))]
+           [alist2-drop (alist-drop alist2 join-names)]
+           [alist1-new (if (>= n1 n2)
                            alist1
-                           (alist-repeat-rows alist1 df2-rows 'times))]
-           [alist2-new (if (>= df2-rows df1-rows)
-                           alist2
-                           (alist-repeat-rows alist2 df1-rows 'times))])
-      (make-dataframe
-       (append alist1-new (alist-drop alist2-new join-names)))))
+                           (alist-repeat-rows alist1 n2 'times))]
+           [alist2-new (if (>= n2 n1)
+                           alist2-drop
+                           (alist-repeat-rows alist2-drop n1 'times))])
+      (make-dataframe (append alist1-new alist2-new))))
   
-  (define (join-no-match df df2 join-names missing-value)
-    (make-dataframe
-     (append (dataframe-alist df)
-             (alist-drop 
-              (alist-fill-missing (dataframe-names df2)
-                                  (car (dataframe-dim df))
-                                  missing-value)
-              join-names))))
+  ;; row(s) in alist1 have no match in alist2
+  ;; retain non-join columns in alist2 and fill each column with missing value
+  ;; then append the two alists and make a dataframe
+  (define (join-no-match alist1 alist2 join-names missing-value)
+    (let* ([n (length (cdar alist1))]
+           [alist2-names (map car alist2)]
+           [alist2-names-sel (not-in alist2-names join-names)])
+      (make-dataframe
+       (append alist1 (alist-fill-missing alist2-names-sel n missing-value)))))
 
   (define (alist-fill-missing names n missing-value)
     (map (lambda (name) (cons name (make-list n missing-value))) names))
