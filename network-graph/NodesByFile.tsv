@@ -33,7 +33,6 @@ df.sls	dataframe-write
 df.sls	make-dataframe
 split.sls	dataframe-split
 split.sls	dataframe-split-helper
-split.sls	dataframe-split-helper2
 modify.sls	dataframe-modify
 modify.sls	dataframe-modify*
 modify.sls	dataframe-modify-all
@@ -101,11 +100,6 @@ df.sls	df-ref-helper
 split.sls	index-ls-rows
 split.sls	split-ls-rows
 split.sls	ls-rows-indexed->alist
-split.sls	alist-split
-split.sls	alist-split-partition
-split.sls	alist-split-partition-helper
-split.sls	map-equal-ls-vals
-split.sls	map-equal
 modify.sls	df-modify
 modify.sls	alist-modify-loop
 modify.sls	alist-modify
@@ -115,6 +109,8 @@ modify.sls	scalar?
 modify.sls	df-modify-at-all-helper
 modify.sls	alist-modify-at
 join.sls	check-join-names-exist
+join.sls	df-left-join-helper
+join.sls	get-join-group
 join.sls	join-match
 join.sls	join-no-match
 join.sls	alist-fill-missing
@@ -154,4 +150,3 @@ filter.sls	df-filter-at-all-helper
 filter.sls	alist-filter-at
 helpers.sls	rep-times
 helpers.sls	product-of-two
-helpers.sls	partition-ls-vals2
