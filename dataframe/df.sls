@@ -146,8 +146,10 @@
   (define (alist-unique alist)
     (let ([names (map car alist)]
           [ls-vals (map cdr alist)])
-      (add-names-ls-vals names (unique-rows ls-vals #f))))
-
+      (add-names-ls-vals
+       names
+       (transpose (remove-duplicates (transpose ls-vals))))))
+  
   ;; extract values -----------------------------------------------------------------
 
   ;; returns simple list

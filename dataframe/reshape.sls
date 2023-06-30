@@ -55,7 +55,7 @@
               (not-in (dataframe-names df) (list names-from values-from))]
              [left-df
               (dataframe-unique (apply dataframe-select df not-spread-names))]
-             [alists (dataframe-split-helper2 df (list names-from) who)]
+             [alists (dataframe-split-helper df (list names-from) who)]
              ;; for each alist, we need to rename the values-from column
              ;; with the first value in the names-from (nf) column (b/c split alist all have same value)
              ;; then we drop the names-from column and left-join all the new dfs

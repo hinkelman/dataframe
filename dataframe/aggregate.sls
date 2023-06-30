@@ -38,7 +38,7 @@
     (check-names new-names who)
     (check-list group-names "group-names" who)
     ;; alists is a list of alists
-    (let ([alists (dataframe-split-helper2 df group-names who)])
+    (let ([alists (dataframe-split-helper df group-names who)])
       (apply dataframe-bind
              (map (lambda (alist)
                     (df-aggregate-helper alist group-names new-names names procs))

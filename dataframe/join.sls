@@ -37,8 +37,8 @@
             [df2-not-join-names
              (not-in (dataframe-names df2) join-names)])
         (check-names-unique (append df1-not-join-names df2-not-join-names) who))
-      (let ([alists1 (dataframe-split-helper2 df1 join-names who)]
-            [alists2 (dataframe-split-helper2 df2 join-names who)])
+      (let ([alists1 (dataframe-split-helper df1 join-names who)]
+            [alists2 (dataframe-split-helper df2 join-names who)])
         (apply dataframe-bind
                (df-left-join-helper alists1 alists2 join-names missing-value)))))
 

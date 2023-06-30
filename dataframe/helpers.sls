@@ -35,8 +35,7 @@
    partition-ls-vals
    rep
    remove-duplicates
-   transpose
-   unique-rows)
+   transpose)
 
   (import (rnrs))
 
@@ -98,23 +97,9 @@
         (map (lambda (name) (cons name '())) names)
         (map (lambda (name vals) (cons name vals)) names ls-vals)))
 
-  ;; takes ls-vals and returns unique rows in those ls-vals
-  ;; returns row-based or column-based result
-  (define (unique-rows ls-vals row-based)
-    (let ([ls-rows (remove-duplicates (transpose ls-vals))])
-      (if row-based ls-rows (transpose ls-rows))))
-
-  ;; ;; two passes through ls-vals
-  ;; ;; recursive solution might be more efficient
-  ;; ;; currently just a shorthand way of writing two filters
-  (define (partition-ls-vals bools ls-vals)
-    (let ([keep (filter-ls-vals bools ls-vals)]
-          [drop (filter-ls-vals (map not bools) ls-vals)])
-      (values keep drop)))
-
   ;; in previous version, would pass over ls-vals twice with filter-ls-vals (with bools negated on 1 pass)
   ;; the extra transposing in this version is faster than two passes with filter-ls-vals
-  (define (partition-ls-vals2 bools ls-vals)
+  (define (partition-ls-vals bools ls-vals)
     (let loop ([bools bools]
                [ls-rows (transpose ls-vals)]
                [keep '()]
