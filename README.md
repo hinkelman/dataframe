@@ -3,13 +3,11 @@
 A dataframe record type with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes. 
 
 Related blog posts:  
-[A dataframe record type for Chez Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-chez-scheme/)  
-[Select, drop, and rename dataframe columns in Chez Scheme](https://www.travishinkelman.com/posts/select-drop-rename-dataframe-columns-chez-scheme/)  
-[Split, bind, and append dataframes in Chez Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-chez-scheme/)  
-[Filter, partition, and sort dataframes in Chez Scheme](https://www.travishinkelman.com/posts/filter-partition-and-sort-dataframes-in-chez-scheme/)  
-[Modify and aggregate dataframes in Chez Scheme](https://www.travishinkelman.com/posts/modify-aggregate-dataframes-chez-scheme/)  
-
-Note: Blog posts all refer to Chez Scheme because `dataframe` was only recently made R6RS portable (thanks to [John Cowan](https://github.com/johnwcowan)).
+[A dataframe record type for Scheme](https://www.travishinkelman.com/dataframe-record-type-for-scheme/)  
+[Select, drop, and rename dataframe columns in Scheme](https://www.travishinkelman.com/select-drop-rename-dataframe-columns-scheme/)  
+[Split, bind, and append dataframes in Scheme](https://www.travishinkelman.com/split-bind-append-dataframes-scheme/)  
+[Filter, partition, and sort dataframes in Scheme](https://www.travishinkelman.com/filter-partition-and-sort-dataframes-in-scheme/)  
+[Modify and aggregate dataframes in Scheme](https://www.travishinkelman.com/modify-aggregate-dataframes-scheme/)  
 
 ## Installation
 
@@ -19,7 +17,7 @@ Note: Blog posts all refer to Chez Scheme because `dataframe` was only recently 
 $ akku install dataframe
 ```
 
-For more information on getting started with [Akku](https://akkuscm.org/), see this [blog post](https://www.travishinkelman.com/posts/getting-started-with-akku-package-manager-for-scheme/).
+For more information on getting started with [Akku](https://akkuscm.org/), see this [blog post](https://www.travishinkelman.com/getting-started-with-akku-package-manager-for-scheme/).
 
 ## Import
 
