@@ -26,14 +26,10 @@
       [(df n min-width total-width) (df-display-helper df n min-width total-width)]))
 
   (define (df-display-helper df n min-width total-width)
-    (let ([proc-string "(dataframe-display df n min-width total-width)"])
-      (check-dataframe df proc-string)
+    (let ([who "(dataframe-display df n min-width total-width)"])
+      (check-dataframe df who)
       (unless (> total-width min-width)
-        (assertion-violation
-         proc-string "total-width must be greater than min-width"))
-      (unless (> (car (dataframe-dim df)) 0)
-        (assertion-violation
-         proc-string "df has zero rows")))
+        (assertion-violation who "total-width must be greater than min-width")))
     (let* ([dim (dataframe-dim df)]
            [rows (car dim)]
            [n-actual (if (< rows n) rows n)])

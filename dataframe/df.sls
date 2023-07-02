@@ -87,11 +87,12 @@
   
   (define (check-dataframe df who)
     (unless (dataframe? df)
-      (assertion-violation who "df is not a dataframe")))
+      (assertion-violation who "df is not a dataframe"))
+    (unless (> (car (dataframe-dim df)) 0)
+      (assertion-violation who "df has zero rows")))
 
   (define (check-all-dataframes dfs who)
-    (unless (for-all dataframe? dfs)
-      (assertion-violation who "dfs are not all dataframes")))
+    (map (lambda (df) (check-dataframe df who)) dfs))
 
   (define (dataframe-equal? . dfs)
     (check-all-dataframes dfs "(dataframe-equal? dfs)")

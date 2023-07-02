@@ -210,6 +210,8 @@
       (check-new-names current-names new-names who)))
 
   ;; lots of checking that will be performed every time a dataframe is created
+  ;; this currently allows for creating a dataframe with no rows
+  ;; even though none of the dataframe procedures will accept a df with zero rows
   (define (check-alist alist who)
     (when (null? alist)
       (assertion-violation who "alist is empty"))
@@ -223,6 +225,7 @@
     (unless (for-all (lambda (col) (list? (cdr col))) alist)
       (assertion-violation who "values are not a list"))
     (let ([col-lengths (map length alist)])
+      ;; if only one column don't need to check equal length
       (unless (or (= (length col-lengths) 1)
                   (apply = (map length alist)))
         (assertion-violation who "columns not all same length"))))

@@ -368,6 +368,9 @@
                                                 (juv-mean () (mean ($ df 'juv)))))))
                                    (->> (apply dataframe-bind))
                                    (dataframe-filter* (juv juv-mean) (> juv juv-mean)))))
+(test-error (-> df22
+                (dataframe-filter* (adult) (< adult 1))
+                (dataframe-sort* (> juv))))
 (test-error (-> '(4 3 5 1) (sort <)))
 (test-end "thread-test")
 
