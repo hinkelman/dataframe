@@ -40,7 +40,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(dataframe-write df path overwrite?)`](#df-write)  
 [`(dataframe-read path)`](#df-read)  
 [`(dataframe->rowtable df)`](#df-rows)  
-[`(rowtable->dataframe rt header?)`](#rows-df)  
+[`(rowtable->dataframe rt [header try->number try-max])`](#rows-df)  
 [`(dataframe-ref df indices [name ...])`](#df-ref)  
 [`(dataframe-values df name)`](#df-values)  
 [`(dataframe-values-unique df name)`](#df-values-unique)  
@@ -323,15 +323,14 @@ Exception in (make-dataframe alist): names are not symbols
 ((a b c) (100 4 700) (300 6 900))
 ```
 
-#### <a name="rows-df"></a> procedure: `(rowtable->dataframe rt header?)`  
-**returns:** a dataframe from rowtable `rt`; if `header?` is `#f` a header row is created; string headers are automatically converted to symbols
+#### <a name="rows-df"></a> procedure: `(rowtable->dataframe rt [header try->number try-max])`  
+**returns:** a dataframe from rowtable `rt`; if `header` is `#t` (default), the first row is used as column names, which must be either symbols or strings; string headers are converted to symbols; if `header` is `#f`, a header row is created; if `try->number` is `#t` (default), then, if the values in a column up to `try-max` (default = 100) are strings that can be converted to valid numbers, the whole column will be converted to numbers
 
 ```
 ;; a rowtable is a row-based data structure; a dataframe is a column-based data structure
 
 > (dataframe-display 
-    (rowtable->dataframe '((a b c) (1 4 7) (2 5 8) (3 6 9)) #t))
-
+    (rowtable->dataframe '((a b c) (1 4 7) (2 5 8) (3 6 9))))
  dim: 3 rows x 3 cols
      a     b     c 
     1.    4.    7. 
@@ -348,13 +347,28 @@ Exception in (make-dataframe alist): names are not symbols
     3.    6.    9. 
 
 > (dataframe-display 
-    (rowtable->dataframe '(("a" "b" "c") (1 4 7) (2 5 8) (3 6 9)) #t))
+    (rowtable->dataframe '(("a" "b" "c") (1 4 7) (2 5 8) (3 6 9))))
 
  dim: 3 rows x 3 cols
      a     b     c 
     1.    4.    7. 
     2.    5.    8. 
-    3.    6.    9. 
+    3.    6.    9.
+
+> (rowtable->dataframe '((a b c) ("1" 4 7) ("2" 5 8) ("NA" 6 9)))
+
+;; dataframe-display doesn't show strings as quoted
+#[#{dataframe h4486zjeizt8ip8xdgq9nfy6u-51} 
+((a "1" "2" "NA") (b 4 5 6) (c 7 8 9)) (a b c) (3 . 3)]
+
+> (dataframe-display 
+    (rowtable->dataframe '((a b c) ("1" 4 7) ("2" 5 8) ("NA" 6 9)) #t #t 2))
+
+ dim: 3 rows x 3 cols
+     a     b     c 
+     1    4.    7. 
+     2    5.    8. 
+    #f    6.    9. 
 ```
 
 #### <a name="df-ref"></a> procedure: `(dataframe-ref df indices [name ...])`  
