@@ -26,7 +26,7 @@
       [(df n min-width total-width) (df-display-helper df n min-width total-width)]))
 
   (define (df-display-helper df n min-width total-width)
-    (let ([who "(dataframe-display df n min-width total-width)"])
+    (let ([who "(dataframe-display df)"])
       (check-dataframe df who)
       (unless (> total-width min-width)
         (assertion-violation who "total-width must be greater than min-width")))

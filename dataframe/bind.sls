@@ -22,23 +22,23 @@
   ;; append -----------------------------------------------------------------------------------
 
   (define (dataframe-append . dfs)
-    (let ([proc-string "(dataframe-append dfs)"]
+    (let ([who "(dataframe-append dfs)"]
           [all-names (apply get-all-names (map dataframe-alist dfs))])
-      (check-all-dataframes dfs proc-string)
-      (check-names-unique all-names proc-string)
+      (check-all-dataframes dfs who)
+      (check-names-unique all-names who)
       (unless (apply = (map (lambda (df) (car (dataframe-dim df))) dfs))
-        (assertion-violation proc-string "all dfs must have same number of rows")))
+        (assertion-violation who "all dfs must have same number of rows")))
     (make-dataframe (apply append (map (lambda (df) (dataframe-alist df)) dfs))))
   
   ;; bind -----------------------------------------------------------------------------------
 
   (define (dataframe-bind . dfs)
-    (let ([proc-string "(dataframe-bind dfs)"])
-      (check-all-dataframes dfs proc-string)
+    (let ([who "(dataframe-bind dfs)"])
+      (check-all-dataframes dfs who)
       (if (= (length dfs) 1)
           (car dfs)
           (let ([names (apply shared-names dfs)])
-            (when (null? names) (assertion-violation proc-string "no names in common across dfs"))
+            (when (null? names) (assertion-violation who "no names in common across dfs"))
             (let ([alist (map (lambda (name)
                                 ;; missing-value will not be used so chose arbitrary value (-999)
                                 (cons name (apply bind-rows name -999 dfs)))

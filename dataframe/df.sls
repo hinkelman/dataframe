@@ -121,18 +121,18 @@
   ;; head/tail -----------------------------------------------------------------------------------
 
   (define (dataframe-head df n)
-    (let ([proc-string  "(dataframe-head df n)"])
-      (check-dataframe df proc-string)
-      (check-integer-positive n "n" proc-string)
-      (check-index n (car (dataframe-dim df)) proc-string)
+    (let ([who  "(dataframe-head df n)"])
+      (check-dataframe df who)
+      (check-integer-positive n "n" who)
+      (check-index n (car (dataframe-dim df)) who)
       (make-dataframe (alist-head-tail (dataframe-alist df) n list-head))))
 
   ;; dataframe-tail is based on list-tail, which does not work the same as tail in R
   (define (dataframe-tail df n)
-    (let ([proc-string  "(dataframe-tail df n)"])
-      (check-dataframe df proc-string)
-      (check-integer-gte-zero n "n" proc-string)
-      (check-index (add1 n) (car (dataframe-dim df)) proc-string)
+    (let ([who  "(dataframe-tail df n)"])
+      (check-dataframe df who)
+      (check-integer-gte-zero n "n" who)
+      (check-index (add1 n) (car (dataframe-dim df)) who)
       (make-dataframe (alist-head-tail (dataframe-alist df) n list-tail))))
 
   (define (alist-head-tail alist n proc)
@@ -155,18 +155,18 @@
 
   ;; returns simple list
   (define (dataframe-values df name)
-    (let ([proc-string "(dataframe-values df name)"])
-      (check-dataframe df proc-string)
-      (check-names-exist df proc-string name))
+    (let ([who "(dataframe-values df name)"])
+      (check-dataframe df who)
+      (check-names-exist df who name))
     (alist-values (dataframe-alist df) name))
 
   (define ($ df name)
     (dataframe-values df name))
 
   (define (dataframe-values-unique df name)
-    (let ([proc-string "(dataframe-values-unique df name)"])
-      (check-dataframe df proc-string)
-      (check-names-exist df proc-string name))
+    (let ([who "(dataframe-values-unique df name)"])
+      (check-dataframe df who)
+      (check-names-exist df who name))
     (cdar (alist-unique (alist-select (dataframe-alist df) (list name)))))
 
   (define (dataframe-values-map df names)
@@ -180,20 +180,20 @@
       [(df indices . names)(df-ref-helper df indices names)]))
 
   (define (df-ref-helper df indices names)
-    (let ([proc-string "(dataframe-ref df indices names)"]
+    (let ([who "(dataframe-ref df indices)"]
           [n-max (car (dataframe-dim df))])
-      (apply check-df-names df proc-string names)
-      (check-list indices "indices" proc-string)
+      (apply check-df-names df who names)
+      (check-list indices "indices" who)
       (map (lambda (n)
-             (check-integer-gte-zero n "index" proc-string)
-             (check-index n n-max proc-string))
+             (check-integer-gte-zero n "index" who)
+             (check-index n n-max who))
            indices))
     (make-dataframe (alist-ref (dataframe-alist df) indices names)))
   
   ;; read/write ------------------------------------------------------------------------------
   
-  (define (dataframe-write df path overwrite?)
-    (when (and (file-exists? path) (not overwrite?))
+  (define (dataframe-write df path overwrite)
+    (when (and (file-exists? path) (not overwrite))
       (assertion-violation path "file already exists"))
     (when (file-exists? path)
       (delete-file path))
@@ -217,9 +217,9 @@
   ;; rename columns ---------------------------------------------------------------------------------
 
   (define (dataframe-rename df . name-pairs)
-    (let ([proc-string "(dataframe df '(old-name new-name) ...)"])
-      (check-dataframe df proc-string)
-      (check-name-pairs (dataframe-names df) name-pairs proc-string))
+    (let ([who "(dataframe df '(old-name new-name) ...)"])
+      (check-dataframe df who)
+      (check-name-pairs (dataframe-names df) name-pairs who))
     (make-dataframe (map (lambda (column)
                            (let* ([name (car column)]
                                   [ls-vals (cdr column)]
@@ -230,13 +230,13 @@
                          (dataframe-alist df))))
 
   (define (dataframe-rename-all df names)
-    (let ([proc-string "(dataframe-rename-all df names)"])
-      (check-dataframe df proc-string)
-      (check-names names proc-string)
+    (let ([who "(dataframe-rename-all df names)"])
+      (check-dataframe df who)
+      (check-names names who)
       (let ([names-length (length names)]
             [num-cols (cdr (dataframe-dim df))])
         (unless (= names-length num-cols)
-          (assertion-violation proc-string (string-append
+          (assertion-violation who (string-append
                                             "names length must be "
                                             (number->string num-cols)
                                             ", not "
