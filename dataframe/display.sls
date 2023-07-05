@@ -55,20 +55,24 @@
           lst
           (map (lambda (obj typ) (get-display-value obj typ)) lst types))))
   
-  ;; `null?` needs to be before `list?` b/c null is also a list 
+  ;; null? needs to be before list? b/c null is also a list
+  ;; order of integer?, exact?, and number? is also important
   (define (get-type object)
-    (let loop ([preds (list boolean? char? dataframe? hashtable?
-                            null? list? number? pair? string? symbol? vector?)]
-               [types '(boolean char dataframe hashtable
-                                null list number pair string symbol vector)])
+    (let loop ([preds (list boolean? char? integer? exact-number? number? string?
+                            symbol? null? list? pair? vector? dataframe? hashtable?)]
+               [types '(boolean char integer exact number string
+                                symbol null list pair vector dataframe hashtable)])
       (if (null? preds)
-          "other"
+          'other
           (if ((car preds) object)
               (car types)
-              (loop (cdr preds) (cdr types)))))) 
+              (loop (cdr preds) (cdr types))))))
+
+  (define (exact-number? object)
+    (and (number? object) (exact? object)))
 
   (define (get-display-value object type)
-    (cond [(member type '(boolean char number string symbol)) object]
+    (cond [(member type '(boolean char integer exact number string symbol)) object]
           [(symbol=? type 'other) "<other type>"]
           [else (string-append "<" (symbol->string type) ">")]))
 
@@ -119,7 +123,7 @@
                     (string-append tbl full-part)))))))
 
   (define (compute-format-parts lst e-dec pad)
-    (if (not (for-all number? lst))
+    (if (not (for-all not-fraction-number? lst))
         (let ([widthlst (map (lambda (x) (compute-object-width x pad)) lst)])
           (list (cons 'width (apply max widthlst))))
         (let* ([neg (if (any-negative? lst) 1 0)]
@@ -139,13 +143,20 @@
                 (cons 'width (apply max widthlst))
                 (cons 'decimal dec)
                 (cons 'esigfig esig)))))
-  
+
+  ;; need to make sure that exact fractions (not decimals) are sent to
+  ;; compute-object-width and not compute-num-width
+  (define (not-fraction-number? object)
+    (or (integer? object)
+        (and (number? object) (not (exact? object)))))
+      
   (define (compute-num-width num-type neg sig esig dec pad)
     (if (string=? num-type "e")
         (+ neg esig dec pad 3)
         (+ neg sig dec pad)))
 
   ;; numbers in mixed-type columns are displayed differently than numbers in number-only columns
+  ;; exact fractions are also included here rather than in compute-num-width
   ;; for reasons that I don't currently understand, this math leads to extra space in format (hence sub1)
   (define (compute-object-width object pad)
     (let ([obj-width

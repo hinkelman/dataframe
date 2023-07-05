@@ -193,7 +193,7 @@ Exception in (make-dataframe alist): names are not symbols
     (make-dataframe (list '(Boolean #t #f #t)
                           '(Char #\y #\e #\s)
                           '(String "these" "are" "strings")
-                          '(Symbol these are symbols)
+                          '(Exact 1/2 1/3 1/4)
                           '(Integer 1 -2 3)
                           '(Expt 1e6 -123456 1.2346e-6)
                           '(Dec4 132.1 -157 10.234)   ; based on size of numbers
@@ -203,10 +203,10 @@ Exception in (make-dataframe alist): names are not symbols
 > (dataframe-display df)
 
  dim: 3 rows x 9 cols
-  Boolean  Char   String   Symbol  Integer       Expt       Dec4       Dec2        Other 
-       #t     y    these    these       1.   1.000E+6   132.1000    1234.00       <pair> 
-       #f     e      are      are      -2.  -1.235E+5  -157.0000    5784.00       <list> 
-       #t     s  strings  symbols       3.   1.235E-6    10.2340  -76833.12  <dataframe>
+  Boolean  Char   String  Exact  Integer       Expt       Dec4       Dec2        Other 
+       #t     y    these    1/2       1.   1.000E+6   132.1000    1234.00       <pair> 
+       #f     e      are    1/3      -2.  -1.235E+5  -157.0000    5784.00       <list> 
+       #t     s  strings    1/4       3.   1.235E-6    10.2340  -76833.12  <dataframe> 
         
 > (define df (make-dataframe (list (cons 'a (iota 15))
                                    (cons 'b (map add1 (iota 15))))))
