@@ -25,7 +25,7 @@
                 alist-repeat-rows))
 
   (define (dataframe-stack df names names-to values-to)
-    (let ([who "(dataframe-stack df names-to values-to names)"])
+    (let ([who "(dataframe-stack df names names-to values-to)"])
       (apply check-df-names df who names)
       (unless (symbol? names-to)
         (assertion-violation who "names-to must be symbol"))
