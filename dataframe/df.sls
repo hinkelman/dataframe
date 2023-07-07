@@ -61,8 +61,8 @@
                       (protocol
                        (lambda (new)
                          (lambda (alist)
-                           (let ([proc-string "(make-dataframe alist)"])
-                             (check-alist alist proc-string))
+                           (let ([who "(make-dataframe alist)"])
+                             (check-alist alist who))
                            (new alist
                                 (map car alist)
                                 (cons (length (cdar alist)) (length alist)))))))
