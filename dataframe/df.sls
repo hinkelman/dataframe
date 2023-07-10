@@ -57,15 +57,15 @@
   
   ;; dataframe record type ---------------------------------------------------------------------
 
-  (define-record-type dataframe (fields alist names dim)
-                      (protocol
-                       (lambda (new)
-                         (lambda (alist)
-                           (let ([who "(make-dataframe alist)"])
-                             (check-alist alist who))
-                           (new alist
-                                (map car alist)
-                                (cons (length (cdar alist)) (length alist)))))))
+  (define-record-type dataframe
+    (fields alist names dim)
+    (protocol
+     (lambda (new)
+       (lambda (alist)
+         (check-alist alist "(make-dataframe alist)")
+         (new alist
+              (map car alist)
+              (cons (length (cdar alist)) (length alist)))))))
 
   ;; crossing/cartesian-product ----------------------------------------------------------------
 

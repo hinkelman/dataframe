@@ -46,17 +46,17 @@
                         (flatten (cdr x))))))
 
   (define (remove-duplicates ls)
-    (let loop ([ls ls]
-               [ht (make-hashtable equal-hash equal?)]
-               [results '()])
-      (cond [(null? ls)
-             (reverse results)]
-            [(hashtable-ref ht (car ls) #f)
-             (loop (cdr ls) ht results)]
-            [else
-             ;; value is arbitrarily set to 0; key is what matters
-             (hashtable-set! ht (car ls) 0) 
-             (loop (cdr ls) ht (cons (car ls) results))])))
+    (let ([ht (make-hashtable equal-hash equal?)])
+      (let loop ([ls ls]
+                 [results '()])
+        (cond [(null? ls)
+               (reverse results)]
+              [(hashtable-ref ht (car ls) #f)
+               (loop (cdr ls) results)] ;; value already in ht
+              [else
+               ;; value is arbitrarily set to 0; key is what matters
+               (hashtable-set! ht (car ls) 0) 
+               (loop (cdr ls) (cons (car ls) results))]))))
   
   (define (transpose ls)
     (apply map list ls))
