@@ -109,6 +109,37 @@
       (add-names-ls-vals (map car alist)
                          (filter-ls-vals bools (map cdr alist)))))
 
+    ;; unique ------------------------------------------------------------------------
+
+  (define (dataframe-unique df)
+    (check-dataframe df "(dataframe-unique df)")
+    (make-dataframe (alist-unique (dataframe-alist df))))
+  
+  (define (alist-unique alist)
+    (let ([names (map car alist)]
+          [ls-vals (map cdr alist)])
+      (add-names-ls-vals
+       names
+       (transpose (remove-duplicates (transpose ls-vals))))))
+
+    ;; dataframe-ref -------------------------------------------------------------------
+
+  (define dataframe-ref
+    (case-lambda
+      [(df indices) (df-ref-helper df indices (dataframe-names df))]
+      [(df indices . names)(df-ref-helper df indices names)]))
+
+  (define (df-ref-helper df indices names)
+    (let ([who "(dataframe-ref df indices)"]
+          [n-max (car (dataframe-dim df))])
+      (apply check-df-names df who names)
+      (check-list indices "indices" who)
+      (map (lambda (n)
+             (check-integer-gte-zero n "index" who)
+             (check-index n n-max who))
+           indices))
+    (make-dataframe (alist-ref (dataframe-alist df) indices names)))
+
 
   )
 
