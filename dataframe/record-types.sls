@@ -5,13 +5,14 @@
    dataframe-dim
    make-dataframe
    make-series
+   make-slist
+   s*
    series-name
    series-lst
    series-length)
 
   (import (rnrs)
-          (datatable-types))
-
+          (dataframe types))
 
   ;; series -------------------------------------------------------------------
 
@@ -36,6 +37,18 @@
                 [rows (series-length (car slist))]
                 [cols (length names)])
            (new slist names (cons rows cols)))))))
+
+  (define-syntax s*
+    (syntax-rules ()
+      [(_ (name vals ...) ...)
+       (let ([names (list (quote name) ...)]
+             [ls-vals (list (list vals ...) ...)])
+         (make-slist names ls-vals))]))
+  
+  (define (make-slist names ls-vals)
+    (map (lambda (name vals)
+           (make-series name vals))
+         names ls-vals))
   
   )
 

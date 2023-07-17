@@ -6,38 +6,43 @@
    sub1
    iota
    enumerate
-   add-names-ls-vals
-   alist-select
-   alist-drop
-   alist-ref
-   alist-repeat-rows
-   alist-values
-   alist-values-map
-   combine-names-ordered
-   filter-ls-vals
-   filter-vals
-   flatten
-   get-all-names
-   get-all-unique-names
-   cartesian-product
-   check-index
-   check-integer-gte-zero
-   check-integer-positive
-   check-list
-   check-names-unique
-   check-names-symbol
-   check-names
-   check-names-duplicate
-   check-new-names
-   check-name-pairs
-   check-alist
-   not-in
-   partition-ls-vals
-   rep
+   na?
+   ;; add-names-ls-vals
+   ;; alist-select
+   ;; alist-drop
+   ;; alist-ref
+   ;; alist-repeat-rows
+   ;; alist-values
+   ;; alist-values-map
+   ;; combine-names-ordered
+   ;; filter-ls-vals
+   ;; filter-vals
+   ;; flatten
+   ;; get-all-names
+   ;; get-all-unique-names
+   ;; cartesian-product
+   ;; check-index
+   ;; check-integer-gte-zero
+   ;; check-integer-positive
+   ;; check-list
+   ;; check-names-unique
+   ;; check-names-symbol
+   ;; check-names
+   ;; check-names-duplicate
+   ;; check-new-names
+   ;; check-name-pairs
+   ;; check-alist
+   ;; not-in
+   ;; partition-ls-vals
+   ;; rep
    remove-duplicates
    transpose)
 
   (import (rnrs))
+
+  (define (na? obj)
+    (and (symbol? obj)
+         (symbol=? obj 'na)))
 
   (define (flatten x)
     (cond ((null? x) '())
@@ -253,11 +258,11 @@
     (iota (length lst)))
 
   ;; from SRFI-1 `take`
-  (define (list-head lis k)
-    (let recur ((lis lis) (k k))
+  (define (list-head lst k)
+    (let recur ((lst lst) (k k))
       (if (zero? k) '()
-	  (cons (car lis)
-	        (recur (cdr lis) (- k 1))))))
+	  (cons (car lst)
+	        (recur (cdr lst) (- k 1))))))
   )
 
 

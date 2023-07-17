@@ -1,21 +1,30 @@
 (library (dataframe statistics)
-  (export count count-elements rle)
+  (export
+   series-sum
+   series-mean
+   series-min
+   series-max
+   rle)
 
   (import (rnrs)
-          (dataframe helpers))
+          (dataframe record-types)
+          (only (dataframe helpers)
+                add1
+                na?
+                remove-duplicates))
 
-  (define sum
+  (define series-sum
     (case-lambda
-      [(lst) (sum lst #t)]
-      [(lst na-rm) (sum/mean lst na-rm 'sum)]))
+      [(series) (series-sum series #t)]
+      [(series na-rm) (sum/mean series na-rm 'sum)]))
 
-  (define mean
+  (define series-mean
     (case-lambda
-      [(lst) (mean lst #t)]
-      [(lst na-rm) (sum/mean lst na-rm 'mean)]))
+      [(series) (series-mean series #t)]
+      [(series na-rm) (sum/mean series na-rm 'mean)]))
   
-  (define (sum/mean lst na-rm type)
-    (let loop ([lst lst]
+  (define (sum/mean series na-rm type)
+    (let loop ([lst (series-lst series)]
                [total 0]
                [count 0])
       (cond [(null? lst)
@@ -31,20 +40,20 @@
             [else
              (loop (cdr lst) (+ (car lst) total) (add1 count))])))
 
-  (define min
+  (define series-min
     (case-lambda
-      [(lst) (min lst #t)]
-      [(lst na-rm) (min/max lst na-rm 'min)]))
+      [(series) (min series #t)]
+      [(series na-rm) (min/max series na-rm 'min)]))
 
-  (define max
+  (define series-max
     (case-lambda
-      [(lst) (max lst #t)]
-      [(lst na-rm) (min/max lst na-rm 'max)]))
+      [(series) (max series #t)]
+      [(series na-rm) (min/max series na-rm 'max)]))
 
-  (define (min/max lst na-rm type)
+  (define (min/max series na-rm type)
     ;; not including boolean here b/c seems less useful
     (let ([comp (if (symbol=? type 'min) < >)])
-      (let loop ([lst lst]
+      (let loop ([lst (series-lst series)]
                  [result (if (symbol=? type 'min) +inf.0 -inf.0)])
         (cond [(null? lst) result]
               [(and (na? (car lst)) (not na-rm)) 'na]
@@ -52,13 +61,6 @@
                (loop (cdr lst) (if (comp (car lst) result)
                                    (car lst)
                                    result))]))))
-
-  (define (count-elements lst)
-    (map (lambda (x) (cons x (count x lst)))
-         (remove-duplicates lst)))
-
-  (define (count obj lst)
-    (length (filter (lambda (x) (equal? obj x)) lst)))
   
   (define (rle lst)
     ;; run length encoding

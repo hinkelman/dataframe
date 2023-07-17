@@ -1,12 +1,15 @@
 (library (dataframe types)
-  (export convert-type guess-type is-na?)
+  (export
+   count
+   count-elements
+   convert-type
+   guess-type)
 
   (import (rnrs)
-          (dataframe statistics))
-
-  (define (na? obj)
-    (and (symbol? obj)
-         (symbol=? obj 'na)))
+          (only (dataframe helpers)
+                list-head
+                na?
+                remove-duplicates))
 
   (define (convert-type lst type)
     (cond [(symbol=? type 'other) lst]
@@ -49,10 +52,17 @@
              (caar type-count)]
             [else
              'string])))
+
+  (define (count-elements lst)
+    (map (lambda (x) (cons x (count x lst)))
+         (remove-duplicates lst)))
+
+  (define (count obj lst)
+    (length (filter (lambda (x) (equal? obj x)) lst)))
   
   (define (get->string obj)
     ;; proc that converts an object to string; if not, return false
-    (let loop ([procs (list bool->string date->string num->string
+    (let loop ([procs (list bool->string num->string
                             sym->string char->string)])
       (cond [(null? procs) ;; no matching type
              (lambda (x) #f)]
@@ -62,9 +72,9 @@
              (loop (cdr procs))])))
 
   (define (get-type object)
-    (let loop ([preds (list boolean? date? number? symbol?
+    (let loop ([preds (list boolean? number? symbol?
                             char? string? na?)]
-               [types '(boolean date number symbol
+               [types '(boolean number symbol
                                 char string na)])
       (cond [(null? preds) ;; no matching type 
              'other]
@@ -77,18 +87,15 @@
              (loop (cdr preds) (cdr types))])))
 
   (define (obj->na object)
-    ;; sets value to 'na if not one of four types
-    (let loop ([preds (list boolean? date? symbol? char?)]
-               [types '(boolean date symbol char)])
+    ;; sets value to 'na if not one of three types
+    (let loop ([preds (list boolean? symbol? char?)]
+               [types '(boolean symbol char)])
       (cond [(na? preds) 'na]
             [((car preds) object) object]
             [else (loop (cdr preds) (cdr types))])))
 
   (define (bool->string obj)
     (if (boolean? obj) (if obj "#t" "#f") #f))
-
-  (define (date->string obj)
-    (if (date? obj) (date-and-time obj) #f))
 
   (define (num->string obj)
     (if (number? obj) (number->string obj) #f))

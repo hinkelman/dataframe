@@ -1,65 +1,42 @@
 (library (dataframe)
   (export
-   ->
-   ->>
-   $
-   dataframe->rowtable
-   dataframe?
-   dataframe-aggregate
-   dataframe-aggregate*
-   dataframe-alist
-   dataframe-append
-   dataframe-bind
-   dataframe-bind-all
-   dataframe-contains?
-   dataframe-crossing
-   dataframe-dim
-   dataframe-display
-   dataframe-drop
-   dataframe-equal?
-   dataframe-filter
-   dataframe-filter*
-   dataframe-filter-at
-   dataframe-filter-all
-   dataframe-head
-   dataframe-left-join
-   dataframe-modify
-   dataframe-modify*
-   dataframe-modify-at
-   dataframe-modify-all
+   ;; record-types
+   dataframe-slist
    dataframe-names
-   dataframe-rename-all
-   dataframe-partition
-   dataframe-partition*
-   dataframe-read
-   dataframe-rename
-   dataframe-select
-   dataframe-sort
-   dataframe-sort*
-   dataframe-split
-   dataframe-spread
-   dataframe-stack
-   dataframe-ref
-   dataframe-tail
-   dataframe-unique
-   dataframe-values
-   dataframe-values-unique
-   dataframe-write
+   dataframe-dim
    make-dataframe
-   rowtable->dataframe)
+   make-series
+   make-slist
+   s*
+   series-name
+   series-lst
+   series-length
+   ;; types
+   count
+   count-elements
+   convert-type
+   guess-type
+   ;; rename
+   dataframe-rename*
+   dataframe-rename
+   dataframe-rename-all
+   ;; statistics
+   series-sum
+   series-mean
+   series-min
+   series-max
+   rle
+   ;; helpers
+   na?
+   remove-duplicates
+   )
 
   (import (rnrs)
-          (dataframe aggregate)
-          (dataframe bind)
-          (dataframe df)
-          (dataframe display)
-          (dataframe filter)
-          (dataframe join)
-          (dataframe modify)
-          (dataframe reshape)
-          (dataframe rowtable)
-          (dataframe sort)
-          (dataframe split))
-      
+          (dataframe statistics)
+          (dataframe record-types)
+          (dataframe types)
+          (dataframe rename)
+          (dataframe helpers))
+  
   )
 
