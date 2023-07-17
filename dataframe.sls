@@ -20,6 +20,11 @@
    dataframe-rename*
    dataframe-rename
    dataframe-rename-all
+   ;; select
+   dataframe-drop
+   dataframe-drop*
+   dataframe-select
+   dataframe-select*
    ;; statistics
    series-sum
    series-mean
@@ -32,10 +37,11 @@
    )
 
   (import (rnrs)
-          (dataframe statistics)
           (dataframe record-types)
           (dataframe types)
           (dataframe rename)
+          (dataframe select)
+          (dataframe statistics)
           (dataframe helpers))
   
   )

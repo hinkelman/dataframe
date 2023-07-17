@@ -32,7 +32,7 @@
    ;; check-new-names
    ;; check-name-pairs
    ;; check-alist
-   ;; not-in
+   not-in
    ;; partition-ls-vals
    ;; rep
    remove-duplicates
