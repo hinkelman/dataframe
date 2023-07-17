@@ -1,18 +1,21 @@
 (library (dataframe types)
-  (export convert-type guess-type)
+  (export convert-type guess-type is-na?)
 
   (import (rnrs)
           (dataframe statistics))
+
+  (define (na? obj)
+    (and (symbol? obj)
+         (symbol=? obj 'na)))
 
   (define (convert-type lst type)
     (cond [(symbol=? type 'other) lst]
           ;; string->number is only attempted automatic conversion 
           [(symbol=? type 'number)
            (map (lambda (x)
-                  (cond [(null? x) '()]
-                        [(and (string? x) (string->number x))
+                  (cond [(and (string? x) (string->number x))
                          (string->number x)]
-                        [(not (number? x)) '()]
+                        [(not (number? x)) 'na]
                         [else x]))
                 lst)]
           [(symbol=? type 'string)
@@ -20,9 +23,9 @@
                   (let ([->string (get->string x)])
                     (cond [(string? x) x]
                           [(->string x) (->string x)]
-                          [else '()])))
+                          [else 'na])))
                 lst)]
-          [else (map obj->null lst)]))
+          [else (map obj->na lst)]))
 
   (define (guess-type lst n-max)
     ;; need to add check for empty vector
@@ -33,16 +36,16 @@
            [type-count (count-elements types)]
            [type-count-n (length type-count)])
       (cond [(or (member 'other types)
-                 (and (= type-count-n 1) (null? first)))
+                 (and (= type-count-n 1) (na? first)))
              'other]
             [(= type-count-n 1)
              first]
-            ;; nulls don't count against same type
+            ;; na's don't count against same type
             [(and (= type-count-n 2)
-                  (null? (caar type-count)))
+                  (na? (caar type-count)))
              (caadr type-count)]
             [(and (= type-count-n 2)
-                  (null? (caadr type-count)))
+                  (na? (caadr type-count)))
              (caar type-count)]
             [else
              'string])))
@@ -60,9 +63,9 @@
 
   (define (get-type object)
     (let loop ([preds (list boolean? date? number? symbol?
-                            char? string? null?)]
+                            char? string? na?)]
                [types '(boolean date number symbol
-                                char string ())])
+                                char string na)])
       (cond [(null? preds) ;; no matching type 
              'other]
             ;; string->number is only attempted automatic conversion 
@@ -73,11 +76,11 @@
             [else
              (loop (cdr preds) (cdr types))])))
 
-  (define (obj->null object)
-    ;; sets value to '() if not one of four types
+  (define (obj->na object)
+    ;; sets value to 'na if not one of four types
     (let loop ([preds (list boolean? date? symbol? char?)]
                [types '(boolean date symbol char)])
-      (cond [(null? preds) '()]
+      (cond [(na? preds) 'na]
             [((car preds) object) object]
             [else (loop (cdr preds) (cdr types))])))
 
