@@ -4,10 +4,10 @@
    dataframe-slist
    dataframe-names
    dataframe-dim
+   make-df*
    make-dataframe
    make-series
    make-slist
-   s*
    series-name
    series-lst
    series-length
