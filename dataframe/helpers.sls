@@ -45,49 +45,49 @@
           (else (append (flatten (car x))
                         (flatten (cdr x))))))
 
-  (define (remove-duplicates ls)
+  (define (remove-duplicates lst)
     (let ([ht (make-hashtable equal-hash equal?)])
-      (let loop ([ls ls]
+      (let loop ([lst lst]
                  [results '()])
-        (cond [(null? ls)
+        (cond [(null? lst)
                (reverse results)]
-              [(hashtable-ref ht (car ls) #f)
-               (loop (cdr ls) results)] ;; value already in ht
+              [(hashtable-ref ht (car lst) #f)
+               (loop (cdr lst) results)] ;; value already in ht
               [else
                ;; value is arbitrarily set to 0; key is what matters
-               (hashtable-set! ht (car ls) 0) 
-               (loop (cdr ls) (cons (car ls) results))]))))
-  
-  (define (transpose ls)
-    (apply map list ls))
+               (hashtable-set! ht (car lst) 0) 
+               (loop (cdr lst) (cons (car lst) results))]))))
+
+  (define (transpose lst)
+    (apply map list lst))
 
   (define (not-in xs ys)
     (filter (lambda (x) (not (member x ys))) xs))
 
-  (define (rep ls n type)
+  (define (rep lst n type)
     (cond [(symbol=? type 'each)
-           (apply append (map (lambda (x) (make-list n x)) ls))]
+           (apply append (map (lambda (x) (make-list n x)) lst))]
           [(symbol=? type 'times)
-           (rep-times ls n)]
+           (rep-times lst n)]
           [else
            (assertion-violation "(rep ls n type)"
                                 "type must be 'each or 'times")]))
 
-  (define (rep-times ls n)
-    (define (loop ls-out n)
-      (if (= n 1) ls-out (loop (append ls ls-out) (sub1 n))))
-    (loop ls n))
+  (define (rep-times lst n)
+    (define (loop out n)
+      (if (= n 1) out (loop (append lst out) (sub1 n))))
+    (loop lst n))
 
-  (define (cartesian-product . ls)
-    (fold-right product-of-two '(()) ls))
+  (define (cartesian-product . lst)
+    (fold-right product-of-two '(()) lst))
 
-  (define (product-of-two ls1 ls2)
+  (define (product-of-two lst1 lst2)
     (apply append
            (map (lambda (x)
                   (map (lambda (y)
                          (cons x y))
-                       ls2))
-                ls1)))
+                       lst2))
+                lst1)))
 
   ;; ls-vals ------------------------------------------------------------------------
   
