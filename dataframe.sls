@@ -30,6 +30,8 @@
    dataframe-select*
    ;; crossing
    dataframe-crossing
+   ;; split
+   dataframe-split
    ;; statistics
    series-sum
    series-mean
@@ -47,6 +49,7 @@
           (dataframe rename)
           (dataframe select)
           (dataframe crossing)
+          (dataframe split)
           (dataframe statistics)
           (dataframe helpers))
   
