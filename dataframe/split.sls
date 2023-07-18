@@ -24,8 +24,7 @@
   (define (dataframe-split-helper df group-names who)
     ;; (apply check-df-names df who group-names)
     (let* ([names (dataframe-names df)]
-           [slist (dataframe-slist df)]
-           [ls-vals (map series-lst slist)]
+           [ls-vals (map series-lst (dataframe-slist df))]
            [df-select (dataframe-select df group-names)]
            [ls-vals-select (map series-lst (dataframe-slist df-select))]
            [ls-rows (transpose ls-vals)]
