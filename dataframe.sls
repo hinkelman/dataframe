@@ -35,6 +35,7 @@
    ;; filter
    dataframe-head
    dataframe-tail
+   dataframe-unique
    ;; display
    dataframe-display
    ;; statistics
@@ -45,8 +46,7 @@
    rle
    ;; helpers
    na?
-   remove-duplicates
-   )
+   remove-duplicates)
 
   (import (rnrs)
           (dataframe record-types)

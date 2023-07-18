@@ -8,12 +8,15 @@
 
   (export
    dataframe-head
-   dataframe-tail)
+   dataframe-tail
+   dataframe-unique)
 
   (import (rnrs)
           (dataframe record-types)
           (only (dataframe helpers)
-                list-head))
+                list-head
+                remove-duplicates
+                transpose))
           ;; (only (dataframe df)
           ;;       check-dataframe
           ;;       check-df-names
@@ -30,8 +33,7 @@
 
   ;; procedures in this library all involve taking a subset of rows
   
-
-    ;; head/tail -----------------------------------------------------------------------------------
+  ;; head/tail ---------------------------------------------------------------------
 
   (define (dataframe-head df n)
     ;; (let ([who  "(dataframe-head df n)"])
@@ -54,7 +56,16 @@
 
   (define (slist-head-tail names slist n proc)
     (make-slist names
-     (map (lambda (series) (proc (series-lst series) n)) slist)))
+                (map (lambda (series) (proc (series-lst series) n)) slist)))
+
+  ;; unique ------------------------------------------------------------------------
+
+  (define (dataframe-unique df)
+    ;; (check-dataframe df "(dataframe-unique df)")
+    (let* ([names (dataframe-names df)]
+           [ls-vals (map series-lst (dataframe-slist df))]
+           [ls-vals-unique (transpose (remove-duplicates (transpose ls-vals)))])
+      (make-dataframe (make-slist names ls-vals-unique))))
 
   ;; filter/partition ------------------------------------------------------------------------
 
@@ -145,18 +156,7 @@
   ;;     (add-names-ls-vals (map car alist)
   ;;                        (filter-ls-vals bools (map cdr alist)))))
 
-  ;;   ;; unique ------------------------------------------------------------------------
 
-  ;; (define (dataframe-unique df)
-  ;;   (check-dataframe df "(dataframe-unique df)")
-  ;;   (make-dataframe (alist-unique (dataframe-alist df))))
-  
-  ;; (define (alist-unique alist)
-  ;;   (let ([names (map car alist)]
-  ;;         [ls-vals (map cdr alist)])
-  ;;     (add-names-ls-vals
-  ;;      names
-  ;;      (transpose (remove-duplicates (transpose ls-vals))))))
 
   ;;   ;; dataframe-ref -------------------------------------------------------------------
 
