@@ -21,17 +21,6 @@
    ;; get-all-names
    ;; get-all-unique-names
    ;; cartesian-product
-   ;; check-index
-   ;; check-integer-gte-zero
-   ;; check-integer-positive
-   ;; check-list
-   ;; check-names-unique
-   ;; check-names-symbol
-   ;; check-names
-   ;; check-names-duplicate
-   ;; check-new-names
-   ;; check-name-pairs
-   ;; check-alist
    not-in
    ;; partition-ls-vals
    ;; rep
@@ -87,12 +76,6 @@
 
   ;; ls-vals ------------------------------------------------------------------------
   
-  ;; add names to list of vals, ls-vals, to create association list
-  (define (add-names-ls-vals names ls-vals)
-    (if (null? ls-vals)
-        (map (lambda (name) (cons name '())) names)
-        (map (lambda (name vals) (cons name vals)) names ls-vals)))
-
   ;; in previous version, would pass over ls-vals twice with filter-ls-vals (with bools negated on 1 pass)
   ;; the extra transposing in this version is faster than two passes with filter-ls-vals
   (define (partition-ls-vals bools ls-vals)
@@ -116,25 +99,11 @@
 
   ;; alists ------------------------------------------------------------------------
 
-  (define (alist-select alist names)
-    (map (lambda (name) (assoc name alist)) names))
-
-  (define (alist-drop alist names)
-    (filter (lambda (column) (not (member (car column) names))) alist))
-
   (define (alist-values alist name)
     (cdr (assoc name alist)))
 
   (define (alist-values-map alist names)
     (map (lambda (name) (alist-values alist name)) names))
-
-  (define (alist-ref alist indices names)
-    (let ([ls-vals (alist-values-map alist names)])
-      (add-names-ls-vals
-       names
-       (map (lambda (vals)
-              (map (lambda (n) (list-ref vals n)) indices))
-            ls-vals))))
 
   ;; expand an list by repeating rows n times (or each)
   (define (alist-repeat-rows alist n type)
@@ -156,75 +125,6 @@
             [else
              (loop (cdr all-names) (cons (car all-names) results))]))
     (loop (apply get-all-names alists) '()))
-
-  
-  ;; assertions ------------------------------------------------------------------------
-  
-  (define (check-list ls ls-name who)
-    (unless (list? ls)
-      (assertion-violation who (string-append ls-name " is not a list")))
-    (when (null? ls)
-      (assertion-violation who (string-append ls-name " is an empty list"))))
-
-  (define (check-integer-positive x x-name who)
-    (unless (and (> x 0) (integer? x))
-      (assertion-violation who (string-append x-name " is not a positive integer"))))
-  
-  (define (check-integer-gte-zero x x-name who)
-    (unless (and (>= x 0) (integer? x))
-      (assertion-violation who (string-append x-name " is not an integer >= 0"))))
-
-  (define (check-index n n-max who)
-    (when (> n n-max)
-      (assertion-violation who (string-append "index " (number->string n) " is out of range"))))
-
-  (define (check-names-unique names who)
-    (unless (= (length names) (length (remove-duplicates names)))
-      (assertion-violation who "names are not unique")))
-
-  (define (check-names-symbol names who)
-    (unless (for-all (lambda (name) (symbol? name)) names)
-      (assertion-violation who "names are not symbols")))
-
-  (define (check-names names who)
-    (check-names-symbol names who)
-    (check-names-unique names who))
-
-  (define (check-names-duplicate old-names new-names who)
-    (unless (for-all (lambda (new-name) (not (member new-name old-names))) new-names)
-      (assertion-violation who "new names duplicate existing names")))
-
-  (define (check-new-names old-names new-names who)
-    (check-names new-names who)
-    (check-names-duplicate old-names new-names who))
-  
-  (define (check-name-pairs current-names name-pairs who)
-    ;; not very thorough checking of ways a name-pair could be malformed
-    (unless (for-all pair? name-pairs)
-      (assertion-violation who "names not of form '(old-name new-name) ..."))
-    (let ([new-names (map cadr name-pairs)])
-      (check-new-names current-names new-names who)))
-
-  ;; lots of checking that will be performed every time a dataframe is created
-  ;; this currently allows for creating a dataframe with no rows
-  ;; even though none of the dataframe procedures will accept a df with zero rows
-  (define (check-alist alist who)
-    (when (null? alist)
-      (assertion-violation who "alist is empty"))
-    (unless (list? alist)
-      (assertion-violation who "alist is not a list"))
-    (unless (list? (car alist))
-      (assertion-violation who "(car alist) is not a list"))
-    (let ([names (map car alist)])
-      (check-names-symbol names who)
-      (check-names-unique names who))
-    (unless (for-all (lambda (col) (list? (cdr col))) alist)
-      (assertion-violation who "values are not a list"))
-    (let ([col-lengths (map length alist)])
-      ;; if only one column don't need to check equal length
-      (unless (or (= (length col-lengths) 1)
-                  (apply = (map length alist)))
-        (assertion-violation who "columns not all same length"))))
   
   (define (make-list n x)
     (let loop ((n n) (r '()))

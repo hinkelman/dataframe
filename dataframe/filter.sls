@@ -14,9 +14,14 @@
   (import (rnrs)
           (dataframe record-types)
           (only (dataframe helpers)
+                add1
                 list-head
                 remove-duplicates
-                transpose))
+                transpose)
+          (only (dataframe assertions)
+                check-integer-gte-zero
+                check-integer-positive
+                check-index))
           ;; (only (dataframe df)
           ;;       check-dataframe
           ;;       check-df-names
@@ -36,27 +41,28 @@
   ;; head/tail ---------------------------------------------------------------------
 
   (define (dataframe-head df n)
-    ;; (let ([who  "(dataframe-head df n)"])
-    ;;   (check-dataframe df who)
-    ;;   (check-integer-positive n "n" who)
-    ;;   (check-index n (car (dataframe-dim df)) who))
+    (let ([who "(dataframe-head df n)"])
+      ;; (check-dataframe df who)
+      (check-integer-positive n "n" who)
+      (check-index n (car (dataframe-dim df)) who))
     (make-dataframe
      (slist-head-tail
       (dataframe-names df) (dataframe-slist df) n list-head)))
 
   ;; dataframe-tail is based on list-tail, which does not work the same as tail in R
   (define (dataframe-tail df n)
-    ;; (let ([who  "(dataframe-tail df n)"])
-    ;;   (check-dataframe df who)
-    ;;   (check-integer-gte-zero n "n" who)
-    ;;   (check-index (add1 n) (car (dataframe-dim df)) who))
+    (let ([who  "(dataframe-tail df n)"])
+      ;;   (check-dataframe df who)
+      (check-integer-gte-zero n "n" who)
+      (check-index (add1 n) (car (dataframe-dim df)) who))
     (make-dataframe
      (slist-head-tail
       (dataframe-names df) (dataframe-slist df) n list-tail)))
 
   (define (slist-head-tail names slist n proc)
-    (make-slist names
-                (map (lambda (series) (proc (series-lst series) n)) slist)))
+    (make-slist
+     names
+     (map (lambda (series) (proc (series-lst series) n)) slist)))
 
   ;; unique ------------------------------------------------------------------------
 
@@ -67,7 +73,32 @@
            [ls-vals-unique (transpose (remove-duplicates (transpose ls-vals)))])
       (make-dataframe (make-slist names ls-vals-unique))))
 
-  ;; filter/partition ------------------------------------------------------------------------
+  ;; dataframe-ref ---------------------------------------------------------------
+  
+  (define dataframe-ref
+    (case-lambda
+      [(df indices) (df-ref-helper df indices (dataframe-names df))]
+      [(df indices . names) (df-ref-helper df indices names)]))
+
+  (define (df-ref-helper df indices names)
+    (let ([who "(dataframe-ref df indices)"]
+          [n-max (car (dataframe-dim df))])
+      ;; (apply check-df-names df who names)
+      (map (lambda (n)
+             (check-integer-gte-zero n "index" who)
+             (check-index n n-max who))
+           indices))
+    (make-dataframe (slist-ref (dataframe-slist df) indices names)))
+
+  (define (slist-ref slist indices names)
+    (let ([ls-vals (map series-lst slist)])
+      (make-slist
+       names
+       (map (lambda (vals)
+              (map (lambda (n) (list-ref vals n)) indices))
+            ls-vals))))
+  
+  ;; filter/partition --------------------------------------------------------------------
 
   ;; filter-ls-vals involves zipping, filtering, and unzipping every column
   ;; alternative is to transpose to row-based,
@@ -158,23 +189,7 @@
 
 
 
-  ;;   ;; dataframe-ref -------------------------------------------------------------------
 
-  ;; (define dataframe-ref
-  ;;   (case-lambda
-  ;;     [(df indices) (df-ref-helper df indices (dataframe-names df))]
-  ;;     [(df indices . names)(df-ref-helper df indices names)]))
-
-  ;; (define (df-ref-helper df indices names)
-  ;;   (let ([who "(dataframe-ref df indices)"]
-  ;;         [n-max (car (dataframe-dim df))])
-  ;;     (apply check-df-names df who names)
-  ;;     (check-list indices "indices" who)
-  ;;     (map (lambda (n)
-  ;;            (check-integer-gte-zero n "index" who)
-  ;;            (check-index n n-max who))
-  ;;          indices))
-  ;;   (make-dataframe (alist-ref (dataframe-alist df) indices names)))
 
 
   )

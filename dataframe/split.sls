@@ -20,7 +20,7 @@
           group-names
           "(datframe-split df group-names)")))
 
-  ;; returns list of alists that are split by groups in group-names
+  ;; returns list of slists that are split by groups in group-names
   (define (dataframe-split-helper df group-names who)
     ;; (apply check-df-names df who group-names)
     (let* ([names (dataframe-names df)]
@@ -31,15 +31,17 @@
            [ls-rows-select (transpose ls-vals-select)]
            [ls-rows-grp (remove-duplicates ls-rows-select)]
            [grp-indexes (enumerate ls-rows-grp)]
-           [ls-rows-indexed (index-ls-rows ls-rows ls-rows-select ls-rows-grp grp-indexes)]
+           [ls-rows-indexed
+            (index-ls-rows ls-rows ls-rows-select ls-rows-grp grp-indexes)]
            [ls-rows-indexed-split (split-ls-rows ls-rows-indexed grp-indexes)])
       (map (lambda (x) (ls-rows-indexed->slist x names)) ls-rows-indexed-split)))
   
   (define (index-ls-rows ls-rows ls-rows-select ls-rows-grp grp-indexes)
     (map (lambda (ls-row ls-row-select)
-           (let* ([bool-index (map (lambda (ls-row-grp grp-index)
-                                     (cons (equal? ls-row-select ls-row-grp) grp-index))
-                                   ls-rows-grp grp-indexes)]
+           (let* ([bool-index
+                   (map (lambda (ls-row-grp grp-index)
+                          (cons (equal? ls-row-select ls-row-grp) grp-index))
+                        ls-rows-grp grp-indexes)]
                   ;; this should filter down to a list of one element
                   [i (cdar (filter (lambda (x) (car x)) bool-index))])
              (cons i ls-row)))

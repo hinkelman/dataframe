@@ -57,6 +57,27 @@
     (map (lambda (name vals)
            (make-series name vals))
          names ls-vals))
+
+    ;; lots of checking that will be performed every time a dataframe is created
+  ;; this currently allows for creating a dataframe with no rows
+  ;; even though none of the dataframe procedures will accept a df with zero rows
+  ;; (define (check-alist alist who)
+  ;;   (when (null? alist)
+  ;;     (assertion-violation who "alist is empty"))
+  ;;   (unless (list? alist)
+  ;;     (assertion-violation who "alist is not a list"))
+  ;;   (unless (list? (car alist))
+  ;;     (assertion-violation who "(car alist) is not a list"))
+  ;;   (let ([names (map car alist)])
+  ;;     (check-names-symbol names who)
+  ;;     (check-names-unique names who))
+  ;;   (unless (for-all (lambda (col) (list? (cdr col))) alist)
+  ;;     (assertion-violation who "values are not a list"))
+  ;;   (let ([col-lengths (map length alist)])
+  ;;     ;; if only one column don't need to check equal length
+  ;;     (unless (or (= (length col-lengths) 1)
+  ;;                 (apply = (map length alist)))
+  ;;       (assertion-violation who "columns not all same length"))))
   
   )
 
