@@ -46,25 +46,7 @@
   ;   (check-names names who)
   ;   (apply check-names-exist df who names))
   
-  ;; head/tail -----------------------------------------------------------------------------------
 
-  ; (define (dataframe-head df n)
-  ;   (let ([who  "(dataframe-head df n)"])
-  ;     (check-dataframe df who)
-  ;     (check-integer-positive n "n" who)
-  ;     (check-index n (car (dataframe-dim df)) who)
-  ;     (make-dataframe (alist-head-tail (dataframe-alist df) n list-head))))
-
-  ; ;; dataframe-tail is based on list-tail, which does not work the same as tail in R
-  ; (define (dataframe-tail df n)
-  ;   (let ([who  "(dataframe-tail df n)"])
-  ;     (check-dataframe df who)
-  ;     (check-integer-gte-zero n "n" who)
-  ;     (check-index (add1 n) (car (dataframe-dim df)) who)
-  ;     (make-dataframe (alist-head-tail (dataframe-alist df) n list-tail))))
-
-  ; (define (alist-head-tail alist n proc)
-  ;   (map (lambda (col) (cons (car col) (proc (cdr col) n))) alist))
 
 
   
