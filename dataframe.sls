@@ -35,6 +35,8 @@
    ;; filter
    dataframe-head
    dataframe-tail
+   ;; display
+   dataframe-display
    ;; statistics
    series-sum
    series-mean
@@ -54,6 +56,7 @@
           (dataframe crossing)
           (dataframe split)
           (dataframe filter)
+          (dataframe display)
           (dataframe statistics)
           (dataframe helpers))
   

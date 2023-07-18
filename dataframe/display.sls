@@ -4,21 +4,16 @@
 
   (import (rnrs)
           (slib format)
-          (only (dataframe df)
-                check-dataframe
-                dataframe?
-                dataframe-alist
-                dataframe-dim
-                dataframe-head
-                dataframe-names
-                dataframe-values-map)    
+          (dataframe record-types)
+          (only (dataframe filter)
+                dataframe-head)
           (only (dataframe helpers)
                 add1
                 sub1
                 list-head
                 transpose))
 
-   (define dataframe-display
+  (define dataframe-display
     (case-lambda
       [(df) (df-display-helper df 10 5 80)]
       [(df n) (df-display-helper df n 5 80)]
@@ -27,7 +22,7 @@
 
   (define (df-display-helper df n min-width total-width)
     (let ([who "(dataframe-display df)"])
-      (check-dataframe df who)
+      ;; (check-dataframe df who)
       (unless (> total-width min-width)
         (assertion-violation who "total-width must be greater than min-width")))
     (let* ([dim (dataframe-dim df)]
@@ -37,7 +32,7 @@
 
   (define (format-df df dim min-width total-width)
     (let* ([names (dataframe-names df)]
-           [ls-vals (dataframe-values-map df names)]
+           [ls-vals (map series-lst (dataframe-slist df))]
            [prep-vals (map prepare-non-numbers ls-vals)]
            [parts (build-format-parts names prep-vals min-width total-width 2)])
       (format #t " dim: ~d rows x ~d cols" (car dim) (cdr dim))
@@ -149,7 +144,7 @@
   (define (not-fraction-number? object)
     (or (integer? object)
         (and (number? object) (not (exact? object)))))
-      
+  
   (define (compute-num-width num-type neg sig esig dec pad)
     (if (string=? num-type "e")
         (+ neg esig dec pad 3)
