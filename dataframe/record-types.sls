@@ -1,12 +1,15 @@
 (library (dataframe record-types)
   (export
+   dataframe?
    dataframe-slist
    dataframe-names
    dataframe-dim
    make-df*
    make-dataframe
+   make-series*
    make-series
    make-slist
+   series?
    series-name
    series-lst
    series-length)
@@ -25,6 +28,11 @@
          (let* ([type (guess-type src 1000)]
                 [lst (convert-type src type)])
            (new name src lst type (length lst)))))))
+
+  (define-syntax make-series*
+    (syntax-rules ()
+      [(_ (name vals ...))
+         (make-series (quote name) (list vals ...))]))
   
   ;; dataframe ----------------------------------------------------------------
 

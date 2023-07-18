@@ -17,7 +17,7 @@
    ;; combine-names-ordered
    ;; filter-ls-vals
    ;; filter-vals
-   ;; flatten
+   flatten
    ;; get-all-names
    ;; get-all-unique-names
    ;; cartesian-product
@@ -83,16 +83,7 @@
       (if (= n 1) out (loop (append lst out) (sub1 n))))
     (loop lst n))
 
-  (define (cartesian-product . lst)
-    (fold-right product-of-two '(()) lst))
 
-  (define (product-of-two lst1 lst2)
-    (apply append
-           (map (lambda (x)
-                  (map (lambda (y)
-                         (cons x y))
-                       lst2))
-                lst1)))
 
   ;; ls-vals ------------------------------------------------------------------------
   

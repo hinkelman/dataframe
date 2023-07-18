@@ -1,13 +1,16 @@
 (library (dataframe)
   (export
    ;; record-types
+   dataframe?
    dataframe-slist
    dataframe-names
    dataframe-dim
    make-df*
    make-dataframe
+   make-series*
    make-series
    make-slist
+   series?
    series-name
    series-lst
    series-length
@@ -25,6 +28,8 @@
    dataframe-drop*
    dataframe-select
    dataframe-select*
+   ;; crossing
+   dataframe-crossing
    ;; statistics
    series-sum
    series-mean
@@ -41,6 +46,7 @@
           (dataframe types)
           (dataframe rename)
           (dataframe select)
+          (dataframe crossing)
           (dataframe statistics)
           (dataframe helpers))
   
