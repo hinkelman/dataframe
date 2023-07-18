@@ -37,6 +37,7 @@
    ;; filter
    dataframe-head
    dataframe-tail
+   dataframe-ref
    dataframe-unique
    ;; display
    dataframe-display

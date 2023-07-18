@@ -70,14 +70,16 @@
 
   (define (dataframe-equal? . dfs)
     (let ([first-names (dataframe-names (car dfs))]
+          [first-dim (dataframe-dim (car dfs))]
           [first-slist (dataframe-slist (car dfs))])
       (for-all
        (lambda (df)
          (and (equal? (dataframe-names df) first-names)
+              (equal? (dataframe-dim df) first-dim)
               (for-all
-               (lambda (series)
-                 (apply series-equal? (cons series first-slist)))
-               (dataframe-slist df))))
+               (lambda (series1 series2)
+                 (series-equal? series1 series2))
+               (dataframe-slist df) first-slist)))
        dfs)))
 
   ;; check dataframes -----------------------------------------------------------

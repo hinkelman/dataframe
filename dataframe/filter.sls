@@ -9,10 +9,13 @@
   (export
    dataframe-head
    dataframe-tail
+   dataframe-ref
    dataframe-unique)
 
   (import (rnrs)
           (dataframe record-types)
+          (only (dataframe select)
+                dataframe-select)
           (only (dataframe helpers)
                 add1
                 list-head
@@ -88,7 +91,10 @@
              (check-integer-gte-zero n "index" who)
              (check-index n n-max who))
            indices))
-    (make-dataframe (slist-ref (dataframe-slist df) indices names)))
+    (let ([df-new (if (= (cdr (dataframe-dim df)) (length names))
+                      df
+                      (dataframe-select df names))])
+      (make-dataframe (slist-ref (dataframe-slist df-new) indices names))))
 
   (define (slist-ref slist indices names)
     (let ([ls-vals (map series-lst slist)])
