@@ -2,6 +2,7 @@
   (export
    ;; record-types
    dataframe?
+   dataframe-equal?
    dataframe-slist
    dataframe-names
    dataframe-dim
@@ -11,6 +12,7 @@
    make-series
    make-slist
    series?
+   series-equal?
    series-name
    series-lst
    series-length

@@ -11,24 +11,7 @@
 
 
 
-  ;; check dataframes --------------------------------------------------------------------------
-  
-  ; (define (check-dataframe df who)
-  ;   (unless (dataframe? df)
-  ;     (assertion-violation who "df is not a dataframe"))
-  ;   (unless (> (car (dataframe-dim df)) 0)
-  ;     (assertion-violation who "df has zero rows")))
 
-  ; (define (check-all-dataframes dfs who)
-  ;   (map (lambda (df) (check-dataframe df who)) dfs))
-
-  ; (define (dataframe-equal? . dfs)
-  ;   (check-all-dataframes dfs "(dataframe-equal? dfs)")
-  ;   (let* ([alists (map dataframe-alist dfs)]
-  ;          [first-alist (car alists)])
-  ;     (for-all (lambda (alist)
-  ;                (equal? alist first-alist))
-  ;              alists)))
 
   ;; check dataframe attributes -------------------------------------------------------------
   

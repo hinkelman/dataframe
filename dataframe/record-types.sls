@@ -1,6 +1,7 @@
 (library (dataframe record-types)
   (export
    dataframe?
+   dataframe-equal?
    dataframe-slist
    dataframe-names
    dataframe-dim
@@ -10,6 +11,7 @@
    make-series
    make-slist
    series?
+   series-equal?
    series-name
    series-lst
    series-length)
@@ -32,7 +34,15 @@
   (define-syntax make-series*
     (syntax-rules ()
       [(_ (name vals ...))
-         (make-series (quote name) (list vals ...))]))
+       (make-series (quote name) (list vals ...))]))
+
+  (define (series-equal? . series)
+    (let* ([first-name (series-name (car series))]
+           [first-lst (series-lst (car series))])
+      (for-all (lambda (x)
+                 (and (equal? (series-name x) first-name)
+                      (equal? (series-lst x) first-lst)))
+               series)))
   
   ;; dataframe ----------------------------------------------------------------
 
@@ -57,6 +67,31 @@
     (map (lambda (name vals)
            (make-series name vals))
          names ls-vals))
+
+  (define (dataframe-equal? . dfs)
+    (let ([first-names (dataframe-names (car dfs))]
+          [first-slist (dataframe-slist (car dfs))])
+      (for-all
+       (lambda (df)
+         (and (equal? (dataframe-names df) first-names)
+              (for-all
+               (lambda (series)
+                 (apply series-equal? (cons series first-slist)))
+               (dataframe-slist df))))
+       dfs)))
+
+  ;; check dataframes -----------------------------------------------------------
+  
+  ;; (define (check-dataframe df who)
+  ;;   (unless (dataframe? df)
+  ;;     (assertion-violation who "df is not a dataframe"))
+  ;;   (unless (> (car (dataframe-dim df)) 0)
+  ;;     (assertion-violation who "df has zero rows")))
+
+  ;; (define (check-all-dataframes dfs who)
+  ;;   (map (lambda (df) (check-dataframe df who)) dfs))
+
+
 
     ;; lots of checking that will be performed every time a dataframe is created
   ;; this currently allows for creating a dataframe with no rows
