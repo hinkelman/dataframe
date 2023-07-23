@@ -134,7 +134,7 @@
 ;;-------------------------------------------------------------
 
 (test-begin "dataframe-drop-test")
-;; (test-error (dataframe-drop df5 'd))
+(test-error (dataframe-drop df5 'd))
 (test-assert (dataframe-equal? df6 (dataframe-drop* df2 a)))
 (test-assert (dataframe-equal? df7 (dataframe-drop* df2 a b)))
 (test-end "dataframe-drop-test")
