@@ -267,16 +267,26 @@
 ;; (test-error (dataframe-values-unique '((x a a) (y a b)) 'z))
 ;; (test-end "dataframe-values-unique-test")
 
+
 ;;-------------------------------------------------------------
 
-;; (test-begin "make-df*-test")
-;; (test-error (make-df* 100))
-;; (test-error (make-df* '()))
-;; (test-error (make-df* '(1 2 3)))
-;; (test-error (make-df* '(("a" 1 2 3))))
-;; (test-error (make-df* '((a 1 2 3) (a 1 2 3))))
-;; (test-error (make-df* '((a 1 2 3) (b 1 2 3 4))))
-;; (test-end "make-df*-test")
+(test-begin "make-series-test")
+(test-error (make-series 'a '()))
+(test-error (make-series 'a 42))
+(test-error (make-series "a" '(1 2 3)))
+(test-end "make-series-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "make-dataframe-test")
+(test-error (make-dataframe '()))
+(test-error (make-dataframe (list '(1 2 3)
+                                  (make-series* (a 1 2 3)))))
+(test-error (make-dataframe (list (make-series* (a 1 2 3))
+                                  (make-series* (a 1 2 3)))))
+(test-error (make-dataframe (list (make-series* (a 1 2 3))
+                                  (make-series* (b 1 2 3 4))))) 
+(test-end "make-dataframe-test")
 
 ;;-------------------------------------------------------------
 

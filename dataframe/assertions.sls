@@ -29,7 +29,7 @@
 
   (define (check-names-symbol names who)
     (unless (for-all (lambda (name) (symbol? name)) names)
-      (assertion-violation who "names are not symbols")))
+      (assertion-violation who "name(s) are not symbols")))
 
   (define (check-names names who)
     (check-names-symbol names who)

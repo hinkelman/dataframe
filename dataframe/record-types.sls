@@ -26,7 +26,9 @@
   (import (rnrs)
           (dataframe types)
           (only (dataframe assertions)
-                check-names))
+                check-names
+                check-names-symbol
+                check-names-unique))
                 
   ;; series -------------------------------------------------------------------
 
@@ -36,6 +38,7 @@
     (protocol
      (lambda (new)
        (lambda (name src)
+         (check-series name src "(make-series name src)")
          (let* ([type (guess-type src 1000)]
                 [lst (convert-type src type)])
            (new name src lst type (length lst)))))))
@@ -52,6 +55,13 @@
                  (and (equal? (series-name x) first-name)
                       (equal? (series-lst x) first-lst)))
                series)))
+
+  (define (check-series name src who)
+    (when (null? src)
+      (assertion-violation who "src is empty"))
+    (unless (list? src)
+      (assertion-violation who "src is not a list"))
+    (check-names-symbol (list name) who))
   
   ;; dataframe ----------------------------------------------------------------
 
@@ -60,6 +70,7 @@
     (protocol
      (lambda (new)
        (lambda (slist)
+         (check-slist slist "(make-dataframe slist)")
          (let* ([names (map series-name slist)]
                 [rows (series-length (car slist))]
                 [cols (length names)])
@@ -118,6 +129,23 @@
     (check-names names who)
     (apply check-names-exist df who names))
 
+  ;; check slist ------------------------------------------------------------------------------
+
+  ;; checking that will be performed every time a dataframe is created
+  ;; this currently allows for creating a dataframe with no rows
+  ;; even though none of the dataframe procedures will accept a df with zero rows
+  (define (check-slist slist who)
+    (when (null? slist)
+      (assertion-violation who "slist is empty"))
+    (unless (for-all series? slist)
+      (assertion-violation who "all elements of slist are not series"))
+    (check-names-unique (map series-name slist) who)
+    (let ([col-lengths (map series-length slist)])
+      ;; if only one column don't need to check equal length
+      (unless (or (= (length col-lengths) 1)
+                  (apply = (map series-length slist)))
+        (assertion-violation who "series are not all same length"))))
+  
   ;; thread-first and thread-last -------------------------------------------------------------
 
   ;; https://github.com/ar-nelson/srfi-197/commit/c9b326932d7352a007e25051cb204ad7e9945a45
@@ -136,28 +164,6 @@
        (->> (fn args ... x) . rest)]
       [(->> x fn . rest)
        (->> (fn x) . rest)]))
-  
-
-    ;; lots of checking that will be performed every time a dataframe is created
-  ;; this currently allows for creating a dataframe with no rows
-  ;; even though none of the dataframe procedures will accept a df with zero rows
-  ;; (define (check-alist alist who)
-  ;;   (when (null? alist)
-  ;;     (assertion-violation who "alist is empty"))
-  ;;   (unless (list? alist)
-  ;;     (assertion-violation who "alist is not a list"))
-  ;;   (unless (list? (car alist))
-  ;;     (assertion-violation who "(car alist) is not a list"))
-  ;;   (let ([names (map car alist)])
-  ;;     (check-names-symbol names who)
-  ;;     (check-names-unique names who))
-  ;;   (unless (for-all (lambda (col) (list? (cdr col))) alist)
-  ;;     (assertion-violation who "values are not a list"))
-  ;;   (let ([col-lengths (map length alist)])
-  ;;     ;; if only one column don't need to check equal length
-  ;;     (unless (or (= (length col-lengths) 1)
-  ;;                 (apply = (map length alist)))
-  ;;       (assertion-violation who "columns not all same length"))))
-  
+    
   )
 
