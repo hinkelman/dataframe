@@ -27,15 +27,6 @@
 
 ;;-------------------------------------------------------------
 
-(test-begin "dataframe-slist-test")
-;; (test-equal (list (make-series* (a 1 2 3))
-;;                   (make-series* (b 4 5 6)))
-;;   (dataframe-slist df1))
-;;(test-error (dataframe-slist '((a 1 2 3) (b 4 5 6))))
-(test-end "dataframe-slist-test")
-
-;;-------------------------------------------------------------
-
 (define dfc
   (make-df*
    (col1 'a 'a 'b 'b)
