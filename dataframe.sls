@@ -1,6 +1,7 @@
 (library (dataframe)
   (export
    ;; record-types
+   dataframe-contains?
    dataframe?
    dataframe-equal?
    dataframe-slist

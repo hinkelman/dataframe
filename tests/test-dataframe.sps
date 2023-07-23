@@ -56,8 +56,8 @@
               dfc
               (dataframe-crossing (make-df* (col1 'a 'b))
                                   (make-df* (col2 'c 'd)))))
-;; (test-error (dataframe-crossing '(col1 a b) '("col2" c d)))
-;; (test-error (dataframe-crossing '(col1 a b) '()))
+(test-error (dataframe-crossing '(col1 a b) '("col2" c d)))
+(test-error (dataframe-crossing '(col1 a b) '()))
 (test-end "dataframe-crossing-test")
 
 ;;-------------------------------------------------------------
@@ -101,13 +101,13 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-contains?-test")
-;; (test-assert (dataframe-contains? df1 'b))
-;; (test-assert (dataframe-contains? df1 'a 'b))
-;; (test-assert (not (dataframe-contains? df1 'a 'b 'c)))
-;; (test-assert (not (dataframe-contains? df1 "b")))
-;; (test-error (dataframe-contains? df1 b))
-;; (test-end "dataframe-contains?-test")
+(test-begin "dataframe-contains?-test")
+(test-assert (dataframe-contains? df1 'b))
+(test-assert (dataframe-contains? df1 'a 'b))
+(test-assert (not (dataframe-contains? df1 'a 'b 'c)))
+(test-assert (not (dataframe-contains? df1 "b")))
+(test-error (dataframe-contains? df1 b))
+(test-end "dataframe-contains?-test")
 
 ;;-------------------------------------------------------------
 
@@ -197,8 +197,8 @@
 (test-assert (dataframe-equal? df9 (dataframe-rename* df5 (a A) (c scary7))))
 ;; same dataframe is returned when old names are not found
 (test-assert (dataframe-equal? df8 (dataframe-rename* df8 (d D))))
-;; (test-error (dataframe-rename* 100 (a A)))
-;; (test-error (dataframe-rename* df5 (a c)))
+(test-error (dataframe-rename* 100 (a A)))
+(test-error (dataframe-rename* df5 (a c)))
 (test-end "dataframe-rename-test")
 
 ;;-------------------------------------------------------------
@@ -206,10 +206,10 @@
 (test-begin "dataframe-rename-all-test")
 (test-assert (dataframe-equal? df8 (dataframe-rename-all df5 '(a b scary7))))
 (test-assert (dataframe-equal? df9 (dataframe-rename-all df5 '(A b scary7))))
-;; (test-error (dataframe-rename-all 100 '(a)))
-;; (test-error (dataframe-rename-all df5 '(A B)))
-;; (test-error (dataframe-rename-all df5 '(a a b)))
-;; (test-error (dataframe-rename-all df5 '("a" b c)))
+(test-error (dataframe-rename-all 100 '(a)))
+(test-error (dataframe-rename-all df5 '(A B)))
+(test-error (dataframe-rename-all df5 '(a a b)))
+(test-error (dataframe-rename-all df5 '("a" b c)))
 (test-end "dataframe-rename-all-test")
 
 ;;-------------------------------------------------------------
@@ -493,7 +493,7 @@
 ;;-------------------------------------------------------------
 
 (test-begin "dataframe-unique-test")
-;; (test-error (dataframe-unique '((a (1 2 3)))))
+(test-error (dataframe-unique '((a (1 2 3)))))
 (test-assert (dataframe-equal?
               df21
               (dataframe-unique (dataframe-select* df20 trt grp))))
@@ -747,10 +747,10 @@
 (test-assert (dataframe-equal?
               (make-df* (adult 1 3 5) (juv 10 30 50))
               (dataframe-ref df27 '(0 2 4) 'adult 'juv)))
-;; (test-error (dataframe-ref df27 '()))
-;; (test-error (dataframe-ref df27 '(0 10)))
-;; (test-error (dataframe-ref df27 2))
-;; (test-error (dataframe-ref df27 '(2) 'total))
+(test-error (dataframe-ref df27 '()))
+(test-error (dataframe-ref df27 '(0 10)))
+(test-error (dataframe-ref df27 2))
+(test-error (dataframe-ref df27 '(2) 'total))
 (test-end "dataframe-ref-test")
 
 ;;-------------------------------------------------------------

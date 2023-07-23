@@ -5,13 +5,18 @@
    dataframe-rename-all)
 
   (import (rnrs)
-          (dataframe record-types))
+          (dataframe record-types)
+          (only (dataframe assertions)
+                check-names))
 
   (define-syntax dataframe-rename* 
     (syntax-rules ()
       [(_ df (old-name new-name) ...)
        (let ([old-names (list (quote old-name) ...)]
              [new-names (list (quote new-name) ...)])
+         (when (apply dataframe-contains? df new-names)
+           (assertion-violation "(dataframe-rename* df (old-name new-name) ...)"
+                                "new names duplicate existing names"))
          (dataframe-rename df old-names new-names))]))
 
   (define (dataframe-rename-all df new-names)
@@ -26,6 +31,9 @@
       (dataframe-rename df old-names new-names)))
        
   (define (dataframe-rename df old-names new-names)
+    (let ([who "(dataframe-rename df old-names new-names)"])
+      (check-dataframe df who)
+      (check-names new-names who))
     (make-dataframe
      (map (lambda (series)
             (let* ([name-pairs (map cons old-names new-names)]

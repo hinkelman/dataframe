@@ -1,5 +1,10 @@
 (library (dataframe record-types)
   (export
+   check-dataframe
+   check-all-dataframes
+   check-names-exist
+   check-df-names
+   dataframe-contains?
    dataframe?
    dataframe-equal?
    dataframe-slist
@@ -17,8 +22,10 @@
    series-length)
 
   (import (rnrs)
-          (dataframe types))
-
+          (dataframe types)
+          (only (dataframe assertions)
+                check-names))
+                
   ;; series -------------------------------------------------------------------
 
   (define-record-type series
@@ -84,14 +91,30 @@
 
   ;; check dataframes -----------------------------------------------------------
   
-  ;; (define (check-dataframe df who)
-  ;;   (unless (dataframe? df)
-  ;;     (assertion-violation who "df is not a dataframe"))
-  ;;   (unless (> (car (dataframe-dim df)) 0)
-  ;;     (assertion-violation who "df has zero rows")))
+  (define (check-dataframe df who)
+    (unless (dataframe? df)
+      (assertion-violation who "df is not a dataframe"))
+    (unless (> (car (dataframe-dim df)) 0)
+      (assertion-violation who "df has zero rows")))
 
-  ;; (define (check-all-dataframes dfs who)
-  ;;   (map (lambda (df) (check-dataframe df who)) dfs))
+  (define (check-all-dataframes dfs who)
+    (map (lambda (df) (check-dataframe df who)) dfs))
+
+  ;; check dataframe attributes -------------------------------------------------------------
+  
+  (define (dataframe-contains? df . names)
+    (check-dataframe df "(dataframe-contains? df names)")
+    (let ([df-names (dataframe-names df)])
+      (for-all (lambda (name) (member name df-names)) names)))
+
+  (define (check-names-exist df who . names)
+    (unless (apply dataframe-contains? df names)
+      (assertion-violation who "name(s) not in df")))
+
+  (define (check-df-names df who . names)
+    (check-dataframe df who)
+    (check-names names who)
+    (apply check-names-exist df who names))
 
 
 

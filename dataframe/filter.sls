@@ -45,7 +45,7 @@
 
   (define (dataframe-head df n)
     (let ([who "(dataframe-head df n)"])
-      ;; (check-dataframe df who)
+      (check-dataframe df who)
       (check-integer-positive n "n" who)
       (check-index n (car (dataframe-dim df)) who))
     (make-dataframe
@@ -55,7 +55,7 @@
   ;; dataframe-tail is based on list-tail, which does not work the same as tail in R
   (define (dataframe-tail df n)
     (let ([who  "(dataframe-tail df n)"])
-      ;;   (check-dataframe df who)
+      (check-dataframe df who)
       (check-integer-gte-zero n "n" who)
       (check-index (add1 n) (car (dataframe-dim df)) who))
     (make-dataframe
@@ -70,7 +70,7 @@
   ;; unique ------------------------------------------------------------------------
 
   (define (dataframe-unique df)
-    ;; (check-dataframe df "(dataframe-unique df)")
+    (check-dataframe df "(dataframe-unique df)")
     (let* ([names (dataframe-names df)]
            [ls-vals (map series-lst (dataframe-slist df))]
            [ls-vals-unique (transpose (remove-duplicates (transpose ls-vals)))])

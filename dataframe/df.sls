@@ -13,21 +13,7 @@
 
 
 
-  ;; check dataframe attributes -------------------------------------------------------------
-  
-  ; (define (dataframe-contains? df . names)
-  ;   (check-dataframe df "(dataframe-contains? df names)")
-  ;   (let ([df-names (dataframe-names df)])
-  ;     (if (for-all (lambda (name) (member name df-names)) names) #t #f)))
 
-  ; (define (check-names-exist df who . names)
-  ;   (unless (apply dataframe-contains? df names)
-  ;     (assertion-violation who "name(s) not in df")))
-
-  ; (define (check-df-names df who . names)
-  ;   (check-dataframe df who)
-  ;   (check-names names who)
-  ;   (apply check-names-exist df who names))
   
 
 
