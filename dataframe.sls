@@ -47,6 +47,9 @@
    dataframe-unique
    ;; display
    dataframe-display
+   ;; sort
+   dataframe-sort
+   dataframe-sort*
    ;; statistics
    series-sum
    series-mean
@@ -66,6 +69,7 @@
           (dataframe split)
           (dataframe filter)
           (dataframe display)
+          (dataframe sort)
           (dataframe statistics)
           (dataframe helpers))
   
