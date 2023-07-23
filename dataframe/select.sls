@@ -25,9 +25,11 @@
        (dataframe-drop df (list (quote name) ...))]))
   
   (define (dataframe-select df names)
+    (apply check-df-names df "(dataframe-select df names)" names)
     (df-select/drop df names 'select))
 
   (define (dataframe-drop df names)
+    (apply check-df-names df "(dataframe-drop df names)" names)
     (df-select/drop df names 'drop))
 
   (define (df-select/drop df names type)
