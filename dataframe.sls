@@ -17,6 +17,8 @@
    series-name
    series-lst
    series-length
+   ->
+   ->>
    ;; types
    count
    count-elements

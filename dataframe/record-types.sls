@@ -1,5 +1,7 @@
 (library (dataframe record-types)
   (export
+   ->
+   ->>
    check-dataframe
    check-all-dataframes
    check-names-exist
@@ -116,7 +118,25 @@
     (check-names names who)
     (apply check-names-exist df who names))
 
+  ;; thread-first and thread-last -------------------------------------------------------------
 
+  ;; https://github.com/ar-nelson/srfi-197/commit/c9b326932d7352a007e25051cb204ad7e9945a45
+  (define-syntax ->
+    (syntax-rules ()
+      [(-> x) x]
+      [(-> x (fn . args) . rest)
+       (-> (fn x . args) . rest)]
+      [(-> x fn . rest)
+       (-> (fn x) . rest)]))
+
+  (define-syntax ->>
+    (syntax-rules ()
+      [(->> x) x]
+      [(->> x (fn args ...) . rest)
+       (->> (fn args ... x) . rest)]
+      [(->> x fn . rest)
+       (->> (fn x) . rest)]))
+  
 
     ;; lots of checking that will be performed every time a dataframe is created
   ;; this currently allows for creating a dataframe with no rows
