@@ -247,13 +247,13 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-values-test")
-;; (test-equal '(100 200 300) (dataframe-values df10 'a))
-;; (test-equal '(4 5 6) (dataframe-values df10 'b))
-;; (test-error (dataframe-values df10 'd))
-;; (test-error (dataframe-values 100 'a))
-;; (test-error (dataframe-values df10 'a 'b))
-;; (test-end "dataframe-values-test")
+(test-begin "dataframe-values-test")
+(test-equal '(100 200 300) (dataframe-values df10 'a))
+(test-equal '(4 5 6) (dataframe-values df10 'b))
+(test-error (dataframe-values df10 'd))
+(test-error (dataframe-values 100 'a))
+(test-error (dataframe-values df10 'a 'b))
+(test-end "dataframe-values-test")
 
 ;;-------------------------------------------------------------
 

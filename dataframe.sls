@@ -31,6 +31,9 @@
    dataframe-drop*
    dataframe-select
    dataframe-select*
+   dataframe-series
+   dataframe-values
+   $
    ;; crossing
    dataframe-crossing
    ;; split

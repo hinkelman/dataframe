@@ -3,7 +3,10 @@
    dataframe-drop
    dataframe-drop*
    dataframe-select
-   dataframe-select*)
+   dataframe-select*
+   dataframe-series
+   dataframe-values
+   $)
 
   (import (rnrs)
           (dataframe record-types)
@@ -43,6 +46,24 @@
      (filter (lambda (series)
                (member (series-name series) names))
              (dataframe-slist df))))
+
+  ;; extract values -----------------------------------------------------------------
+
+  (define (dataframe-series df name)
+    (let ([who "(dataframe-series df name)"])
+      (check-dataframe df who)
+      (check-names-exist df who name))
+    (car (dataframe-slist (df-select df (list name)))))
+  
+  ;; returns simple list
+  (define (dataframe-values df name)
+    (let ([who "(dataframe-values df name)"])
+      (check-dataframe df who)
+      (check-names-exist df who name))
+    (series-lst (dataframe-series df name)))
+
+  (define ($ df name)
+    (dataframe-values df name))
 
   )
 

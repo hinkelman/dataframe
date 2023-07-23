@@ -7,8 +7,6 @@
    iota
    enumerate
    na?
-   ;; add-names-ls-vals
-   ;; alist-select
    ;; alist-drop
    ;; alist-ref
    ;; alist-repeat-rows
