@@ -57,38 +57,38 @@
   (make-df*
    (a 1 2 3 1 2 3)
    (b 4 5 6 4 5 6)
-   (c -999 -999 -999 7 8 9)))
+   (c 'na 'na 'na 7 8 9)))
 
 (define df4
   (make-df*
    (a 1 2 3 1 2 3)
    (b 4 5 6 4 5 6)
-   (c 7 8 9 -999 -999 -999)))
+   (c 7 8 9 'na 'na 'na)))
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-append-test")
-;; (test-assert (dataframe-equal?
-;;               df2
-;;               (dataframe-append df1 (make-dataframe '((c 7 8 9))))))
-;; (test-assert (dataframe-equal?
-;;               (dataframe-select df2 'c 'a 'b)
-;;               (dataframe-append (make-dataframe '((c 7 8 9))) df1)))
-;; (test-error (dataframe-append df1 (make-dataframe '((c 7 8 9 10)))))
-;; (test-error (dataframe-append df1 (make-dataframe '((b 7 8 9)))))
-;; (test-end "dataframe-append-test")
+(test-begin "dataframe-append-test")
+(test-assert (dataframe-equal?
+              df2
+              (dataframe-append df1 (make-df* (c 7 8 9)))))
+(test-assert (dataframe-equal?
+              (dataframe-select* df2 c a b)
+              (dataframe-append (make-df* (c 7 8 9)) df1)))
+(test-error (dataframe-append df1 (make-df* (c 7 8 9 10))))
+(test-error (dataframe-append df1 (make-df* (b 7 8 9))))
+(test-end "dataframe-append-test")
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-bind-all-test")
-;; (test-assert (dataframe-equal?
-;;               df3
-;;               (dataframe-bind-all -999 df1 df2)))
-;; (test-assert (dataframe-equal?
-;;               df4
-;;               (dataframe-bind-all -999 df2 df1)))
-;; (test-error (dataframe-bind-all -999 df3 df4 '(1 2 3)))
-;; (test-end "dataframe-bind-all-test")
+(test-begin "dataframe-bind-test")
+(test-assert (dataframe-equal?
+              df3
+              (dataframe-bind 'na df1 df2)))
+(test-assert (dataframe-equal?
+              df4
+              (dataframe-bind 'na df2 df1)))
+(test-error (dataframe-bind 'na df3 df4 '(1 2 3)))
+(test-end "dataframe-bind-test")
 
 ;;-------------------------------------------------------------
 

@@ -1,69 +1,58 @@
 (library (dataframe bind)
   (export dataframe-append
-          dataframe-bind
-          dataframe-bind-all)
+          dataframe-bind)
 
   (import (rnrs)
-          (only (dataframe df)
-                check-all-dataframes
-                dataframe-alist
-                dataframe-contains?
-                dataframe-dim
-                dataframe-names
-                dataframe-values
-                make-dataframe)   
+          (dataframe record-types)
+          (only (dataframe select)
+                dataframe-values)
+          (only (dataframe assertions)
+                check-names-unique)
           (only (dataframe helpers)
-                make-list
-                combine-names-ordered
-                get-all-names
-                get-all-unique-names
-                check-names-unique))
+                make-list))
 
   ;; append -----------------------------------------------------------------------------------
 
   (define (dataframe-append . dfs)
     (let ([who "(dataframe-append dfs)"]
-          [all-names (apply get-all-names (map dataframe-alist dfs))])
+          [all-names (get-all-names dfs)])
       (check-all-dataframes dfs who)
       (check-names-unique all-names who)
       (unless (apply = (map (lambda (df) (car (dataframe-dim df))) dfs))
-        (assertion-violation who "all dfs must have same number of rows")))
-    (make-dataframe (apply append (map (lambda (df) (dataframe-alist df)) dfs))))
+        (assertion-violation who "all dfs must have same number of rows"))
+      (make-dataframe
+       (make-slist
+        all-names
+        (apply append (map (lambda (df) (map series-lst (dataframe-slist df))) dfs))))))
+
+  (define (get-all-names dfs)
+    (apply append (map (lambda (df) (dataframe-names df)) dfs)))
   
   ;; bind -----------------------------------------------------------------------------------
 
-  (define (dataframe-bind . dfs)
-    (let ([who "(dataframe-bind dfs)"])
-      (check-all-dataframes dfs who)
-      (if (= (length dfs) 1)
-          (car dfs)
-          (let ([names (apply shared-names dfs)])
-            (when (null? names) (assertion-violation who "no names in common across dfs"))
-            (let ([alist (map (lambda (name)
-                                ;; missing-value will not be used so chose arbitrary value (-999)
-                                (cons name (apply bind-rows name -999 dfs)))
-                              names)])
-              (make-dataframe alist))))))
-  
-  (define (shared-names . dfs)
-    (let ([first-names (dataframe-names (car dfs))]
-          [rest-names (apply get-all-unique-names (map dataframe-alist (cdr dfs)))])
-      (filter (lambda (name) (member name rest-names)) first-names)))
+  (define (dataframe-bind fill-value . dfs)
+    (check-all-dataframes dfs "(dataframe-bind fill-value dfs)")
+    (let* ([names (combine-names-ordered dfs)]
+           [ls-vals (map (lambda (name) (bind-rows name fill-value dfs)) names)])
+    (make-dataframe (make-slist names ls-vals))))
 
-  (define (dataframe-bind-all missing-value . dfs)
-    (check-all-dataframes dfs "(dataframe-bind-all missing-value dfs)")
-    (let* ([names (apply combine-names-ordered (map dataframe-alist dfs))]
-           [alist (map (lambda (name)
-                         (cons name (apply bind-rows name missing-value dfs)))
-                       names)])
-      (make-dataframe alist)))
+  ;; combine names such that they stay in the order that they appear in each dataframe
+  (define (combine-names-ordered dfs)
+    (let loop ([all-names (get-all-names dfs)]
+               [results '()])
+      (cond [(null? all-names)
+             (reverse results)]
+            [(member (car all-names) results)
+             (loop (cdr all-names) results)]
+            [else
+             (loop (cdr all-names) (cons (car all-names) results))])))
 
-  (define (bind-rows name missing-value . dfs)
+  (define (bind-rows name fill-value dfs)
     (apply append
            (map (lambda (df)
                   (if (dataframe-contains? df name)
                       (dataframe-values df name)
-                      (make-list (car (dataframe-dim df)) missing-value))) 
+                      (make-list (car (dataframe-dim df)) fill-value))) 
                 dfs)))
 
   )

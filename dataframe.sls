@@ -50,6 +50,9 @@
    ;; sort
    dataframe-sort
    dataframe-sort*
+   ;; bind
+   dataframe-append
+   dataframe-bind
    ;; statistics
    series-sum
    series-mean
@@ -70,6 +73,7 @@
           (dataframe filter)
           (dataframe display)
           (dataframe sort)
+          (dataframe bind)
           (dataframe statistics)
           (dataframe helpers))
   
