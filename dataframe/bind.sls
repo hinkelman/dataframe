@@ -33,13 +33,13 @@
   
   (define dataframe-bind
     (case-lambda
-      [(dfs) (df-bind 'na dfs)]
-      [(fill-value dfs) (df-bind fill-value dfs)]))
+      [(dfs) (df-bind dfs 'na)]
+      [(dfs fill-value) (df-bind dfs fill-value)]))
   
-  (define (df-bind fill-value dfs)
+  (define (df-bind dfs fill-value)
     (check-all-dataframes dfs "(dataframe-bind fill-value dfs)")
     (let* ([names (combine-names-ordered dfs)]
-           [ls-vals (map (lambda (name) (bind-rows name fill-value dfs)) names)])
+           [ls-vals (map (lambda (name) (bind-rows dfs fill-value name)) names)])
     (make-dataframe (make-slist names ls-vals))))
 
   ;; combine names such that they stay in the order that they appear in each dataframe
@@ -53,7 +53,7 @@
             [else
              (loop (cdr all-names) (cons (car all-names) results))])))
 
-  (define (bind-rows name fill-value dfs)
+  (define (bind-rows dfs fill-value name)
     (apply append
            (map (lambda (df)
                   (if (dataframe-contains? df name)
