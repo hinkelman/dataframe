@@ -83,11 +83,11 @@
 (test-begin "dataframe-bind-test")
 (test-assert (dataframe-equal?
               df3
-              (dataframe-bind 'na df1 df2)))
+              (dataframe-bind (list df1 df2))))
 (test-assert (dataframe-equal?
               df4
-              (dataframe-bind 'na df2 df1)))
-(test-error (dataframe-bind 'na df3 df4 '(1 2 3)))
+              (dataframe-bind (list df2 df1))))
+(test-error (dataframe-bind (list df3 df4 '(1 2 3))))
 (test-end "dataframe-bind-test")
 
 ;;-------------------------------------------------------------
@@ -502,16 +502,16 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-split-test")
-;; (define df-list (dataframe-split df22 'grp))
-;; (test-assert (dataframe-equal?
-;;               (car df-list)
-;;               (dataframe-filter* df22 (grp) (symbol=? grp 'a))))
-;; (test-assert (dataframe-equal?
-;;               (cadr df-list)
-;;               (dataframe-filter* df22 (grp) (symbol=? grp 'b))))
-;; (test-assert (dataframe-equal? df22 (apply dataframe-bind df-list)))
-;; (test-end "dataframe-split-test")
+(test-begin "dataframe-split-test")
+(define df-list (dataframe-split df22 'grp))
+(test-assert (dataframe-equal?
+              (car df-list)
+              (dataframe-filter* df22 (grp) (symbol=? grp 'a))))
+(test-assert (dataframe-equal?
+              (cadr df-list)
+              (dataframe-filter* df22 (grp) (symbol=? grp 'b))))
+(test-assert (dataframe-equal? df22 (dataframe-bind df-list)))
+(test-end "dataframe-split-test")
 
 ;;-------------------------------------------------------------
 

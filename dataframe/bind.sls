@@ -30,7 +30,13 @@
   
   ;; bind -----------------------------------------------------------------------------------
 
-  (define (dataframe-bind fill-value . dfs)
+  
+  (define dataframe-bind
+    (case-lambda
+      [(dfs) (df-bind 'na dfs)]
+      [(fill-value dfs) (df-bind fill-value dfs)]))
+  
+  (define (df-bind fill-value dfs)
     (check-all-dataframes dfs "(dataframe-bind fill-value dfs)")
     (let* ([names (combine-names-ordered dfs)]
            [ls-vals (map (lambda (name) (bind-rows name fill-value dfs)) names)])
