@@ -5,7 +5,7 @@
   (import (rnrs)
           (dataframe record-types)
           (only (dataframe select)
-                dataframe-select)
+                slist-select)
           (only (dataframe helpers)
                 enumerate
                 remove-duplicates
@@ -22,11 +22,12 @@
 
   ;; returns list of slists that are split by groups in group-names
   (define (dataframe-split-helper df group-names who)
-    ;; (apply check-df-names df who group-names)
+    (apply check-df-names df who group-names)
     (let* ([names (dataframe-names df)]
-           [ls-vals (map series-lst (dataframe-slist df))]
-           [df-select (dataframe-select df group-names)]
-           [ls-vals-select (map series-lst (dataframe-slist df-select))]
+           [slist (dataframe-slist df)]
+           [ls-vals (map series-lst slist)]
+           [slist-sel (slist-select slist group-names)]
+           [ls-vals-select (map series-lst slist-sel)]
            [ls-rows (transpose ls-vals)]
            [ls-rows-select (transpose ls-vals-select)]
            [ls-rows-grp (remove-duplicates ls-rows-select)]

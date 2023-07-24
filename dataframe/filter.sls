@@ -10,12 +10,13 @@
    dataframe-head
    dataframe-tail
    dataframe-ref
-   dataframe-unique)
+   dataframe-unique
+   slist-ref)
 
   (import (rnrs)
           (dataframe record-types)
           (only (dataframe select)
-                dataframe-select)
+                slist-select)
           (only (dataframe helpers)
                 add1
                 list-head
@@ -78,13 +79,12 @@
              (check-integer-gte-zero n "index" who)
              (check-index n n-max who))
            indices))
-    (let ([df-new (if (= (cdr (dataframe-dim df)) (length names))
-                      df
-                      (dataframe-select df names))])
-      (make-dataframe (slist-ref (dataframe-slist df-new) indices names))))
+    (make-dataframe (slist-ref (dataframe-slist df) indices names)))
 
+  ;; need to move select from df-ref-helper to slist-ref
   (define (slist-ref slist indices names)
-    (let ([ls-vals (map series-lst slist)])
+    (let* ([slist-sel (slist-select slist names)]
+           [ls-vals (map series-lst slist-sel)])
       (make-slist
        names
        (map (lambda (vals)
@@ -121,12 +121,12 @@
   (define (df-filter df names proc who)
     (check-dataframe df who)
     (apply check-df-names df who names)
-    (let* ([slist-sel (dataframe-slist (dataframe-select df names))]
-           [bools (apply map proc (map series-lst slist-sel))]
-           [names (dataframe-names df)]
+    (let* ([all-names (dataframe-names df)]
            [slist (dataframe-slist df)]
+           [slist-sel (slist-select slist names)]
+           [bools (apply map proc (map series-lst slist-sel))]
            [new-ls-vals (filter-ls-vals bools (map series-lst slist))])
-      (make-dataframe (make-slist names new-ls-vals))))
+      (make-dataframe (make-slist all-names new-ls-vals))))
 
   (define (filter-ls-vals bools ls-vals)
     (map (lambda (vals) (filter-vals bools vals)) ls-vals))
@@ -147,7 +147,7 @@
   ;; sum across ls-binary to create boolean list for filtering
   (define (df-filter-at df predicate names)
     (let* ([slist (dataframe-slist df)]
-           [slist-sel (dataframe-slist (dataframe-select df names))]
+           [slist-sel (slist-select slist names)]
            [ls-vals (map series-lst slist-sel)]
            [ls-binary (map (lambda (vals)
                              (map (lambda (val)
@@ -157,7 +157,7 @@
            [bools (map (lambda (x) (= x (length names)))
                        (apply map + ls-binary))])
       (make-dataframe
-       (make-slist (map series-name slist)
+       (make-slist (dataframe-names df)
                    (filter-ls-vals bools (map series-lst slist))))))
 
   ;; partition --------------------------------------------------------------------
@@ -174,13 +174,13 @@
   (define (df-partition df names proc who)
     (check-dataframe df who)
     (apply check-df-names df who names)
-    (let* ([slist-sel (dataframe-slist (dataframe-select df names))]
-           [bools (apply map proc (map series-lst slist-sel))]
-           [names (dataframe-names df)]
-           [slist (dataframe-slist df)])
+    (let* ([all-names (dataframe-names df)]
+           [slist (dataframe-slist df)]
+           [slist-sel (slist-select slist names)]
+           [bools (apply map proc (map series-lst slist-sel))])
       (let-values ([(keep drop) (partition-ls-vals bools (map series-lst slist))])
-        (values (make-dataframe (make-slist names keep))
-                (make-dataframe (make-slist names drop))))))
+        (values (make-dataframe (make-slist all-names keep))
+                (make-dataframe (make-slist all-names drop))))))
 
   ;; in previous version, would pass over ls-vals twice with filter-ls-vals
   ;; (with bools negated on 1 pass)

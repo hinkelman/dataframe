@@ -5,7 +5,7 @@
   (import (rnrs)
           (dataframe record-types)
           (only (dataframe select)
-                dataframe-select)
+                slist-select)
           (only (dataframe helpers)
                 enumerate
                 remove-duplicates))
@@ -32,7 +32,7 @@
   (define (df-sort df predicates names who)
     (check-dataframe df who)
     (let* ([slist (dataframe-slist df)]
-           [slist-sel (dataframe-slist (dataframe-select df names))]
+           [slist-sel (slist-select (dataframe-slist df) names)]
            [all-names (dataframe-names df)]
            [ranks (sum-row-ranks slist-sel predicates)]
            [ls-vals-sorted (sort-ls-vals ranks (map series-lst slist))])

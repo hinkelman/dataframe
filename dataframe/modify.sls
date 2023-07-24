@@ -7,7 +7,7 @@
   (import (rnrs)
           (dataframe record-types)
           (only (dataframe select)
-                dataframe-select)
+                slist-select)
           (only (dataframe helpers)
                 make-list
                 na?))
@@ -66,7 +66,7 @@
      new-name
      (if (null? names)
          (map-proc-helper (car (dataframe-dim df)) (proc) who)
-         (let ([slist-sel (dataframe-slist (dataframe-select df names))])
+         (let ([slist-sel (slist-select (dataframe-slist df) names)])
            (apply map proc (map series-lst slist-sel))))))
 
   ;; this helper procedure returns vals for a column from
