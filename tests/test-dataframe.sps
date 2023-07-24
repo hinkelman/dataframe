@@ -570,68 +570,68 @@
                '(juv)
                '((juv))
                (lambda (juv) (/ juv 2)))))
-;;(test-error (dataframe-modify* df22 ("test" (juv) (/ juv 2))))
+(test-error (dataframe-modify* df22 ("test" (juv) (/ juv 2))))
 (test-end "dataframe-modify-test")
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "thread-test")
-;; (define (mean ls) (/ (apply + ls) (length ls)))
-;; (test-equal 12 (-> '(1 2 3) (mean) (+ 10)))
-;; (test-assert (dataframe-equal?
-;;               df1
-;;               (-> df1
-;;                   (dataframe-modify*
-;;                    (c () '(7 8 9)))
-;;                   (dataframe-drop 'c))))
-;; (test-assert (dataframe-equal?
-;;               df23
-;;               (-> '((grp a a b b b)
-;;                     (trt a b a b b)
-;;                     (adult 1 2 3 4 5)
-;;                     (juv 10 20 30 40 50))
-;;                   (make-dataframe)
-;;                   (dataframe-modify*
-;;                    (total (adult juv) (+ adult juv))))))
-;; (test-assert (dataframe-equal?
-;;               df24
-;;               (-> '((grp a a b b b)
-;;                     (trt a b a b b)
-;;                     (adult 1 2 3 4 5)
-;;                     (juv 10 20 30 40 50))
-;;                   (make-dataframe)
-;;                   (dataframe-modify*
-;;                    (juv (juv) (/ juv 2))))))
-;; (test-assert (dataframe-equal?
-;;               df26
-;;               (-> df22
-;;                   (dataframe-modify*
-;;                    (juv (juv) (/ juv 2))
-;;                    (total (adult juv) (+ adult juv))))))
-;; (test-assert (dataframe-equal?
-;;               df23   
-;;               (-> df22
-;;                   (dataframe-split 'grp)
-;;                   (->> (map (lambda (df)
-;;                               (dataframe-modify*
-;;                                df
-;;                                (total (adult juv) (+ adult juv))))))
-;;                   (->> (apply dataframe-bind)))))
-;; (test-assert (dataframe-equal?
-;;               df25
-;;               (-> df22
-;;                   (dataframe-split 'grp)
-;;                   (->> (map (lambda (df)
-;;                               (dataframe-modify*
-;;                                df
-;;                                (juv-mean () (mean ($ df 'juv)))))))
-;;                   (->> (apply dataframe-bind))
-;;                   (dataframe-filter* (juv juv-mean) (> juv juv-mean)))))
-;; (test-error (-> df22
-;;                 (dataframe-filter* (adult) (< adult 1))
-;;                 (dataframe-sort* (> juv))))
-;; (test-error (-> '(4 3 5 1) (sort <)))
-;; (test-end "thread-test")
+(test-begin "thread-test")
+(define (mean ls) (/ (apply + ls) (length ls)))
+(test-equal 12 (-> '(1 2 3) (mean) (+ 10)))
+(test-assert (dataframe-equal?
+              df1
+              (-> df1
+                  (dataframe-modify*
+                   (c () '(7 8 9)))
+                  (dataframe-drop* c))))
+(test-assert (dataframe-equal?
+              df23
+              (-> (list (make-series* (grp 'a 'a 'b 'b 'b))
+                        (make-series* (trt 'a 'b 'a 'b 'b))
+                        (make-series* (adult 1 2 3 4 5))
+                        (make-series* (juv 10 20 30 40 50)))
+                  (make-dataframe)
+                  (dataframe-modify*
+                   (total (adult juv) (+ adult juv))))))
+(test-assert (dataframe-equal?
+              df24
+              (-> (list (make-series* (grp 'a 'a 'b 'b 'b))
+                        (make-series* (trt 'a 'b 'a 'b 'b))
+                        (make-series* (adult 1 2 3 4 5))
+                        (make-series* (juv 10 20 30 40 50)))
+                  (make-dataframe)
+                  (dataframe-modify*
+                   (juv (juv) (/ juv 2))))))
+(test-assert (dataframe-equal?
+              df26
+              (-> df22
+                  (dataframe-modify*
+                   (juv (juv) (/ juv 2))
+                   (total (adult juv) (+ adult juv))))))
+(test-assert (dataframe-equal?
+              df23   
+              (-> df22
+                  (dataframe-split 'grp)
+                  (->> (map (lambda (df)
+                              (dataframe-modify*
+                               df
+                               (total (adult juv) (+ adult juv))))))
+                  (dataframe-bind))))
+(test-assert (dataframe-equal?
+              df25
+              (-> df22
+                  (dataframe-split 'grp)
+                  (->> (map (lambda (df)
+                              (dataframe-modify*
+                               df
+                               (juv-mean () (mean ($ df 'juv)))))))
+                  (dataframe-bind)
+                  (dataframe-filter* (juv juv-mean) (> juv juv-mean)))))
+(test-error (-> df22
+                (dataframe-filter* (adult) (< adult 1))
+                (dataframe-sort* (> juv))))
+(test-error (-> '(4 3 5 1) (sort <)))
+(test-end "thread-test")
 
 ;;-------------------------------------------------------------
 
