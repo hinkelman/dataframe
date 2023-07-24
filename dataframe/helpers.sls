@@ -12,15 +12,8 @@
    ;; alist-repeat-rows
    ;; alist-values
    ;; alist-values-map
-   ;; combine-names-ordered
-   ;; filter-ls-vals
-   ;; filter-vals
    flatten
-   ;; get-all-names
-   ;; get-all-unique-names
-   ;; cartesian-product
    not-in
-   ;; partition-ls-vals
    ;; rep
    remove-duplicates
    transpose)
@@ -70,31 +63,6 @@
       (if (= n 1) out (loop (append lst out) (sub1 n))))
     (loop lst n))
 
-
-
-  ;; ls-vals ------------------------------------------------------------------------
-  
-  ;; in previous version, would pass over ls-vals twice with filter-ls-vals (with bools negated on 1 pass)
-  ;; the extra transposing in this version is faster than two passes with filter-ls-vals
-  (define (partition-ls-vals bools ls-vals)
-    (let loop ([bools bools]
-               [ls-rows (transpose ls-vals)]
-               [keep '()]
-               [drop '()])
-      (if (null? bools)
-          (values (transpose (reverse keep)) (transpose (reverse drop)))
-          (if (car bools)
-              (loop (cdr bools) (cdr ls-rows) (cons (car ls-rows) keep) drop)
-              (loop (cdr bools) (cdr ls-rows) keep (cons (car ls-rows) drop))))))
-  
-  (define (filter-ls-vals bools ls-vals)
-    (map (lambda (vals) (filter-vals bools vals)) ls-vals))
-
-  ;; filter vals by list of booleans of same length as vals
-  (define (filter-vals bools vals)
-    (let ([bools-vals (map cons bools vals)])
-      (map cdr (filter (lambda (x) (car x)) bools-vals))))
-
   ;; alists ------------------------------------------------------------------------
 
   (define (alist-values alist name)
@@ -107,23 +75,6 @@
   (define (alist-repeat-rows alist n type)
     (map (lambda (ls) (cons (car ls) (rep (cdr ls) n type))) alist))
 
-  (define (get-all-names . alists)
-    (apply append (map (lambda (alist) (map car alist)) alists)))
-
-  (define (get-all-unique-names . alists)
-    (remove-duplicates (apply get-all-names alists)))
-
-  ;; combine names such that they stay in the order that they appear in each dataframe
-  (define (combine-names-ordered . alists)
-    (define (loop all-names results)
-      (cond [(null? all-names)
-             (reverse results)]
-            [(member (car all-names) results)
-             (loop (cdr all-names) results)]
-            [else
-             (loop (cdr all-names) (cons (car all-names) results))]))
-    (loop (apply get-all-names alists) '()))
-  
   (define (make-list n x)
     (let loop ((n n) (r '()))
       (if (= n 0)
