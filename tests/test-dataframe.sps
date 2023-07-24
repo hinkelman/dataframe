@@ -221,20 +221,20 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-modify-at-all-test")
-;; (test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'd))
-;; (test-assert (dataframe-equal?
-;;               df10
-;;               (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c)))
-;; (test-assert (dataframe-equal?
-;;               (make-dataframe
-;;                '((a 100 200 300)
-;;                  (b 400 500 600)
-;;                  (c 700 800 900)))
-;;               (dataframe-modify-all df5 (lambda (x) (* x 100)))))
-;; (test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c 'd))
-;; (test-error (dataframe-modify-at df5 "test" 'a))
-;; (test-end "dataframe-modify-at-all-test")
+(test-begin "dataframe-modify-at-all-test")
+(test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'd))
+(test-assert (dataframe-equal?
+              df10
+              (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c)))
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 100 200 300)
+               (b 400 500 600)
+               (c 700 800 900))
+              (dataframe-modify-all df5 (lambda (x) (* x 100)))))
+(test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c 'd))
+(test-error (dataframe-modify-at df5 "test" 'a))
+(test-end "dataframe-modify-at-all-test")
 
 ;;-------------------------------------------------------------
 
@@ -545,33 +545,33 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-modify-test")
-;; (test-assert (dataframe-equal?
-;;               df23
-;;               (dataframe-modify*
-;;                df22
-;;                (total (adult juv) (+ adult juv)))))
-;; (test-assert (dataframe-equal?
-;;               df23
-;;               (dataframe-modify
-;;                df22
-;;                '(total)
-;;                '((adult juv))
-;;                (lambda (adult juv) (+ adult juv)))))
-;; (test-assert (dataframe-equal?
-;;               df24
-;;               (dataframe-modify*
-;;                df22
-;;                (juv (juv) (/ juv 2)))))
-;; (test-assert (dataframe-equal?
-;;               df24
-;;               (dataframe-modify
-;;                df22
-;;                '(juv)
-;;                '((juv))
-;;                (lambda (juv) (/ juv 2)))))
-;; (test-error (dataframe-modify* df22 ("test" (juv) (/ juv 2))))
-;; (test-end "dataframe-modify-test")
+(test-begin "dataframe-modify-test")
+(test-assert (dataframe-equal?
+              df23
+              (dataframe-modify*
+               df22
+               (total (adult juv) (+ adult juv)))))
+(test-assert (dataframe-equal?
+              df23
+              (dataframe-modify
+               df22
+               '(total)
+               '((adult juv))
+               (lambda (adult juv) (+ adult juv)))))
+(test-assert (dataframe-equal?
+              df24
+              (dataframe-modify*
+               df22
+               (juv (juv) (/ juv 2)))))
+(test-assert (dataframe-equal?
+              df24
+              (dataframe-modify
+               df22
+               '(juv)
+               '((juv))
+               (lambda (juv) (/ juv 2)))))
+;;(test-error (dataframe-modify* df22 ("test" (juv) (/ juv 2))))
+(test-end "dataframe-modify-test")
 
 ;;-------------------------------------------------------------
 

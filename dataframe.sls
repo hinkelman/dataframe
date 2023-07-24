@@ -59,6 +59,11 @@
    ;; bind
    dataframe-append
    dataframe-bind
+   ;; modify
+   dataframe-modify
+   dataframe-modify*
+   dataframe-modify-all
+   dataframe-modify-at
    ;; statistics
    series-sum
    series-mean
@@ -80,6 +85,7 @@
           (dataframe display)
           (dataframe sort)
           (dataframe bind)
+          (dataframe modify)
           (dataframe statistics)
           (dataframe helpers))
   

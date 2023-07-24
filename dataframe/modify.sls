@@ -5,128 +5,102 @@
           dataframe-modify-at)
 
   (import (rnrs)
-          (only (dataframe df)
-                check-dataframe
-                check-df-names
-                dataframe-alist
-                dataframe-names
-                make-dataframe)   
+          (dataframe record-types)
+          (only (dataframe select)
+                dataframe-select)
           (only (dataframe helpers)
                 make-list
-                alist-values-map
-                check-names))
+                na?))
 
   ;; modify/add columns ------------------------------------------------------------------------
 
   (define-syntax dataframe-modify*
     (syntax-rules ()
       [(_ df (new-name names expr) ...)
-       (df-modify
+       (df-modify-loop
         df
         (list (quote new-name) ...)
         (list (quote names) ...)
         (list (lambda names expr) ...)
         "(dataframe-modify* df (new-name names expr) ...)")]))
 
-  (define (dataframe-modify df new-names names . procedure)
-    (df-modify df new-names names procedure
-               "(dataframe-modify df new-names names procedure ...)"))
+  (define (dataframe-modify df new-names names . procedures)
+    (let ([who "(dataframe-modify df new-names names procedure ...)"])
+      ;; can't check new-names here; they might be duplicated b/c
+      ;; different expr acting on the same column
+      (check-dataframe df who)
+      (unless (= (length new-names) (length names) (length procedures))
+        (assertion-violation
+         who
+         "new-names, names, and procedures lists must be the same length"))
+      (df-modify-loop df new-names names procedures who)))
 
-  (define (df-modify df new-names names procs who)
-    ;; can't check new-names here because they might be duplicated b/c
-    ;; different expr acting on the same column
-    (check-dataframe df who)
-    (unless (= (length new-names) (length names) (length procs))
-      (assertion-violation
-       who
-       "new-names, names, and procedures lists must be the same length"))
-    (let ([alist (dataframe-alist df)])
-      (make-dataframe
-       (alist-modify-loop alist new-names names procs who))))
-
-  ;; can't just map over columns because won't hold alist structure
-  ;; also don't want to map over procedures
-  ;; because want to update alist after each procedure
-  (define (alist-modify-loop alist new-names names procedures who)
+  ;; don't want to map over procedures
+  ;; because want to update df after each procedure
+  (define (df-modify-loop df new-names names procedures who)
     (if (null? new-names)
-        alist
-        (alist-modify-loop (alist-modify alist
-                                         (car new-names)
-                                         (modify-map alist
-                                                     (car names)
-                                                     (car procedures)
-                                                     who))
-                           (cdr new-names)
-                           (cdr names)
-                           (cdr procedures)
-                           who)))
+        df
+        (df-modify-loop
+         (df-modify df (map-proc df (car new-names) (car names) (car procedures) who))
+         (cdr new-names)
+         (cdr names)
+         (cdr procedures)
+         who)))
 
-  ;; update alist and or add column to end of alist
-  ;; based on whether name is already present in alist
-  (define (alist-modify alist name vals)
-    (let ([col (cons name vals)]
-          [all-names (map car alist)])
-      (if (member name all-names)
-          (map (lambda (x)
-                 (if (symbol=? x name) col (assoc x alist)))
-               all-names)
-          ;; to get correct structure with append,
-          ;; need to make col an alist (by wrapping in a list) 
-          (append alist (list col))))) 
+  ;; update df and/or add column to end of df
+  ;; based on whether name is already present in df
+  (define (df-modify df new-series)
+    (let* ([slist (dataframe-slist df)]
+           [new-name (series-name new-series)]
+           [all-names (map series-name slist)])
+      (make-dataframe
+       (if (member new-name all-names)
+           (map (lambda (series)
+                  (if (symbol=? (series-name series) new-name) new-series series))
+                slist)
+           ;; need to wrap in list for appending
+           (append slist (list new-series)))))) 
   
-  (define (modify-map alist names proc who)
-    (if (null? names)
-        (modify-map-helper alist (proc) who)
-        (apply map proc (alist-values-map alist names))))
+  (define (map-proc df new-name names proc who)
+    (let ([slist-sel (dataframe-slist (dataframe-select df names))])
+      (make-series
+       new-name
+       (if (null? names)
+           (map-proc-helper (car (dataframe-dim df)) (proc) who)
+           (apply map proc (map series-lst slist-sel))))))
 
   ;; this helper procedure returns vals for a column from
   ;; a scalar or list of same length as number of df rows
-  (define (modify-map-helper alist vals who)
-    (let ([alist-rows (length (cdar alist))])
-      (cond [(scalar? vals)
-             (make-list alist-rows vals)]
-            [(and (list? vals) (= (length vals) alist-rows))
-             vals]
-            [else
-             (assertion-violation
-              who
-              (string-append
-               "value(s) must be scalar or list of length "
-               (number->string alist-rows)))])))
+  (define (map-proc-helper df-rows vals who)
+    (cond [(scalar? vals)
+           (make-list df-rows vals)]
+          [(and (list? vals) (= (length vals) df-rows))
+           vals]
+          [else
+           (assertion-violation
+            who
+            (string-append
+             "value(s) must be scalar or list of length "
+             (number->string df-rows)))]))
 
   (define (scalar? obj)
-    (or (symbol? obj) (char? obj) (string? obj) (number? obj)))
+    (or (na? obj) (boolean? obj) (symbol? obj)
+        (char? obj) (string? obj) (number? obj)))
 
   (define (dataframe-modify-all df procedure)
-    (df-modify-at-all-helper df
-                             procedure
-                             (dataframe-names df)
-                             "(dataframe-modify-at df procedure)"))
+    (df-modify-at df procedure (dataframe-names df)))
   
   (define (dataframe-modify-at df procedure . names)
-    (df-modify-at-all-helper df
-                             procedure
-                             names
-                             "(dataframe-modify-at df procedure names)"))
+    (apply check-df-names df "(dataframe-modify-at df procedure names)" names)
+    (df-modify-at df procedure names))
 
-  (define (df-modify-at-all-helper df procedure names who)
-    (apply check-df-names df who names)
-    (make-dataframe (alist-modify-at (dataframe-alist df)
-                                     procedure
-                                     names)))
-
-  ;; could just map over alist-modify but this way avoids name checking
   ;; because columns are modified with same name, not appending new column
-  (define (alist-modify-at alist procedure names)
-    (map (lambda (column)
-           (if (member (car column) names)
-               (cons (car column) (map procedure (cdr column)))
-               column))
-         alist))
+  (define (df-modify-at df procedure names)
+    (make-dataframe
+     (map (lambda (series)
+            (if (member (series-name series) names)
+                (make-series (series-name series) (map procedure (series-lst series)))
+                series))
+          (dataframe-slist df))))
 
-  ;; (dataframe-list-modify) doesn't work when making a "non-vectorized" calculation,
-  ;; e.g., (mean ($ df 'count), and, thus, doesn't seem that useful 
-  ;; (define (dataframe-list-modify df-list modify-expr)
-  ;;   (apply dataframe-bind (map (lambda (df) (dataframe-modify df modify-expr)) df-list)))
-  
   )
