@@ -62,11 +62,11 @@
            (append slist (list new-series)))))) 
   
   (define (map-proc df new-name names proc who)
-    (let ([slist-sel (dataframe-slist (dataframe-select df names))])
-      (make-series
-       new-name
-       (if (null? names)
-           (map-proc-helper (car (dataframe-dim df)) (proc) who)
+    (make-series
+     new-name
+     (if (null? names)
+         (map-proc-helper (car (dataframe-dim df)) (proc) who)
+         (let ([slist-sel (dataframe-slist (dataframe-select df names))])
            (apply map proc (map series-lst slist-sel))))))
 
   ;; this helper procedure returns vals for a column from
