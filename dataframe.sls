@@ -41,6 +41,12 @@
    ;; split
    dataframe-split
    ;; filter
+   dataframe-filter
+   dataframe-filter*
+   dataframe-filter-all
+   dataframe-filter-at
+   dataframe-partition
+   dataframe-partition*
    dataframe-head
    dataframe-tail
    dataframe-ref

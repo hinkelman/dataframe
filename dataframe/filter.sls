@@ -1,12 +1,12 @@
 (library (dataframe filter)
-  ;; (export dataframe-filter
-  ;;         dataframe-filter*
-  ;;         dataframe-filter-all
-  ;;         dataframe-filter-at
-  ;;         dataframe-partition
-  ;;         dataframe-partition*)
 
   (export
+   dataframe-filter
+   dataframe-filter*
+   dataframe-filter-all
+   dataframe-filter-at
+   dataframe-partition
+   dataframe-partition*
    dataframe-head
    dataframe-tail
    dataframe-ref
@@ -25,19 +25,6 @@
                 check-integer-gte-zero
                 check-integer-positive
                 check-index))
-          ;; (only (dataframe df)
-          ;;       check-dataframe
-          ;;       check-df-names
-          ;;       dataframe-alist
-          ;;       dataframe-names
-          ;;       dataframe-values-map
-          ;;       make-dataframe)   
-          ;; (only (dataframe helpers)
-          ;;       add-names-ls-vals
-          ;;       alist-values-map
-          ;;       filter-ls-vals
-          ;;       flatten
-  ;;       partition-ls-vals))
 
   ;; procedures in this library all involve taking a subset of rows
   
@@ -104,7 +91,7 @@
               (map (lambda (n) (list-ref vals n)) indices))
             ls-vals))))
   
-  ;; filter/partition --------------------------------------------------------------------
+  ;; filter --------------------------------------------------------------------
 
   ;; filter-ls-vals involves zipping, filtering, and unzipping every column
   ;; alternative is to transpose to row-based,
@@ -122,81 +109,92 @@
   ;; tried to flatten the expression to extract symbols that are names
   ;; but I couldn't figure out how to unquote the extracted names
   
-  ;; (define-syntax dataframe-filter*
-  ;;   (syntax-rules ()
-  ;;     [(_ df names expr)
-  ;;      (df-filter df (quote names) (lambda names expr)
-  ;;                 "(dataframe-filter* df names expr)")]))
+  (define-syntax dataframe-filter*
+    (syntax-rules ()
+      [(_ df names expr)
+       (df-filter df (quote names) (lambda names expr)
+                  "(dataframe-filter* df names expr)")]))
 
-  ;; (define (dataframe-filter df names procedure)
-  ;;   (df-filter df names procedure "(dataframe-filter df names procedure)"))
+  (define (dataframe-filter df names procedure)
+    (df-filter df names procedure "(dataframe-filter df names procedure)"))
 
-  ;; (define (df-filter df names proc who)
-  ;;   ;; (check-dataframe df who)
-  ;;   ;; (apply check-df-names df who names)
-  ;;   (let* ([bools (apply map proc (dataframe-values-map df names))]
-  ;;          [names (dataframe-names df)]
-  ;;          [slist (dataframe-slist df)]
-  ;;          [new-ls-vals (filter-ls-vals bools (map cdr alist))])
-  ;;     (make-dataframe (add-names-ls-vals names new-ls-vals))))
+  (define (df-filter df names proc who)
+    (check-dataframe df who)
+    (apply check-df-names df who names)
+    (let* ([slist-sel (dataframe-slist (dataframe-select df names))]
+           [bools (apply map proc (map series-lst slist-sel))]
+           [names (dataframe-names df)]
+           [slist (dataframe-slist df)]
+           [new-ls-vals (filter-ls-vals bools (map series-lst slist))])
+      (make-dataframe (make-slist names new-ls-vals))))
 
-  ;; (define-syntax dataframe-partition*
-  ;;   (syntax-rules ()
-  ;;     [(_ df names expr)
-  ;;      (df-partition df (quote names) (lambda names expr)
-  ;;                    "(dataframe-partition* df names expr)")]))
+  (define (filter-ls-vals bools ls-vals)
+    (map (lambda (vals) (filter-vals bools vals)) ls-vals))
 
-  ;; (define (dataframe-partition df names procedure)
-  ;;   (df-partition df names procedure "(dataframe-partition df names procedure)"))
+  ;; filter vals by list of booleans of same length as vals
+  (define (filter-vals bools vals)
+    (let ([bools-vals (map cons bools vals)])
+      (map cdr (filter (lambda (x) (car x)) bools-vals))))
 
-  ;; (define (df-partition df names proc who)
-  ;;   (check-dataframe df who)
-  ;;   (apply check-df-names df who names)
-  ;;   (let* ([bools (apply map proc (dataframe-values-map df names))]
-  ;;          [names (dataframe-names df)]
-  ;;          [alist (dataframe-alist df)])
-  ;;     (let-values ([(keep drop) (partition-ls-vals bools (map cdr alist))])
-  ;;       (values (make-dataframe (add-names-ls-vals names keep))
-  ;;               (make-dataframe (add-names-ls-vals names drop))))))
+  (define (dataframe-filter-all df predicate)
+    (df-filter-at df predicate (dataframe-names df)))
 
-  ;; (define (dataframe-filter-all df predicate)
-  ;;   (df-filter-at-all-helper df
-  ;;                            predicate
-  ;;                            (dataframe-names df)
-  ;;                            "(dataframe-filter-all df predicate)"))
+  (define (dataframe-filter-at df predicate . names)
+    (apply check-df-names df "(dataframe-filter-at df predicate names)" names)
+    (df-filter-at df predicate names))
 
-  ;; (define (dataframe-filter-at df predicate . names)
-  ;;   (df-filter-at-all-helper df
-  ;;                            predicate
-  ;;                            names
-  ;;                            "(dataframe-filter-at df predicate names)"))
+  ;; convert columns in ls-vals to 0s and 1s (ls-binary) based on predicate
+  ;; sum across ls-binary to create boolean list for filtering
+  (define (df-filter-at df predicate names)
+    (let* ([slist (dataframe-slist df)]
+           [slist-sel (dataframe-slist (dataframe-select df names))]
+           [ls-vals (map series-lst slist-sel)]
+           [ls-binary (map (lambda (vals)
+                             (map (lambda (val)
+                                    (if (predicate val) 1 0))
+                                  vals))
+                           ls-vals)]
+           [bools (map (lambda (x) (= x (length names)))
+                       (apply map + ls-binary))])
+      (make-dataframe
+       (make-slist (map series-name slist)
+                   (filter-ls-vals bools (map series-lst slist))))))
 
-  ;; (define (df-filter-at-all-helper df predicate names who)
-  ;;   (apply check-df-names df who names)
-  ;;   (let ([new-alist
-  ;;          (alist-filter-at (dataframe-alist df) predicate names)])
-  ;;     (if (null? (cdar new-alist))
-  ;;         (assertion-violation who "Filtered dataframe is empty")
-  ;;         (make-dataframe new-alist))))
+  ;; partition --------------------------------------------------------------------
 
-  ;; ;; convert columns in ls-vals to 0s and 1s (ls-binary) based on predicate
-  ;; ;; sum across ls-binary to create boolean list for filtering
-  ;; (define (alist-filter-at alist predicate names)
-  ;;   (let* ([ls-vals (alist-values-map alist names)]
-  ;;          [ls-binary (map (lambda (vals)
-  ;;                            (map (lambda (val)
-  ;;                                   (if (predicate val) 1 0))
-  ;;                                 vals))
-  ;;                          ls-vals)]
-  ;;          [bools (map (lambda (x) (= x (length names)))
-  ;;                      (apply map + ls-binary))])
-  ;;     (add-names-ls-vals (map car alist)
-  ;;                        (filter-ls-vals bools (map cdr alist)))))
+  (define-syntax dataframe-partition*
+    (syntax-rules ()
+      [(_ df names expr)
+       (df-partition df (quote names) (lambda names expr)
+                     "(dataframe-partition* df names expr)")]))
 
+  (define (dataframe-partition df names procedure)
+    (df-partition df names procedure "(dataframe-partition df names procedure)"))
 
+  (define (df-partition df names proc who)
+    (check-dataframe df who)
+    (apply check-df-names df who names)
+    (let* ([slist-sel (dataframe-slist (dataframe-select df names))]
+           [bools (apply map proc (map series-lst slist-sel))]
+           [names (dataframe-names df)]
+           [slist (dataframe-slist df)])
+      (let-values ([(keep drop) (partition-ls-vals bools (map series-lst slist))])
+        (values (make-dataframe (make-slist names keep))
+                (make-dataframe (make-slist names drop))))))
 
-
-
-
+  ;; in previous version, would pass over ls-vals twice with filter-ls-vals
+  ;; (with bools negated on 1 pass)
+  ;; the extra transposing in this version is faster than two passes with filter-ls-vals
+  (define (partition-ls-vals bools ls-vals)
+    (let loop ([bools bools]
+               [ls-rows (transpose ls-vals)]
+               [keep '()]
+               [drop '()])
+      (if (null? bools)
+          (values (transpose (reverse keep)) (transpose (reverse drop)))
+          (if (car bools)
+              (loop (cdr bools) (cdr ls-rows) (cons (car ls-rows) keep) drop)
+              (loop (cdr bools) (cdr ls-rows) keep (cons (car ls-rows) drop))))))
+  
   )
 
