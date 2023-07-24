@@ -379,15 +379,6 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-bind-test")
-;; (test-assert (dataframe-equal? df18 (dataframe-bind df1 df2)))
-;; (test-assert (dataframe-equal? df18 (dataframe-bind df2 df1)))
-;; (test-error (dataframe-bind df1 df19))
-;; (test-error (dataframe-bind-all df3 df4 '(1 2 3)))
-;; (test-end "dataframe-bind-test")
-
-;;-------------------------------------------------------------
-
 ;; (test-begin "dataframe->rowtable-test")
 ;; (test-error (dataframe->rowtable 100))
 ;; (test-equal '((a b c) (100 4 700) (300 6 900)) (dataframe->rowtable df17))
