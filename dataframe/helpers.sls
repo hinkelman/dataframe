@@ -10,8 +10,6 @@
    ;; alist-drop
    ;; alist-ref
    ;; alist-repeat-rows
-   ;; alist-values
-   ;; alist-values-map
    flatten
    not-in
    ;; rep
@@ -64,12 +62,6 @@
     (loop lst n))
 
   ;; alists ------------------------------------------------------------------------
-
-  (define (alist-values alist name)
-    (cdr (assoc name alist)))
-
-  (define (alist-values-map alist names)
-    (map (lambda (name) (alist-values alist name)) names))
 
   ;; expand an list by repeating rows n times (or each)
   (define (alist-repeat-rows alist n type)
