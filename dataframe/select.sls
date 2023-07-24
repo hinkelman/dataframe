@@ -41,18 +41,13 @@
                             (not-in (dataframe-names df) names))])
       (df-select df select-names)))
 
-  ;; could write this procedure more simply but want select to affect column order
   (define (df-select df names)
     (let ([slist (dataframe-slist df)])
-      (let loop ([names names]
-                 [results '()])
-        (if (null? names)
-            (make-dataframe (reverse results))
-            (let ([series-sel
-                   (filter (lambda (series)
-                             (symbol=? (car names) (series-name series))) slist)])
-              ;; series-sel should only have length one
-              (loop (cdr names) (cons (car series-sel) results)))))))
+      (make-dataframe
+       (map (lambda (name)
+              ;; output of filter should be list of length one
+              (car (filter (lambda (series) (symbol=? (series-name series) name)) slist)))
+            names))))
 
   ;; extract values -----------------------------------------------------------------
 
