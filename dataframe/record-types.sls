@@ -21,10 +21,14 @@
    series-equal?
    series-name
    series-lst
-   series-length)
+   series-length
+   series-type
+   slist-repeat-rows)
 
   (import (rnrs)
           (dataframe types)
+          (only (dataframe helpers)
+                rep)
           (only (dataframe assertions)
                 check-names
                 check-names-symbol
@@ -62,7 +66,7 @@
     (unless (list? src)
       (assertion-violation who "src is not a list"))
     (check-names-symbol (list name) who))
-  
+
   ;; dataframe ----------------------------------------------------------------
 
   (define-record-type dataframe
@@ -87,6 +91,13 @@
     (map (lambda (name vals)
            (make-series name vals))
          names ls-vals))
+
+  ;; expand a slist by repeating rows n times (or each)
+  (define (slist-repeat-rows slist n type)
+    (map (lambda (series)
+           (make-series (series-name series)
+                        (rep (series-lst series) n type)))
+         slist))
 
   (define (dataframe-equal? . dfs)
     (let ([first-names (dataframe-names (car dfs))]
