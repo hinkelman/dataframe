@@ -18,6 +18,7 @@
   ;; lots of procedures here for a simple operation
   ;; want to provide macros for easier interactive use
   ;; and non-macro versions for programmatic use
+  ;; also export slist-level for use in other procedures
   
   (define-syntax dataframe-select* 
     (syntax-rules ()
@@ -31,40 +32,34 @@
   
   (define (dataframe-select df names)
     (apply check-df-names df "(dataframe-select df names)" names)
-    (df-select/drop df names 'select))
+    (make-dataframe (slist-select (dataframe-slist df) names)))
 
   (define (dataframe-drop df names)
     (apply check-df-names df "(dataframe-drop df names)" names)
-    (df-select/drop df names 'drop))
-
-  (define (df-select/drop df names type)
-    (let ([select-names (if (symbol=? type 'select)
-                            names
-                            (not-in (dataframe-names df) names))])
-      (df-select df select-names)))
-
-  (define (df-select df names)
-    (make-dataframe (slist-select (dataframe-slist df) names)))
+    (make-dataframe (slist-drop (dataframe-slist df) names)))
 
   (define (slist-select slist names)
-    (map (lambda (name)
-           ;; output of filter should be list of length one
-           (car (filter (lambda (series) (symbol=? (series-name series) name)) slist)))
-         names))
+    (slist-select/drop slist names 'select))
 
   (define (slist-drop slist names)
-    (map (lambda (name)
-           ;; output of filter should be list of length one
-           (car (filter (lambda (series) (not (symbol=? (series-name series) name))) slist)))
-         names))
+    (slist-select/drop slist names 'drop))
   
+  (define (slist-select/drop slist names type)
+    (let ([select-names (if (symbol=? type 'select)
+                            names
+                            (not-in (map series-name slist) names))])
+      (map (lambda (name)
+             ;; output of filter should be list of length one
+             (car (filter (lambda (series) (symbol=? (series-name series) name)) slist)))
+           select-names)))
+ 
   ;; extract values -----------------------------------------------------------------
 
   (define (dataframe-series df name)
     (let ([who "(dataframe-series df name)"])
       (check-dataframe df who)
       (check-names-exist df who name))
-    (car (dataframe-slist (df-select df (list name)))))
+    (car (slist-select (dataframe-slist df) (list name))))
   
   ;; returns simple list
   (define (dataframe-values df name)
