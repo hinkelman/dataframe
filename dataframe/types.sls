@@ -14,14 +14,14 @@
   (define (convert-type lst type)
     (cond [(or (na? type) (symbol=? type 'other)) lst]
           ;; string->number is only attempted automatic conversion 
-          [(symbol=? type 'number)
+          [(symbol=? type 'num)
            (map (lambda (x)
                   (cond [(and (string? x) (string->number x))
                          (string->number x)]
                         [(not (number? x)) 'na]
                         [else x]))
                 lst)]
-          [(symbol=? type 'string)
+          [(symbol=? type 'str)
            (map (lambda (x)
                   (let ([->string (get->string x)])
                     (cond [(string? x) x]
@@ -73,7 +73,7 @@
   (define (get-type object)
     ;; na needs to be before symbol because na is a symbol
     (let loop ([preds (list boolean? number? na? symbol? char? string?)]
-               [types '(boolean number na symbol char string)])
+               [types '(bool num na sym chr str)])
       (cond [(null? preds) ;; no matching type 
              'other]
             ;; string->number is only attempted automatic conversion 
