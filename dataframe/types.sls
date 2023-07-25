@@ -12,7 +12,7 @@
                 remove-duplicates))
 
   (define (convert-type lst type)
-    (cond [(symbol=? type 'other) lst]
+    (cond [(or (na? type) (symbol=? type 'other)) lst]
           ;; string->number is only attempted automatic conversion 
           [(symbol=? type 'number)
            (map (lambda (x)
@@ -38,8 +38,7 @@
            [first (car types)]
            [type-count (count-elements types)]
            [type-count-n (length type-count)])
-      (cond [(or (member 'other types)
-                 (and (= type-count-n 1) (na? first)))
+      (cond [(member 'other types)
              'other]
             [(= type-count-n 1)
              first]
@@ -72,10 +71,9 @@
              (loop (cdr procs))])))
 
   (define (get-type object)
-    (let loop ([preds (list boolean? number? symbol?
-                            char? string? na?)]
-               [types '(boolean number symbol
-                                char string na)])
+    ;; na needs to be before symbol because na is a symbol
+    (let loop ([preds (list boolean? number? na? symbol? char? string?)]
+               [types '(boolean number na symbol char string)])
       (cond [(null? preds) ;; no matching type 
              'other]
             ;; string->number is only attempted automatic conversion 
@@ -90,7 +88,7 @@
     ;; sets value to 'na if not one of three types
     (let loop ([preds (list boolean? symbol? char?)]
                [types '(boolean symbol char)])
-      (cond [(na? preds) 'na]
+      (cond [(null? preds) 'na]
             [((car preds) object) object]
             [else (loop (cdr preds) (cdr types))])))
 
