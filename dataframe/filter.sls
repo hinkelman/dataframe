@@ -81,7 +81,6 @@
            indices))
     (make-dataframe (slist-ref (dataframe-slist df) indices names)))
 
-  ;; need to move select from df-ref-helper to slist-ref
   (define (slist-ref slist indices names)
     (let* ([slist-sel (slist-select slist names)]
            [ls-vals (map series-lst slist-sel)])
