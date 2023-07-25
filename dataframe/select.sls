@@ -6,6 +6,7 @@
    dataframe-select*
    dataframe-series
    dataframe-values
+   slist-drop
    slist-select
    $)
 
@@ -51,6 +52,12 @@
            (car (filter (lambda (series) (symbol=? (series-name series) name)) slist)))
          names))
 
+  (define (slist-drop slist names)
+    (map (lambda (name)
+           ;; output of filter should be list of length one
+           (car (filter (lambda (series) (not (symbol=? (series-name series) name))) slist)))
+         names))
+  
   ;; extract values -----------------------------------------------------------------
 
   (define (dataframe-series df name)
