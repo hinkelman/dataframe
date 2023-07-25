@@ -17,6 +17,7 @@
    series-name
    series-lst
    series-length
+   series-type
    ->
    ->>
    ;; types
@@ -67,6 +68,9 @@
    ;; aggregate
    dataframe-aggregate
    dataframe-aggregate*
+   ;; join
+   dataframe-left-join
+   dataframe-left-join-all
    ;; statistics
    series-sum
    series-mean
@@ -75,7 +79,8 @@
    rle
    ;; helpers
    na?
-   remove-duplicates)
+   remove-duplicates
+   rep)
 
   (import (rnrs)
           (dataframe record-types)
@@ -90,6 +95,7 @@
           (dataframe bind)
           (dataframe modify)
           (dataframe aggregate)
+          (dataframe join)
           (dataframe statistics)
           (dataframe helpers))
   

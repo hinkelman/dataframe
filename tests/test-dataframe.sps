@@ -773,25 +773,25 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-join-test")
-;; (test-assert (dataframe-equal?
-;;               (dataframe-left-join df28 df29 '(site) -999)
-;;               (make-dataframe
-;;                '((site "b" "b" "a" "c" "c")
-;;                  (habitat "grassland" "grassland" "meadow" "woodland" "woodland")
-;;                  (day 1 2 -999 1 2)
-;;                  (catch 12 24 -999 10 20)))))
-;; (test-assert (dataframe-equal?
-;;               (dataframe-left-join df29 df28 '(site) -999)
-;;               (make-dataframe
-;;                '((site "c" "c" "b" "b")
-;;                  (day 1 2 1 2)
-;;                  (catch 10 20 12 24)
-;;                  (habitat "woodland" "woodland" "grassland" "grassland")))))
-;; (test-error (dataframe-left-join df31 (dataframe-alist df30) '(first last) -999))
-;; (test-error (dataframe-left-join df29 df28 '(site day catch) -999))
-;; (test-error (dataframe-left-join df31 df30 '(first) -999))
-;; (test-end "dataframe-join-test")
+(test-begin "dataframe-join-test")
+(test-assert (dataframe-equal?
+              (dataframe-left-join df28 df29 '(site))
+              (make-df*
+               (site "b" "b" "a" "c" "c")
+               (habitat "grassland" "grassland" "meadow" "woodland" "woodland")
+               (day 1 2 'na 1 2)
+               (catch 12 24 'na 10 20))))
+(test-assert (dataframe-equal?
+              (dataframe-left-join df29 df28 '(site))
+              (make-df*
+               (site "c" "c" "b" "b")
+               (day 1 2 1 2)
+               (catch 10 20 12 24)
+               (habitat "woodland" "woodland" "grassland" "grassland"))))
+(test-error (dataframe-left-join df31 (dataframe-slist df30) '(first last) -999))
+(test-error (dataframe-left-join df29 df28 '(site day catch) -999))
+(test-error (dataframe-left-join df31 df30 '(first) -999))
+(test-end "dataframe-join-test")
 
 ;;-------------------------------------------------------------
 
