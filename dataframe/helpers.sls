@@ -7,13 +7,10 @@
    iota
    enumerate
    na?
-   ;; alist-drop
-   ;; alist-ref
-   ;; alist-repeat-rows
    flatten
    not-in
-   ;; rep
    remove-duplicates
+   rep
    transpose)
 
   (import (rnrs))
@@ -53,19 +50,13 @@
           [(symbol=? type 'times)
            (rep-times lst n)]
           [else
-           (assertion-violation "(rep ls n type)"
+           (assertion-violation "(rep lst n type)"
                                 "type must be 'each or 'times")]))
 
   (define (rep-times lst n)
     (define (loop out n)
       (if (= n 1) out (loop (append lst out) (sub1 n))))
     (loop lst n))
-
-  ;; alists ------------------------------------------------------------------------
-
-  ;; expand an list by repeating rows n times (or each)
-  (define (alist-repeat-rows alist n type)
-    (map (lambda (ls) (cons (car ls) (rep (cdr ls) n type))) alist))
 
   (define (make-list n x)
     (let loop ((n n) (r '()))
