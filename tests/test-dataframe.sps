@@ -248,19 +248,6 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-values-unique-test")
-;; (test-equal '(a b c) (dataframe-values-unique
-;;                       (make-dataframe '((x a a b b c))) 'x))
-;; (test-equal '(a b c) (dataframe-values-unique
-;;                       (make-dataframe '((x a b c))) 'x))
-;; (test-equal '(a) (dataframe-values-unique
-;;                   (make-dataframe '((x a a) (y a b))) 'x))
-;; (test-error (dataframe-values-unique '((x a a) (y a b)) 'z))
-;; (test-end "dataframe-values-unique-test")
-
-
-;;-------------------------------------------------------------
-
 (test-begin "make-series-test")
 (test-error (make-series 'a '()))
 (test-error (make-series 'a 42))
@@ -805,60 +792,60 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe-stack-test")
-;; (test-assert (dataframe-equal?
-;;               (dataframe-stack df22 '(adult juv) 'stage 'count)
-;;               (make-dataframe
-;;                '((grp a a b b b a a b b b)
-;;                  (trt a b a b b a b a b b)
-;;                  (stage adult adult adult adult adult juv juv juv juv juv)
-;;                  (count 1 2 3 4 5 10 20 30 40 50)))))
-;; (test-assert (dataframe-equal?
-;;               (dataframe-stack df32 '(a b c) 'site 'count)
-;;               (make-dataframe
-;;                '((day 1 2 1 2 1 2)
-;;                  (hour 10 11 10 11 10 11)
-;;                  (site a a b b c c)
-;;                  (count 97 78 84 47 55 54)))))
-;; (test-error (dataframe-stack '(1 2 3) 'stage 'count '(adult juv)))
-;; (test-error (dataframe-stack df22 'grp 'count '(adult juv)))
-;; (test-error (dataframe-stack df22 'stage "count" '(adult juv)))
-;; (test-error (dataframe-stack df22 'stage 'count '(adult juvenile)))
-;; (test-end "dataframe-stack-test")
+(test-begin "dataframe-stack-test")
+(test-assert (dataframe-equal?
+              (dataframe-stack df22 '(adult juv) 'stage 'count)
+              (make-df*
+               (grp 'a 'a 'b 'b 'b 'a 'a 'b 'b 'b)
+               (trt 'a 'b 'a 'b 'b 'a 'b 'a 'b 'b)
+               (stage 'adult 'adult 'adult 'adult 'adult 'juv 'juv 'juv 'juv 'juv)
+               (count 1 2 3 4 5 10 20 30 40 50))))
+(test-assert (dataframe-equal?
+              (dataframe-stack df32 '(a b c) 'site 'count)
+              (make-df*
+               (day 1 2 1 2 1 2)
+               (hour 10 11 10 11 10 11)
+               (site 'a 'a 'b 'b 'c 'c)
+               (count 97 78 84 47 55 54))))
+(test-error (dataframe-stack '(1 2 3) 'stage 'count '(adult juv)))
+(test-error (dataframe-stack df22 'grp 'count '(adult juv)))
+(test-error (dataframe-stack df22 'stage "count" '(adult juv)))
+(test-error (dataframe-stack df22 'stage 'count '(adult juvenile)))
+(test-end "dataframe-stack-test")
 
 ;;-------------------------------------------------------------
 
 ;; no extra effort was made to ensure that spreading and stacking always yield same sort order
 ;; if tests are failing that should be a first place to look
-;; (test-begin "dataframe-spread-test")
-;; (test-assert (dataframe-equal?
-;;               df32
-;;               (-> df32
-;;                   (dataframe-stack '(a b c) 'site 'count)
-;;                   (dataframe-spread 'site 'count -999))))
-;; (test-assert (dataframe-equal?
-;;               df22
-;;               (-> df22
-;;                   (dataframe-stack '(adult juv) 'stage 'count)
-;;                   (dataframe-spread 'stage 'count -999))))
-;; (test-assert (dataframe-equal?
-;;               (-> '((day 1 2 3)
-;;                     (grp "A" "B" "B")
-;;                     (val 10 20 30))
-;;                   (make-dataframe)
-;;                   (dataframe-spread 'grp 'val -999))
-;;               (make-dataframe
-;;                '((day 1 2 3)
-;;                  (A 10 -999 -999)
-;;                  (B -999 20 30)))))
-;; (test-error (dataframe-spread
-;;              (make-dataframe
-;;               '((day 1 2 3)
-;;                 (hr 10 11 12)
-;;                 (val 10 20 30)))
-;;              'hr 'val -999))
-;; (test-error (dataframe-spread (make-dataframe '((A 1 2 3) (B 4 5 6))) 'B 'C -999))
-;; (test-end "dataframe-spread-test")
+(test-begin "dataframe-spread-test")
+(test-assert (dataframe-equal?
+              df32
+              (-> df32
+                  (dataframe-stack '(a b c) 'site 'count)
+                  (dataframe-spread 'site 'count -999))))
+(test-assert (dataframe-equal?
+              df22
+              (-> df22
+                  (dataframe-stack '(adult juv) 'stage 'count)
+                  (dataframe-spread 'stage 'count -999))))
+(test-assert (dataframe-equal?
+              (-> (make-df*
+                   (day 1 2 3)
+                   (grp "A" "B" "B")
+                   (val 10 20 30))
+                  (dataframe-spread 'grp 'val -999))
+              (make-df*
+               (day 1 2 3)
+               (A 10 -999 -999)
+               (B -999 20 30))))
+(test-error (dataframe-spread
+             (make-df*
+              (day 1 2 3)
+              (hr 10 11 12)
+              (val 10 20 30))
+             'hr 'val -999))
+(test-error (dataframe-spread (make-df* (A 1 2 3) (B 4 5 6)) 'B 'C -999))
+(test-end "dataframe-spread-test")
 
 ;;-------------------------------------------------------------
 

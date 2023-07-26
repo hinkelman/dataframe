@@ -71,6 +71,9 @@
    ;; join
    dataframe-left-join
    dataframe-left-join-all
+   ;; reshape
+   dataframe-stack
+   dataframe-spread
    ;; statistics
    series-sum
    series-mean
@@ -96,6 +99,7 @@
           (dataframe modify)
           (dataframe aggregate)
           (dataframe join)
+          (dataframe reshape)
           (dataframe statistics)
           (dataframe helpers))
   
