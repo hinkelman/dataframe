@@ -25,17 +25,18 @@
       (check-dataframe df who)
       (unless (> total-width min-width)
         (assertion-violation who "total-width must be greater than min-width")))
-    (let* ([dim (dataframe-dim df)]
+    (let* ([slist (dataframe-slist df)]
+           [df-names (dataframe-names df)]
+           [df-types (map series-type slist)]
+           [dim (dataframe-dim df)]
            [rows (car dim)]
-           [n-actual (if (< rows n) rows n)])
-      (format-df (dataframe-head df n-actual) dim total-width min-width)))
+           [n-actual (if (< rows n) rows n)]
+           [ls-vals (map (lambda (series) (list-head (series-lst series) n-actual)) slist)])
+      (format-df df-names df-types ls-vals dim total-width min-width)))
 
-  (define (format-df df dim total-width min-width)
-    (let* ([names (dataframe-names df)]
-           [df-types (prepare-df-types df)]
-           [ls-vals (map series-lst (dataframe-slist df))]
-           [prep-vals (map prepare-non-numbers ls-vals)]
-           [parts (build-format-parts names df-types prep-vals total-width min-width 2)])
+  (define (format-df df-names df-types ls-vals dim total-width min-width)
+    (let* ([prep-vals (map prepare-non-numbers ls-vals)]
+           [parts (build-format-parts df-names df-types prep-vals total-width min-width 2)])
       (format #t " dim: ~d rows x ~d cols" (car dim) (cdr dim))
       ;; first item is the format directive
       ;; second item is the values being formatted
