@@ -50,7 +50,7 @@
                   (na? (caadr type-count)))
              (caar type-count)]
             [else
-             'string])))
+             'str])))
 
   (define (count-elements lst)
     (map (lambda (x) (cons x (count x lst)))
@@ -78,7 +78,7 @@
              'other]
             ;; string->number is only attempted automatic conversion 
             [(and (string? object) (string->number object))
-             'number]
+             'num]
             [((car preds) object)
              (car types)]
             [else
