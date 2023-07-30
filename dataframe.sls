@@ -74,6 +74,13 @@
    ;; reshape
    dataframe-stack
    dataframe-spread
+   ;; io
+   csv->dataframe
+   tsv->dataframe
+   dataframe->csv
+   dataframe->tsv
+   dataframe-read
+   dataframe-write
    ;; statistics
    series-sum
    series-mean
@@ -83,7 +90,8 @@
    ;; helpers
    na?
    remove-duplicates
-   rep)
+   rep
+   transpose)
 
   (import (rnrs)
           (dataframe record-types)
@@ -100,6 +108,7 @@
           (dataframe aggregate)
           (dataframe join)
           (dataframe reshape)
+          (dataframe io)
           (dataframe statistics)
           (dataframe helpers))
   

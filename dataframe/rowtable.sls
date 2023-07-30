@@ -1,4 +1,4 @@
-;; rowtable is a bad name to describe list of rows; as used in read-csv and write-csv in (chez-stats csv)
+;; rowtable is used to describe list of row-oriented lists
 
 (library (dataframe rowtable)
   (export
@@ -6,85 +6,55 @@
    rowtable->dataframe)
 
   (import (rnrs)
-          (only (dataframe df)
-                check-dataframe
-                dataframe-names
-                dataframe-values-map
-                make-dataframe)
+          (dataframe record-types)
           (only (dataframe helpers)
-                add-names-ls-vals
-                check-integer-positive
-                check-list
+                add1
                 iota
                 make-list
                 transpose))
 
   (define (dataframe->rowtable df)
-    (check-dataframe df "(dataframe->rowtable df)")
-    (let* ([names (dataframe-names df)]
-           [ls-vals (dataframe-values-map df names)])
+    (let* ([slist (dataframe-slist df)]
+           [names (map series-name slist)]
+           [ls-vals (map series-lst slist)])
       (cons names (transpose ls-vals))))
 
-  (define rowtable->dataframe
-    (case-lambda
-      [(rt)
-       (rt->df rt #t #t 100)]
-      [(rt header)
-       (rt->df rt header #t 100)]
-      [(rt header try->number)
-       (rt->df rt header try->number 100)]
-      [(rt header try->number try-max)
-       (rt->df rt header try->number try-max)]))
-
-  (define (rt->df rt header try->number try-max)
-    (let ([who "(rowtable->dataframe rt)"])
-      (check-list rt "rt" who)
-      (check-integer-positive try-max "try-max" who)
-      (unless (and (boolean? header) (boolean? try->number))
-        (assertion-violation who "header and try->number must be boolean (#t or #f)"))
-      (unless (apply = (map length rt))
-        (assertion-violation who "all rows in rt must have same length")))            
+  (define (rowtable->dataframe rt header who)       
     (let* ([names (if header
-                      (convert-header (car rt))
+                      (convert-header (car rt) who)
 		      (make-header (length (car rt))))]
-           [ls-vals1 (if header
-                         (transpose (cdr rt))
-                         (transpose rt))]
-           [ls-vals2 (if try->number
-                         (convert-strings ls-vals1 try-max)
-                         ls-vals1)])
-      (make-dataframe (add-names-ls-vals names ls-vals2))))
+           [ls-vals (if header
+                        (transpose (cdr rt))
+                        (transpose rt))])
+      (make-dataframe (make-slist names ls-vals))))
 
-  (define (convert-strings ls-vals try-max)
-    (let* ([rows (length (car ls-vals))]
-           [n (if (< rows try-max) rows try-max)]
-           [indices (iota n)])
-      (map (lambda (vals)
-             (let ([vals-n (map (lambda (x) (list-ref vals x)) indices)])
-               (if (for-all (lambda (x) (string->number-mod x)) vals-n)
-                   (map string->number-mod vals)
-                   vals)))
-           ls-vals)))
-
-  (define (string->number-mod x)
-    (if (string? x) (string->number x) x))
-  
   (define (make-header n)
     (map string->symbol
 	 (map string-append
 	      (make-list n "V")
 	      (map number->string (iota n)))))
 
-  (define (convert-header lst)
-    (unless (for-all (lambda (x) (or (string? x) (symbol? x))) lst)
-      (assertion-violation
-       "(rowtable->dataframe rt)"
-       "header row must be comprised of strings or symbols"))
-    (map (lambda (x) (if (symbol? x)
-                         x
-                         (string->symbol (replace-special x #\-))))
-         lst))
-
+  (define (convert-header lst who)
+    ;; lst should only be comprised of strings or symbols
+    (let loop ([lst lst]
+               [empty-n 0]
+               [out '()])
+      (cond [(null? lst)
+             (reverse out)]
+            [(symbol? (car lst))
+             (loop (cdr lst) empty-n (cons (car lst) out))]
+            [(and (string? (car lst))
+                  (member (car lst) '("" " ")))
+             (loop (cdr lst) (add1 empty-n)
+                   (cons (string->symbol
+                          (string-append "X" (number->string empty-n)))
+                         out))]
+            [(string? (car lst))
+             (loop (cdr lst) empty-n
+                   (cons (string->symbol (replace-special (car lst) #\-)) out))]
+            [else
+             (assertion-violation who "lst should only contain symbols or strings")])))
+  
   ;; it's possible to convert strings with special characters into symbols
   ;; but they are difficult to work with
   (define (replace-special str replacement)
@@ -97,25 +67,6 @@
       #\[ #\] #\{ #\} #\|
       #\; #\' #\" #\,
       #\space #\tab #\newline))
-  
-  ;; ;; after going through the exercise below of identifying the good symbols
-  ;; ;; I realized that the list of problem characters would be shorter
-  ;; (define upper-alpha
-  ;;   (map (lambda (x) (integer->char (+ x 65))) (iota 26)))
-
-  ;; (define lower-alpha
-  ;;   (map char-downcase upper-alpha))
-
-  ;; (define numbers
-  ;;   (map (lambda (x) (integer->char (+ x 48))) (iota 10)))
-
-  ;; ;; special characters that are accepted b/c convert to symbols
-  ;; (define special
-  ;;   '(#\~ #\! #\$ #\% #\^ #\& #\* #\- #\_ #\=
-  ;;     #\: #\? #\/ #\. #\< #\>))
-
-  ;; (define good-char
-  ;;   (append upper-alpha lower-alpha numbers special))
 
   )
 

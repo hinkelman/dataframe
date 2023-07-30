@@ -347,12 +347,12 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "df-read-write-test")
-;; (dataframe-write df10 "example.scm" #f)
-;; (test-error (dataframe-write df10 "example.scm" #f))
-;; (test-assert (dataframe-equal? df10 (dataframe-read "example.scm")))
-;; (delete-file "example.scm")
-;; (test-end "df-read-write-test")
+(test-begin "df-read-write-test")
+(dataframe-write df10 "example.scm" #f)
+(test-error (dataframe-write df10 "example.scm" #f))
+(test-assert (dataframe-equal? df10 (dataframe-read "example.scm")))
+(delete-file "example.scm")
+(test-end "df-read-write-test")
 
 ;;-------------------------------------------------------------
 
