@@ -5,7 +5,8 @@
 #!r6rs
 
 (import (srfi :64 testing)
-        (dataframe))
+        (dataframe)
+        (dataframe rowtable))
 
 (define df1
   (make-df*
@@ -377,96 +378,98 @@
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "dataframe->rowtable-test")
-;; (test-error (dataframe->rowtable 100))
-;; (test-equal '((a b c) (100 4 700) (300 6 900)) (dataframe->rowtable df17))
-;; (test-equal '((c) (1) (2) (3)) (dataframe->rowtable df19))
-;; (test-end "dataframe->rowtable-test")
+(test-begin "dataframe->rowtable-test")
+(test-error (dataframe->rowtable 100))
+(test-equal '((a b c) (100 4 700) (300 6 900)) (dataframe->rowtable df17))
+(test-equal '((c) (1) (2) (3)) (dataframe->rowtable df19))
+(test-end "dataframe->rowtable-test")
 
 ;;-------------------------------------------------------------
 
-;; (test-begin "rowtable->dataframe-test")
-;; (test-assert (dataframe-equal?
-;;               df2
-;;               (rowtable->dataframe
-;;                '((a b c)
-;;                  (1 4 7)
-;;                  (2 5 8)
-;;                  (3 6 9)))))
-;; (test-assert (dataframe-equal?
-;;               df2
-;;               (rowtable->dataframe
-;;                '((a b c)
-;;                  ("1" "4" "7")
-;;                  (2 5 8)
-;;                  ("3" "6" "9")))))
-;; (test-assert (dataframe-equal?
-;;               (make-dataframe
-;;                '((a 1 2 3)
-;; 		 (b 4 5 6)
-;; 		 (c "7" "8" "NA")))
-;;               (rowtable->dataframe
-;;                '((a b c)
-;;                  (1 4 "7")
-;;                  (2 5 "8")
-;;                  (3 6 "NA"))
-;;                #t #f)))
-;; ;; this is same as above but it fails the try check
-;; (test-assert (dataframe-equal?
-;;               (make-dataframe
-;;                '((a 1 2 3)
-;; 		 (b 4 5 6)
-;; 		 (c "7" "8" "NA")))
-;;               (rowtable->dataframe
-;;                '((a b c)
-;;                  (1 4 "7")
-;;                  (2 5 "8")
-;;                  (3 6 "NA"))
-;;                #t #t)))
-;; (test-assert (dataframe-equal?
-;;               (make-dataframe
-;;                '((a 1 2 3)
-;; 		 (b 4 5 6)
-;; 		 (c 7 8 #f)))
-;;               (rowtable->dataframe
-;;                '((a b c)
-;;                  ("1" 4 "7")
-;;                  ("2" 5 "8")
-;;                  ("3" 6 "NA"))
-;;                #t #t 2)))
-;; (test-assert (dataframe-equal?
-;;               df17
-;;               (rowtable->dataframe
-;;                '((a b c)
-;;                  (100 4 700)
-;;                  (300 6 900)))))
-;; (test-assert (dataframe-equal?
-;;               df19
-;;               (rowtable->dataframe
-;;                '((c)
-;;                  (1)
-;;                  (2)
-;;                  (3)))))
-;; (test-assert (dataframe-equal?
-;;               (make-dataframe
-;;                '((V0 1 2)
-;;                  (V1 3 4)))
-;;               (rowtable->dataframe
-;;                '((1 3)
-;;                  (2 4))
-;;                #f)))
-;; (test-assert (dataframe-equal?
-;;               df2
-;; 	      (rowtable->dataframe
-;;                '(("a" b c)
-;; 		 (1 4 7)
-;; 		 (2 5 8)
-;; 		 (3 6 9)))))
-;; (test-error (rowtable->dataframe '((a b) (1 4 7))))
-;; (test-error (rowtable->dataframe '((a b) (1 4)) 1))
-;; (test-error (rowtable->dataframe '((a b) (1 4)) #t 1))
-;; (test-error (rowtable->dataframe '((a b) (1 4)) #t #t 0))
-;; (test-end "rowtable->dataframe-test")
+(test-begin "rowtable->dataframe-test")
+(test-assert (dataframe-equal?
+              df2
+              (rowtable->dataframe
+               '((a b c)
+                 (1 4 7)
+                 (2 5 8)
+                 (3 6 9))
+               #t "test")))
+(test-assert (dataframe-equal?
+              df2
+              (rowtable->dataframe
+               '((a b c)
+                 ("1" "4" "7")
+                 (2 5 8)
+                 ("3" "6" "9"))
+               #t "test")))
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 1 2 3)
+	       (b 4 5 6)
+	       (c "7" "8" "NA"))
+              (rowtable->dataframe
+               '((a b c)
+                 (1 4 "7")
+                 (2 5 "8")
+                 (3 6 "NA"))
+               #t "test")))
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 1 2 3)
+	       (b 4 5 6)
+	       (c 7 8 'na))
+              (rowtable->dataframe
+               '((a b c)
+                 (1 4 "7")
+                 (2 5 "8")
+                 (3 6 "NA"))
+               #t "test")))
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 1 2 3)
+	       (b 4 5 6)
+	       (c 7 8 'na))
+              (rowtable->dataframe
+               '((a b c)
+                 ("1" 4 "7")
+                 ("2" 5 "8")
+                 ("3" 6 "NA"))
+               #t "test")))
+(test-assert (dataframe-equal?
+              df17
+              (rowtable->dataframe
+               '((a b c)
+                 (100 4 700)
+                 (300 6 900))
+               #t "test")))
+(test-assert (dataframe-equal?
+              df19
+              (rowtable->dataframe
+               '((c)
+                 (1)
+                 (2)
+                 (3))
+               #t "test")))
+(test-assert (dataframe-equal?
+              (make-df*
+               (V0 1 2)
+               (V1 3 4))
+              (rowtable->dataframe
+               '((1 3)
+                 (2 4))
+               #f "test")))
+(test-assert (dataframe-equal?
+              df2
+	      (rowtable->dataframe
+               '(("a" b c)
+		 (1 4 7)
+		 (2 5 8)
+		 (3 6 9))
+               #t "test")))
+(test-error (rowtable->dataframe '((a b) (1 4 7))))
+(test-error (rowtable->dataframe '((a b) (1 4)) 1))
+(test-end "rowtable->dataframe-test")
 
 ;;-------------------------------------------------------------
 
