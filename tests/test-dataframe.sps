@@ -897,6 +897,19 @@
   (rle '("a" "b" "b" "a")))
 (test-end "rle-test")
 
+;;-------------------------------------------------------------
+
+(test-begin "count-elements-test")
+(test-equal '((1 . 2) (2 . 2) (3 . 1) (4 . 1))
+  (count-elements '(1 2 3 4 2 1)))
+(test-equal '((1.1 . 3) (1 . 1) (2.2 . 1) (2 . 1))
+  (count-elements '(1.1 1 2.2 2 1.1 1.1)))
+(test-equal '((0.5 . 1) (1/2 . 2) (1 . 2) (2 . 1))
+ (count-elements '(0.5 1/2 #e0.5 1 1 2)))
+(test-equal '(("a" . 2) ("b" . 2))
+  (count-elements '("a" "b" "b" "a")))
+(test-end "count-elements-test")
+
 
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
