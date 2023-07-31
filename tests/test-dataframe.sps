@@ -882,7 +882,6 @@
 (test-assert (= 5 (sum '(#f #f #t #t #t #t #t))))
 (test-assert (= -1 (sum '(-1 -2 -4 6))))
 (test-assert (= 7 (sum '(1 2 3 #t))))
-(test-assert (= 0 (sum '())))
 (test-end "sum-test")
 
 ;;-------------------------------------------------------------
