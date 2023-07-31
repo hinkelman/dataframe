@@ -27,7 +27,7 @@
         (assertion-violation who "total-width must be greater than min-width")))
     (let* ([slist (dataframe-slist df)]
            [df-names (dataframe-names df)]
-           [df-types (map series-type slist)]
+           [df-types (prepare-df-types df)]
            [dim (dataframe-dim df)]
            [rows (car dim)]
            [n-actual (if (< rows n) rows n)]
