@@ -922,6 +922,26 @@
 (test-error (cumulative-sum '#(1 2 3 4)))
 (test-end "cumulative-sum-test")
 
+;;-------------------------------------------------------------
+
+(test-begin "median-test")
+(test-assert (= 3.5 (median '(1 2 3 4 5 6))))
+(test-error (median '()))
+(test-end "median-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "quantile-test")
+(test-assert (= 3 (quantile '(1 2 3 4 5 6) 0.5 1)))
+(test-assert (= 3 (quantile '(1 2 3 4 5 6 na) 0.5 1)))
+(test-assert (symbol=? 'na (quantile '(1 2 3 4 5 6 na) 0.5 1 #f)))
+(test-assert (= 8 (quantile '(3 7 4 8 9 7) 0.75 1)))
+(test-assert (= 3.0 (quantile '(1 2 3 4 5 6) 0.5 4)))
+(test-assert (= 3.5 (quantile '(1 2 3 4 5 6) 0.5 8)))
+(test-assert (= 1.125 (quantile '(1 2 3 4 5 6) 0.025 7)))
+(test-error (quantile '(1 2) 0.5 100))
+(test-end "quantile-test")
+
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 
 
