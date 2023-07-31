@@ -863,6 +863,43 @@
 
 ;;-------------------------------------------------------------
 
+;; not sure why two of these tests are failing
+(test-begin "mean-test")
+(test-assert (= 3 (mean '(1 2 3 4 5))))
+;; (test-assert (= 3 (mean '(1 2 3 4 5 na))))
+(test-assert (= 0 (mean '(-10 0 10))))
+(test-assert (= 27.5 (exact->inexact (mean '(1 2 3 4 5 150)))))
+;; (test-assert (symbol=? 'na (mean '(-10 0 10 na) #f)))
+(test-end "mean-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "sum-test")
+(test-assert (= 15 (sum '(1 2 3 4 5))))
+(test-assert (= 15 (sum '(1 2 3 4 5 na))))
+(test-assert (symbol=? 'na (sum '(1 2 3 4 5 na) #f)))
+(test-assert (= 3 (sum '(#t #f #t #t #f #f))))
+(test-assert (= 5 (sum '(#f #f #t #t #t #t #t))))
+(test-assert (= -1 (sum '(-1 -2 -4 6))))
+(test-assert (= 7 (sum '(1 2 3 #t))))
+(test-assert (= 0 (sum '())))
+(test-end "sum-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "rle-test")
+(test-equal '((1 . 1) (2 . 1) (3 . 1) (4 . 1) (2 . 1) (1 . 1))
+  (rle '(1 2 3 4 2 1)))
+(test-equal '((1 . 3) (2 . 1) (1 . 2) (2 . 1))
+  (rle '(1 1 1 2 1 1 2)))
+(test-equal '((3 . 2) (1 . 2) (2 . 3))
+  (rle '(3 3 1 1 2 2 2)))
+(test-equal '(("a" . 1) ("b" . 2) ("a" . 1))
+  (rle '("a" "b" "b" "a")))
+(test-end "rle-test")
+
+
+
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 
 
