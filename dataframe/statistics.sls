@@ -1,5 +1,9 @@
 (library (dataframe statistics)
   (export
+   ;; row-wise
+   add
+   multiply
+   ;; aggregation
    sum
    mean
    list-min
@@ -11,8 +15,20 @@
           (only (dataframe helpers)
                 add1
                 na?
-                remove-duplicates))
+                remove-duplicates
+                transpose))
 
+  (define (add . lst)
+    (add/multiply lst +))
+    
+  (define (multiply . lst)
+    (add/multiply lst *))
+ 
+  (define (add/multiply lst proc)
+    (map (lambda (row)
+           (apply proc (filter (lambda (x) (not (na? x))) row)))
+         (transpose lst)))
+    
   (define sum
     (case-lambda
       [(lst) (sum lst #t)]
@@ -40,7 +56,7 @@
             [else
              (loop (cdr lst) (+ (car lst) total) (add1 count))])))
 
-  ;; need different names for min/max
+  ;; need different names for min/max to avoid name collision
   (define list-min
     (case-lambda
       [(lst) (list-min lst #t)]

@@ -83,6 +83,8 @@
    dataframe-read
    dataframe-write
    ;; statistics
+   add
+   multiply
    sum
    mean
    list-min
