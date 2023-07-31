@@ -910,7 +910,17 @@
   (count-elements '("a" "b" "b" "a")))
 (test-end "count-elements-test")
 
+;;-------------------------------------------------------------
 
+(test-begin "cumulative-sum-test")
+(test-equal '(1 3 6 10 15) (cumulative-sum '(1 2 3 4 5)))
+(test-equal '(1 3 6 10 10) (cumulative-sum '(1 2 3 4 #f)))
+(test-equal '(5 9 12 14 15) (cumulative-sum '(5 4 3 2 1)))
+(test-equal '(5 9 12 14 15) (cumulative-sum '(5 4 3 2 #t)))
+(test-equal '(5 9 12 na na) (cumulative-sum '(5 4 3 na na)))
+(test-equal '() (cumulative-sum '()))
+(test-error (cumulative-sum '#(1 2 3 4)))
+(test-end "cumulative-sum-test")
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 

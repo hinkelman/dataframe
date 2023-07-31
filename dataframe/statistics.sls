@@ -1,9 +1,8 @@
 (library (dataframe statistics)
   (export
-   ;; row-wise
    add
    multiply
-   ;; aggregation
+   cumulative-sum
    sum
    mean
    list-min
@@ -14,6 +13,7 @@
           (dataframe record-types)
           (only (dataframe helpers)
                 add1
+                make-list
                 na?
                 remove-duplicates
                 transpose))
@@ -55,6 +55,24 @@
              (loop (cdr lst) (add1 total) (add1 count))]
             [else
              (loop (cdr lst) (+ (car lst) total) (add1 count))])))
+
+  (define (cumulative-sum lst)
+    (let ([n (length lst)])
+      (let loop ([lst lst]
+                 [count 0]
+                 [total 0]
+                 [out '()])
+        (cond [(null? lst)
+               (reverse out)]
+              [(na? (car lst))
+               (append (reverse out) (make-list (- n count) 'na))]
+              [(and (boolean? (car lst)) (not (car lst)))
+               (loop (cdr lst) (add1 count) total (cons total out))]
+              [(and (boolean? (car lst)) (car lst))
+               (loop (cdr lst) (add1 count) (add1 total) (cons (add1 total) out))]
+              [else
+               (loop (cdr lst) (add1 count) (+ (car lst) total)
+                     (cons (+ (car lst) total) out))]))))
 
   ;; need different names for min/max to avoid name collision
   (define list-min

@@ -85,6 +85,7 @@
    ;; statistics
    add
    multiply
+   cumulative-sum
    sum
    mean
    list-min
