@@ -1,9 +1,9 @@
 (library (dataframe statistics)
   (export
-   series-sum
-   series-mean
-   series-min
-   series-max
+   sum
+   mean
+   list-min
+   list-max
    rle)
 
   (import (rnrs)
@@ -13,18 +13,18 @@
                 na?
                 remove-duplicates))
 
-  (define series-sum
+  (define sum
     (case-lambda
-      [(series) (series-sum series #t)]
-      [(series na-rm) (sum/mean series na-rm 'sum)]))
+      [(lst) (sum lst #t)]
+      [(lst na-rm) (sum/mean lst na-rm 'sum)]))
 
-  (define series-mean
+  (define mean
     (case-lambda
-      [(series) (series-mean series #t)]
-      [(series na-rm) (sum/mean series na-rm 'mean)]))
+      [(lst) (mean lst #t)]
+      [(lst na-rm) (sum/mean lst na-rm 'mean)]))
   
-  (define (sum/mean series na-rm type)
-    (let loop ([lst (series-lst series)]
+  (define (sum/mean lst na-rm type)
+    (let loop ([lst lst]
                [total 0]
                [count 0])
       (cond [(null? lst)
@@ -40,20 +40,21 @@
             [else
              (loop (cdr lst) (+ (car lst) total) (add1 count))])))
 
-  (define series-min
+  ;; need different names for min/max
+  (define list-min
     (case-lambda
-      [(series) (min series #t)]
-      [(series na-rm) (min/max series na-rm 'min)]))
+      [(lst) (list-min lst #t)]
+      [(lst na-rm) (min/max lst na-rm 'min)]))
 
-  (define series-max
+  (define list-max
     (case-lambda
-      [(series) (max series #t)]
-      [(series na-rm) (min/max series na-rm 'max)]))
+      [(lst) (list-max lst #t)]
+      [(lst na-rm) (min/max lst na-rm 'max)]))
 
-  (define (min/max series na-rm type)
+  (define (min/max lst na-rm type)
     ;; not including boolean here b/c seems less useful
     (let ([comp (if (symbol=? type 'min) < >)])
-      (let loop ([lst (series-lst series)]
+      (let loop ([lst lst]
                  [result (if (symbol=? type 'min) +inf.0 -inf.0)])
         (cond [(null? lst) result]
               [(and (na? (car lst)) (not na-rm)) 'na]

@@ -60,6 +60,7 @@
    ;; bind
    dataframe-append
    dataframe-bind
+   dataframe-bind-all
    ;; modify
    dataframe-modify
    dataframe-modify*
@@ -82,10 +83,10 @@
    dataframe-read
    dataframe-write
    ;; statistics
-   series-sum
-   series-mean
-   series-min
-   series-max
+   sum
+   mean
+   list-min
+   list-max
    rle
    ;; helpers
    na?

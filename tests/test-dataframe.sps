@@ -83,12 +83,23 @@
 (test-begin "dataframe-bind-test")
 (test-assert (dataframe-equal?
               df3
-              (dataframe-bind (list df1 df2))))
+              (dataframe-bind df1 df2)))
 (test-assert (dataframe-equal?
               df4
-              (dataframe-bind (list df2 df1))))
-(test-error (dataframe-bind (list df3 df4 '(1 2 3))))
+              (dataframe-bind df2 df1)))
 (test-end "dataframe-bind-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "dataframe-bind-all-test")
+(test-assert (dataframe-equal?
+              df3
+              (dataframe-bind-all (list df1 df2))))
+(test-assert (dataframe-equal?
+              df4
+              (dataframe-bind-all (list df2 df1))))
+(test-error (dataframe-bind-all (list df3 df4 '(1 2 3))))
+(test-end "dataframe-bind-all-test")
 
 ;;-------------------------------------------------------------
 
@@ -497,7 +508,7 @@
 (test-assert (dataframe-equal?
               (cadr df-list)
               (dataframe-filter* df22 (grp) (symbol=? grp 'b))))
-(test-assert (dataframe-equal? df22 (dataframe-bind df-list)))
+(test-assert (dataframe-equal? df22 (dataframe-bind-all df-list)))
 (test-end "dataframe-split-test")
 
 ;;-------------------------------------------------------------
@@ -603,7 +614,7 @@
                               (dataframe-modify*
                                df
                                (total (adult juv) (+ adult juv))))))
-                  (dataframe-bind))))
+                  (dataframe-bind-all))))
 (test-assert (dataframe-equal?
               df25
               (-> df22
@@ -612,7 +623,7 @@
                               (dataframe-modify*
                                df
                                (juv-mean () (mean ($ df 'juv)))))))
-                  (dataframe-bind)
+                  (dataframe-bind-all)
                   (dataframe-filter* (juv juv-mean) (> juv juv-mean)))))
 (test-error (-> df22
                 (dataframe-filter* (adult) (< adult 1))

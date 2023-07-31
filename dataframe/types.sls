@@ -77,12 +77,21 @@
       (cond [(null? preds) ;; no matching type 
              'other]
             ;; string->number is only attempted automatic conversion 
-            [(and (string? object) (string->number object))
+            [(and (string? object)
+                  (or (na-string? object)
+                      (string->number object)))
              'num]
             [((car preds) object)
              (car types)]
             [else
              (loop (cdr preds) (cdr types))])))
+
+  (define (na-string? object)
+    (and (string? object)
+         (or (string=? object "")
+             (string=? object " ")
+             (string=? object "NA")
+             (string=? object "na"))))
 
   (define (obj->na object)
     ;; sets value to 'na if not one of three types

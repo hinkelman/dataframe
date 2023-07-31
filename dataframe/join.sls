@@ -45,7 +45,7 @@
            (check-names-unique (append df1-not-join-names df2-not-join-names) who))
          (let ([slists1 (dataframe-split-helper df1 join-names who)]
                [slists2 (dataframe-split-helper df2 join-names who)])
-           (dataframe-bind
+           (dataframe-bind-all
             (df-left-join-helper slists1 slists2 join-names missing-value))))]))
 
   (define (check-join-names-exist df df-name who names)

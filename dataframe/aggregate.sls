@@ -35,13 +35,13 @@
     (check-names new-names who)
     ;; slists is a list of slists
     (let ([slists (dataframe-split-helper df group-names who)])
-      (dataframe-bind
+      (dataframe-bind-all
              (map (lambda (slist)
                     (df-aggregate-helper slist group-names new-names names procs))
                   slists))))
     
   (define (df-aggregate-helper slist group-names new-names names procs)
-    ;; all values in the group columns of a split alist will be the same
+    ;; all values in the group columns of a split slist will be the same
     ;; need just the first row (index 0)
     (let ([slist-grp (slist-ref slist '(0) group-names)]
           [slist-agg (aggregate-map slist new-names names procs)])
@@ -50,7 +50,7 @@
   ;; names-list would be, e.g., '((col1 col2) (col2 col3))
   ;; proc-list would be, e.g.,  (list (lambda (col1 col2) (do something))
   ;;                                  (lamdda (col2 col3) (do something else)))
-  ;; returns a single row alist with the aggregated values
+  ;; returns a single row slist with the aggregated values
   (define (aggregate-map slist new-names names-list proc-list)
     (make-slist
      new-names

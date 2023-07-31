@@ -1,6 +1,7 @@
 (library (dataframe bind)
   (export dataframe-append
-          dataframe-bind)
+          dataframe-bind
+          dataframe-bind-all)
 
   (import (rnrs)
           (dataframe record-types)
@@ -28,10 +29,14 @@
   (define (get-all-names dfs)
     (apply append (map (lambda (df) (dataframe-names df)) dfs)))
   
-  ;; bind -----------------------------------------------------------------------------------
+  ;; bind ------------------------------------------------------------------------------
 
-  
   (define dataframe-bind
+    (case-lambda
+      [(df1 df2) (df-bind (list df1 df2) 'na)]
+      [(df1 df2 fill-value) (df-bind (list df1 df2) fill-value)]))
+  
+  (define dataframe-bind-all
     (case-lambda
       [(dfs) (df-bind dfs 'na)]
       [(dfs fill-value) (df-bind dfs fill-value)]))
