@@ -95,6 +95,8 @@
                  [result (if (symbol=? type 'min) +inf.0 -inf.0)])
         (cond [(null? lst) result]
               [(and (na? (car lst)) (not na-rm)) 'na]
+              [(na? (car lst))
+               (loop (cdr lst) result)]
               [else
                (loop (cdr lst) (if (comp (car lst) result)
                                    (car lst)
