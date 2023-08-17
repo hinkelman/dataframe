@@ -863,6 +863,24 @@
 
 ;;-------------------------------------------------------------
 
+(test-begin "min-test")
+(test-assert (= 2 (list-min '(4 5 2))))
+(test-assert (= 2 (list-min '(na 4 5 2))))
+(test-assert (symbol=? 'na (list-min '(na 4 5 2) #f)))
+(test-error (list-min '(4 5 2 "test")))
+(test-end "min-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "max-test")
+(test-assert (= 5 (list-max '(4 5 2))))
+(test-assert (= 5 (list-max '(na 4 5 2))))
+(test-assert (symbol=? 'na (list-max '(na 4 5 2) #f)))
+(test-error (list-max '(4 5 2 "test")))
+(test-end "max-test")
+
+;;-------------------------------------------------------------
+
 ;; not sure why two of these tests are failing
 (test-begin "mean-test")
 (test-assert (= 3 (mean '(1 2 3 4 5))))
