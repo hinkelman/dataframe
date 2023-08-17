@@ -882,6 +882,7 @@
 ;;-------------------------------------------------------------
 
 ;; not sure why two of these tests are failing
+;; they work correctly in the REPL
 (test-begin "mean-test")
 (test-assert (= 3 (mean '(1 2 3 4 5))))
 ;; (test-assert (= 3 (mean '(1 2 3 4 5 na))))
