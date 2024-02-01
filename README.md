@@ -25,6 +25,17 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ## Table of Contents  
 
+### Series record type  
+
+[`(make-series name lst)`](#make-series)  
+[`(make-series* expr)`](#make-series*)  
+[`(series? series)`](#series)  
+[`(series-name series)`](#series-name)  
+[`(series-lst series)`](#series-lst)  
+[`(series-length series)`](#series-length)  
+[`(series-type series)`](#series-type)  
+[`(series-equal? series1 series2 ...)`](#series-equal)  
+
 ### Dataframe record type  
 
 [`(make-dataframe slist)`](#make-df)  
@@ -92,6 +103,117 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(-> expr ...)`](#thread-first)  
 [`(->> expr ...)`](#thread-last)  
 
+## Series record type  
+
+#### <a name="make-series"></a> procedure: `(make-series name lst)`  
+**returns:** a series record type with four fields: name, lst, length, and type  
+
+#### <a name="make-series*"></a> procedure: `(make-series* expr)`  
+**returns:** a series record type with four fields: name, lst, length, and type  
+
+```
+> (make-series 'a '(1 2 3))
+#[#{series oti45h148lm5x6fghpw1qhjz-20} a (1 2 3) (1 2 3) num 3]
+
+> (make-series* (a 1 2 3))
+#[#{series oti45h148lm5x6fghpw1qhjz-20} a (1 2 3) (1 2 3) num 3]
+
+> (make-series 'a '(a b c))
+#[#{series oti45h148lm5x6fghpw1qhjz-20} a (a b c) (a b c) sym 3]
+
+> (make-series* (a 'a 'b 'c))
+#[#{series oti45h148lm5x6fghpw1qhjz-20} a (a b c) (a b c) sym 3]
+```
+
+#### <a name="series"></a> procedure: `(series? series)`  
+**returns:** `#t` if `series` is a series, `#f` otherwise  
+
+#### <a name="series-name"></a> procedure: `(series-name series)`  
+**returns:** `series` name  
+
+#### <a name="series-lst"></a> procedure: `(series-lst series)`  
+**returns:** `series` list  
+
+#### <a name="series-length"></a> procedure: `(series-length series)`  
+**returns:** `series` length  
+
+```
+> (define s (make-series 'a (iota 10)))
+
+> (series-name s)
+a
+
+> (series-length s)
+10
+
+> (series-lst s)
+(0 1 2 3 4 5 6 7 8 9)
+```
+
+#### <a name="series-type"></a> procedure: `(series-type series)`  
+**returns:** `series` type; one of bool, chr, str, sym, num, other; implicit conversion rules are applied  
+
+```
+> (series-type (make-series* (a 1 2 3)))
+num
+
+> (series-type (make-series* (a 1 "2" 3)))
+num
+
+> (series-type (make-series* (a 1 "b" 3)))
+str
+
+> (series-type (make-series* (a "a" "b" "c")))
+str
+
+> (series-type (make-series* (a 'a 'b 'c)))
+sym
+
+> (series-type (make-series* (a 'a 'b "c")))
+str
+
+> (series-type (make-series* (a #t #f)))
+bool
+
+> (series-type (make-series* (a #t "#f")))
+str
+
+> (series-type (make-series* (a #\a #\b #\c)))
+chr
+
+> (series-type (make-series* (a #\a #\b "c")))
+str
+
+> (series-type (make-series* (a 1 2 '(3 4))))
+other
+```
+
+#### <a name="series-equal"></a> procedure: `(series-equal? series1 series2 ...)`  
+**returns:** `#t` if all `series` are equal, `#f` otherwise  
+
+```
+> (series-equal? 
+    (make-series* (a 1 2 3))
+    (make-series* (a 1 "2" 3)))
+#t
+
+> (series-equal? 
+    (make-series* (a "a" "b" "c"))
+    (make-series* (a 'a 'b "c")))
+#t
+
+> (series-equal? 
+    (make-series* (a "a" "b" "c"))
+    (make-series* (a 'a 'b 'c)))
+#f
+
+> (series-equal? 
+    (make-series* (a 1 2 3))
+    (make-series* (a 1 "2" 3))
+    (make-series* (b 1 2 3)))
+#f
+```
+
 ## Dataframe record type  
 
 #### <a name="make-df"></a> procedure: `(make-dataframe slist)`  
@@ -123,8 +245,48 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 Exception in (make-dataframe slist): names are not symbols
 ```
 
+#### <a name="dataframe-slist"></a> procedure: `(dataframe-slist df)`  
+**returns:** a list of the series that comprise dataframe `df` 
+
+```
+> (dataframe-slist (make-df* (a 1 2 3) (b 4 5 6)))
+(#[#{series cr52mzjx42dc7eg7ul2sn36zu-20} a (1 2 3) (1 2 3) num 3]
+  #[#{series cr52mzjx42dc7eg7ul2sn36zu-20} b (4 5 6) (4 5 6) num 3])
+```
+
+#### <a name="dataframe-names"></a> procedure: `(dataframe-names df)`  
+**returns:** a list of symbols representing the names of columns in dataframe `df` 
+
+```
+> (dataframe-names (make-df* (a 1) (b 2) (c 3) (d 4)))
+(a b c d)
+```
+
+#### <a name="dataframe-dim"></a> procedure: `(dataframe-dim df)`  
+**returns:** a pair of the number of rows and columns `(rows . columns)` in dataframe `df` 
+
+```
+> (dataframe-dim (make-df* (a 1) (b 2) (c 3) (d 4)))
+(1 . 4)
+> (dataframe-dim (make-df* (a 1 2 3) (b 4 5 6)))
+(3 . 2)
+```
+
+#### <a name="df-contains"></a> procedure: `(dataframe-contains? df name ...)`  
+**returns:** `#t` if all column `names` are found in dataframe `df`, `#f` otherwise  
+
+```
+> (define df (make-df* (a 1) (b 2) (c 3) (d 4)))
+
+> (dataframe-contains? df 'a 'c 'd)
+#t
+
+> (dataframe-contains? df 'b 'e)
+#f
+```
+
 #### <a name="df-crossing"></a> procedure: `(dataframe-crossing obj1 obj2 ...)`  
-**returns:** a dataframe formed from the cartesian products of `obj1`, `obj2`, etc.; objects must be either dataframes or lists with the same structure as a dataframe column, e.g., `'(col-name 1 2 3)` 
+**returns:** a dataframe formed from the cartesian products of `obj1`, `obj2`, etc.; objects must be either series or dataframes
 
 ```
 > (dataframe-display 
@@ -165,33 +327,6 @@ Exception in (make-dataframe slist): names are not symbols
        a       c       f       h 
        b       d       e       g 
        b       d       f       h 
-```
-
-#### <a name="dataframe-slist"></a> procedure: `(dataframe-slist df)`  
-**returns:** a list of the series that comprise dataframe `df` 
-
-```
-> (dataframe-slist (make-df* (a 1 2 3) (b 4 5 6)))
-(#[#{series cr52mzjx42dc7eg7ul2sn36zu-20} a (1 2 3) (1 2 3) num 3]
-  #[#{series cr52mzjx42dc7eg7ul2sn36zu-20} b (4 5 6) (4 5 6) num 3])
-```
-
-#### <a name="dataframe-names"></a> procedure: `(dataframe-names df)`  
-**returns:** a list of symbols representing the names of columns in dataframe `df` 
-
-```
-> (dataframe-names (make-df* (a 1) (b 2) (c 3) (d 4)))
-(a b c d)
-```
-
-#### <a name="dataframe-dim"></a> procedure: `(dataframe-dim df)`  
-**returns:** a pair of the number of rows and columns `(rows . columns)` in dataframe `df` 
-
-```
-> (dataframe-dim (make-df* (a 1) (b 2) (c 3) (d 4)))
-(1 . 4)
-> (dataframe-dim (make-df* (a 1 2 3) (b 4 5 6)))
-(3 . 2)
 ```
 
 #### <a name="df-display"></a> procedure: `(dataframe-display df [n total-width min-width])`  
@@ -236,19 +371,6 @@ Exception in (make-dataframe slist): names are not symbols
       2.      3. 
       3.      4. 
       4.      5. 
-```
-
-#### <a name="df-contains"></a> procedure: `(dataframe-contains? df name ...)`  
-**returns:** `#t` if all column `names` are found in dataframe `df`, `#f` otherwise  
-
-```
-> (define df (make-df* (a 1) (b 2) (c 3) (d 4)))
-
-> (dataframe-contains? df 'a 'c 'd)
-#t
-
-> (dataframe-contains? df 'b 'e)
-#f
 ```
 
 #### <a name="df-head"></a> procedure: `(dataframe-head df n)`  
