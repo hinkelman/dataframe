@@ -8,6 +8,51 @@
         (dataframe)
         (dataframe rowtable))
 
+;;-------------------------------------------------------------
+
+(define s1 (make-series 'a (iota 10)))
+
+;;-------------------------------------------------------------
+
+(test-begin "series-record-test")
+(test-assert (series-equal? (make-series 'a '(1 2 3))
+                            (make-series* (a 1 2 3))))
+(test-assert (series-equal? (make-series 'a '(a b c))
+                            (make-series* (a 'a 'b 'c))))
+(test-assert (series? s1))
+(test-equal 'a (series-name s1))
+(test-equal (iota 10) (series-lst s1))
+(test-equal 10 (series-length s1))
+(test-assert (series-equal? (make-series* (a 1 2 3))
+                            (make-series* (a 1 "2" 3))))
+(test-equal 'str (series-type (make-series* (a 1 "b" 3))))
+(test-equal 'str (series-type (make-series* (a 'a 'b "c"))))
+(test-equal 'str (series-type (make-series* (a #t "#f"))))
+(test-equal 'other (series-type (make-series* (a 1 2 '(3 4)))))
+(test-end "series-record-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "types-test")
+(test-equal 'num (guess-type (iota 10) 10))
+(test-equal 'str (guess-type '("a" "b" "c") 3))
+(test-equal 'sym (guess-type '(a b c) 3))
+(test-equal 'str (guess-type '(a b "c") 3))
+(test-equal 'sym (guess-type '(a b "c") 2))
+(test-equal 'bool (guess-type '(#t #f) 2))
+(test-equal 'other (guess-type '((1 2) (3 4)) 2))
+(test-equal 'chr (guess-type '(#\a #\b) 2))
+(test-equal '(1 2 3) (convert-type '(1 2 3) 'num))
+(test-equal '("1" "2" "3") (convert-type '(1 2 3) 'str))
+(test-equal '("1" "2" "3") (convert-type '(1 "2" 3) 'str))
+(test-equal '(na na na) (convert-type '(1 2 3) 'sym))
+(test-equal '(na na na) (convert-type '(1 2 3) 'chr))
+(test-equal '(1 2 3) (convert-type '(1 2 3) 'other))
+(test-equal '(a b na) (convert-type '(a b "c") 'sym))
+(test-end "types-test")
+
+;;-------------------------------------------------------------
+
 (define df1
   (make-df*
    (a 1 2 3)
