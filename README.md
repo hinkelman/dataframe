@@ -25,6 +25,11 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ## Table of Contents  
 
+### Type Conversion  
+
+[`(guess-type lst n-max)`](#guess-type)   
+[`(convert-type lst type)`](#convert-type)  
+
 ### Series record type  
 
 [`(make-series name lst)`](#make-series)  
@@ -103,6 +108,43 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(-> expr ...)`](#thread-first)  
 [`(->> expr ...)`](#thread-last)  
 
+## Type Conversion  
+
+#### <a name="guess-type"></a> procedure: `(guess-type lst n-max)`  
+**returns:** type of elements in `lst` (bool, chr, str, sym, num, or other); evaluates up to `n-max` elements of `lst` before guessing; strings that are valid numbers are assumed to be `'num`
+
+#### <a name="convert-type"></a> procedure: `(convert-type lst type)`  
+**returns:** a list with all elements of `lst` converted to `type`; elements that can't be converted to `type` are replaced with `'na`
+
+```
+> (guess-type '(1 2 3) 3)
+num
+
+> (guess-type '(1 "2" 3) 3)
+num
+
+> (guess-type '(a b c) 3)
+sym
+
+> (guess-type '(a b "c") 3)
+str
+
+> (guess-type '(a b "c") 2)
+sym
+
+> (convert-type '(a b "c") 'sym)
+(a b na)
+
+> (convert-type '(a b "c") 'str)
+("a" "b" "c")
+
+> (convert-type '(a b "c") 'other)
+(a b "c")
+
+> (convert-type '(1 2 "3") 'num)
+(1 2 3)
+```
+
 ## Series record type  
 
 #### <a name="make-series"></a> procedure: `(make-series name lst)`  
@@ -151,7 +193,7 @@ a
 ```
 
 #### <a name="series-type"></a> procedure: `(series-type series)`  
-**returns:** `series` type; one of bool, chr, str, sym, num, other; implicit conversion rules are applied  
+**returns:** `series` type (bool, chr, str, sym, num, or other); implicit conversion rules are applied in `make-series*`  
 
 ```
 > (series-type (make-series* (a 1 2 3)))
