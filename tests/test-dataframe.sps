@@ -10,29 +10,6 @@
 
 ;;-------------------------------------------------------------
 
-(define s1 (make-series 'a (iota 10)))
-
-;;-------------------------------------------------------------
-
-(test-begin "series-record-test")
-(test-assert (series-equal? (make-series 'a '(1 2 3))
-                            (make-series* (a 1 2 3))))
-(test-assert (series-equal? (make-series 'a '(a b c))
-                            (make-series* (a 'a 'b 'c))))
-(test-assert (series? s1))
-(test-equal 'a (series-name s1))
-(test-equal (iota 10) (series-lst s1))
-(test-equal 10 (series-length s1))
-(test-assert (series-equal? (make-series* (a 1 2 3))
-                            (make-series* (a 1 "2" 3))))
-(test-equal 'str (series-type (make-series* (a 1 "b" 3))))
-(test-equal 'str (series-type (make-series* (a 'a 'b "c"))))
-(test-equal 'str (series-type (make-series* (a #t "#f"))))
-(test-equal 'other (series-type (make-series* (a 1 2 '(3 4)))))
-(test-end "series-record-test")
-
-;;-------------------------------------------------------------
-
 (test-begin "types-test")
 (test-equal 'num (guess-type (iota 10) 10))
 (test-equal 'str (guess-type '("a" "b" "c") 3))
@@ -53,6 +30,30 @@
 
 ;;-------------------------------------------------------------
 
+(define s1 (make-series 'a (iota 10)))
+
+(test-begin "series-record-test")
+(test-assert (series-equal? (make-series 'a '(1 2 3))
+                            (make-series* (a 1 2 3))))
+(test-assert (series-equal? (make-series 'a '(a b c))
+                            (make-series* (a 'a 'b 'c))))
+(test-assert (series? s1))
+(test-equal 'a (series-name s1))
+(test-equal (iota 10) (series-lst s1))
+(test-equal 10 (series-length s1))
+(test-assert (series-equal? (make-series* (a 1 2 3))
+                            (make-series* (a 1 "2" 3))))
+(test-equal 'str (series-type (make-series* (a 1 "b" 3))))
+(test-equal 'str (series-type (make-series* (a 'a 'b "c"))))
+(test-equal 'str (series-type (make-series* (a #t "#f"))))
+(test-equal 'other (series-type (make-series* (a 1 2 '(3 4)))))
+(test-assert (series-equal? (car (make-slist '(a) (list (iota 10)))) s1))
+(test-error (make-series 'a 'a))
+(test-error (make-series 'a '()))
+(test-end "series-record-test")
+
+;;-------------------------------------------------------------
+
 (define df1
   (make-df*
    (a 1 2 3)
@@ -64,12 +65,91 @@
    (b 4 5 6)
    (c 7 8 9)))
 
+(define df3
+  (make-df*
+   (a 1 2 3 1 2 3)
+   (b 4 5 6 4 5 6)
+   (c 'na 'na 'na 7 8 9)))
+
+(define df4
+  (make-df*
+   (a 1 2 3 1 2 3)
+   (b 4 5 6 4 5 6)
+   (c 7 8 9 'na 'na 'na)))
+
 ;;-------------------------------------------------------------
 
-(test-begin "dataframe?-test")
+(test-begin "df-record-test")
+(test-assert (dataframe-equal? (make-dataframe (list (make-series* (a 1 2 3))
+                                                     (make-series* (b 4 5 6))))
+                               df1))
 (test-assert (dataframe? df1))
 (test-assert (not (dataframe? '((a 1 2 3) (b 4 5 6)))))
-(test-end "dataframe?-test")
+(test-assert (dataframe-contains? df1 'b))
+(test-assert (dataframe-contains? df1 'a 'b))
+(test-assert (not (dataframe-contains? df1 'a 'b 'c)))
+(test-assert (not (dataframe-contains? df1 "b")))
+(test-error (dataframe-contains? df1 b))
+(test-equal (cons 3 2) (dataframe-dim df1))
+(test-assert (dataframe-equal? (make-dataframe (make-slist '(a b) '((1 2 3) (4 5 6)))) df1))
+(test-error (make-dataframe '()))
+(test-error (make-dataframe '((1 2 3))))
+(test-error (make-dataframe (list (make-series* (a 1 2 3)) '(b 4 5 6))))
+(test-error (make-df* (a 1 2 3) (a 4 5 6)))
+(test-error (make-df* (a 1 2) (b 4 5 6)))
+(test-equal '(a b c) (dataframe-names df2))
+(test-equal '(a b) (dataframe-names df1))
+(test-equal '(a) (dataframe-names (make-df* (a 1 2 3))))
+(test-end "df-record-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "dataframe-head-test")
+(test-assert (dataframe-equal? df2 (dataframe-head df4 3)))
+(test-error (dataframe-head '(1 2 3) 3))
+(test-error (dataframe-head df2 4))
+(test-error (dataframe-head df2 0.5))
+(test-error (dataframe-head df2 0))
+(test-end "dataframe-head-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "dataframe-tail-test")
+(test-assert (dataframe-equal? (make-df* (a 2 3) (b 5 6) (c 'na 'na))
+                               (dataframe-tail df4 4)))
+(test-error (dataframe-tail '(1 2 3) 3))
+(test-error (dataframe-tail df2 3))
+(test-error (dataframe-tail df2 0.5))
+(test-error (dataframe-tail df2 -1))
+(test-end "dataframe-tail-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "dataframe-ref-test")
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 1 3 2)
+               (b 4 6 5)
+               (c 'na 'na 8))
+              (dataframe-ref df3 '(0 2 4))))
+(test-assert (dataframe-equal?
+              (make-df* (a 1 3 2) (b 4 6 5))
+              (dataframe-ref df3 '(0 2 4) 'a 'b)))
+(test-error (dataframe-ref df3 '()))
+(test-error (dataframe-ref df3 '(0 10)))
+(test-error (dataframe-ref df3 2))
+(test-error (dataframe-ref df3 '(2) 'total))
+(test-end "dataframe-ref-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "dataframe-values-test")
+(test-equal '(100 200 300) (dataframe-values (make-df* (a 100 200 300)) 'a))
+(test-equal '(4 5 6) (dataframe-values df1 'b))
+(test-error (dataframe-values df1 'd))
+(test-error (dataframe-values 100 'a))
+(test-error (dataframe-values df1 'a 'b))
+(test-end "dataframe-values-test")
 
 ;;-------------------------------------------------------------
 
@@ -96,20 +176,6 @@
 (test-error (dataframe-crossing '(col1 a b) '("col2" c d)))
 (test-error (dataframe-crossing '(col1 a b) '()))
 (test-end "dataframe-crossing-test")
-
-;;-------------------------------------------------------------
-
-(define df3
-  (make-df*
-   (a 1 2 3 1 2 3)
-   (b 4 5 6 4 5 6)
-   (c 'na 'na 'na 7 8 9)))
-
-(define df4
-  (make-df*
-   (a 1 2 3 1 2 3)
-   (b 4 5 6 4 5 6)
-   (c 7 8 9 'na 'na 'na)))
 
 ;;-------------------------------------------------------------
 
@@ -149,23 +215,6 @@
 
 ;;-------------------------------------------------------------
 
-(test-begin "dataframe-contains?-test")
-(test-assert (dataframe-contains? df1 'b))
-(test-assert (dataframe-contains? df1 'a 'b))
-(test-assert (not (dataframe-contains? df1 'a 'b 'c)))
-(test-assert (not (dataframe-contains? df1 "b")))
-(test-error (dataframe-contains? df1 b))
-(test-end "dataframe-contains?-test")
-
-;;-------------------------------------------------------------
-
-(test-begin "dataframe-dim-test")
-(test-equal (cons 3 2) (dataframe-dim df1))
-(test-error (dataframe-dim '(1 2 3)))
-(test-end "dataframe-dim-test")
-
-;;-------------------------------------------------------------
-
 (define df5
   (make-df*
    (a 1 2 3)
@@ -186,44 +235,6 @@
 (test-assert (dataframe-equal? df6 (dataframe-drop* df2 a)))
 (test-assert (dataframe-equal? df7 (dataframe-drop* df2 a b)))
 (test-end "dataframe-drop-test")
-
-;;-------------------------------------------------------------
-
-(test-begin "dataframe-equal?-test")
-(test-assert (dataframe-equal? df2))
-(test-assert (dataframe-equal? df2 df5))
-(test-assert (not (dataframe-equal? df5 df6)))
-(test-error (dataframes-equal df2 '((a 1 2 3))))
-(test-end "dataframe-equal?-test")
-
-;;-------------------------------------------------------------
-
-(test-begin "dataframe-head-test")
-(test-assert (dataframe-equal? df2 (dataframe-head df4 3)))
-(test-error (dataframe-head '(1 2 3) 3))
-(test-error (dataframe-head df2 4))
-(test-error (dataframe-head df2 0.5))
-(test-error (dataframe-head df2 0))
-(test-end "dataframe-head-test")
-
-;;-------------------------------------------------------------
-
-(test-begin "dataframe-tail-test")
-(test-assert (dataframe-equal? (make-df* (b 5 6) (c 8 9))
-                               (dataframe-tail df6 1)))
-(test-error (dataframe-tail '(1 2 3) 3))
-(test-error (dataframe-tail df2 3))
-(test-error (dataframe-tail df2 0.5))
-(test-error (dataframe-tail df2 -1))
-(test-end "dataframe-tail-test")
-
-;;-------------------------------------------------------------
-
-(test-begin "dataframe-names-test")
-(test-equal '(a b c) (dataframe-names df5))
-(test-equal '(b c) (dataframe-names df6))
-(test-equal '(c) (dataframe-names df7))
-(test-end "dataframe-names-test")
 
 ;;-------------------------------------------------------------
 
@@ -295,35 +306,7 @@
 
 ;;-------------------------------------------------------------
 
-(test-begin "dataframe-values-test")
-(test-equal '(100 200 300) (dataframe-values df10 'a))
-(test-equal '(4 5 6) (dataframe-values df10 'b))
-(test-error (dataframe-values df10 'd))
-(test-error (dataframe-values 100 'a))
-(test-error (dataframe-values df10 'a 'b))
-(test-end "dataframe-values-test")
 
-;;-------------------------------------------------------------
-
-(test-begin "make-series-test")
-(test-error (make-series 'a '()))
-(test-error (make-series 'a 42))
-(test-error (make-series "a" '(1 2 3)))
-(test-end "make-series-test")
-
-;;-------------------------------------------------------------
-
-(test-begin "make-dataframe-test")
-(test-error (make-dataframe '()))
-(test-error (make-dataframe (list '(1 2 3)
-                                  (make-series* (a 1 2 3)))))
-(test-error (make-dataframe (list (make-series* (a 1 2 3))
-                                  (make-series* (a 1 2 3)))))
-(test-error (make-dataframe (list (make-series* (a 1 2 3))
-                                  (make-series* (b 1 2 3 4))))) 
-(test-end "make-dataframe-test")
-
-;;-------------------------------------------------------------
 
 (define df11
   (make-df*
@@ -774,24 +757,7 @@
 
 ;;-------------------------------------------------------------
 
-(test-begin "dataframe-ref-test")
-(test-assert (dataframe-equal?
-              (make-df*
-               (grp "a" "b" "b")
-               (trt "a" "a" "b")
-               (adult 1 3 5)
-               (juv 10 30 50))
-              (dataframe-ref df27 '(0 2 4))))
-(test-assert (dataframe-equal?
-              (make-df* (adult 1 3 5) (juv 10 30 50))
-              (dataframe-ref df27 '(0 2 4) 'adult 'juv)))
-(test-error (dataframe-ref df27 '()))
-(test-error (dataframe-ref df27 '(0 10)))
-(test-error (dataframe-ref df27 2))
-(test-error (dataframe-ref df27 '(2) 'total))
-(test-end "dataframe-ref-test")
 
-;;-------------------------------------------------------------
 
 (define df28
   (make-df*
