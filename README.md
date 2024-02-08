@@ -44,20 +44,25 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Dataframe record type  
 
 [`(make-dataframe slist)`](#make-df)  
-[`(dataframe-slist)`](#dataframe-slist)  
+[`(make-df* expr)`](#make-df*)  
+[`(dataframe-slist df)`](#dataframe-slist)  
 [`(dataframe-names df)`](#dataframe-names)  
 [`(dataframe-dim df)`](#dataframe-dim)  
-[`(dataframe-display df [n total-width min-width])`](#df-display)  
 [`(dataframe-contains? df name ...)`](#df-contains)  
-[`(dataframe-crossing obj1 obj2 ...)`](#df-crossing)  
 [`(dataframe-head df n)`](#df-head)  
 [`(dataframe-tail df n)`](#df-tail)  
 [`(dataframe-equal? df1 df2 ...)`](#df-equal)  
-[`(dataframe-write df path overwrite?)`](#df-write)  
-[`(dataframe-read path)`](#df-read)  
 [`(dataframe-ref df indices [name ...])`](#df-ref)  
 [`(dataframe-values df name)`](#df-values)  
-[`(dataframe-values-unique df name)`](#df-values-unique)  
+
+### Dataframe display  
+
+[`(dataframe-display df [n total-width min-width])`](#df-display)  
+
+### Dataframe read/write  
+
+[`(dataframe-write df path overwrite?)`](#df-write)  
+[`(dataframe-read path)`](#df-read)  
 
 ### Select, drop, and rename columns  
 
@@ -85,7 +90,11 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(dataframe-bind-all missing-value df1 df2 ...)`](#df-bind-all)  
 [`(dataframe-append df1 df2 ...)`](#df-append)
 
-### Join
+### Crossing  
+
+[`(dataframe-crossing obj1 obj2 ...)`](#df-crossing)  
+
+### Join  
 
 [`(dataframe-left-join df1 df2 join-names missing-value)`](#df-left-join)
 
@@ -148,10 +157,10 @@ sym
 ## Series record type  
 
 #### <a name="make-series"></a> procedure: `(make-series name lst)`  
-**returns:** a series record type with four fields: name, lst, length, and type  
+**returns:** a series record type from `name` and `lst` with four fields: name, lst, length, and type  
 
 #### <a name="make-series*"></a> procedure: `(make-series* expr)`  
-**returns:** a series record type with four fields: name, lst, length, and type  
+**returns:** a series record type from `expr` with four fields: name, lst, length, and type  
 
 ```
 > (make-series 'a '(1 2 3))
@@ -259,32 +268,28 @@ other
 ## Dataframe record type  
 
 #### <a name="make-df"></a> procedure: `(make-dataframe slist)`  
-**returns:** a dataframe record type with three fields: slist, names, and dim  
+**returns:** a dataframe record type from a list of series (`slist`) with three fields: slist, names, and dim 
+
+#### <a name="make-df*"></a> procedure: `(make-df* expr)`  
+**returns:** a dataframe record type from `expr` with three fields: slist, names, and dim  
 
 ```
-> (define df (make-dataframe '((a 1 2 3) (b 4 5 6))))
+> (make-dataframe (list (make-series* (a 1 2 3)) (make-series* (b 4 5 6))))
 
-> df
-#[#{dataframe cziqfonusl4ihl0gdwa8clop7-3} ((a 1 2 3) (b 4 5 6)) (a b) (3 . 2)]
+#[#{dataframe mcq0csmab1sjwlyjv093af7t1-20} (#[#{series mcq0csmab1sjwlyjv093af7t1-21} a (1 2 3) (1 2 3) num 3] #[#{series mcq0csmab1sjwlyjv093af7t1-21} b (4 5 6) (4 5 6) num 3]) (a b) (3 . 2)]
 
-> (dataframe? df)
+> (make-df* (a 1 2 3) (b 4 5 6))
+
+#[#{dataframe mcq0csmab1sjwlyjv093af7t1-20} (#[#{series mcq0csmab1sjwlyjv093af7t1-21} a (1 2 3) (1 2 3) num 3] #[#{series mcq0csmab1sjwlyjv093af7t1-21} b (4 5 6) (4 5 6) num 3]) (a b) (3 . 2)]
+
+> (dataframe? (make-df* (a 1 2 3)))
 #t
 
-> (dataframe? '((a 1 2 3) (b 4 5 6)))
+> (dataframe? (list (make-series* (a 1 2 3))))
 #f
 
-> (dataframe-slist df)
-((a 1 2 3) (b 4 5 6))
-
-> (dataframe-names df)
-(a b)
-
-> (dataframe-dim df)
-(3 . 2)                  ; (rows . columns)
-
-> (define df (make-dataframe '(("a" 1 2 3) ("b" 4 5 6))))
-
-Exception in (make-dataframe slist): names are not symbols
+> (make-df* ("a" 1 2 3))
+Exception in (make-series name src): name(s) not symbol(s)
 ```
 
 #### <a name="dataframe-slist"></a> procedure: `(dataframe-slist df)`  
@@ -310,6 +315,7 @@ Exception in (make-dataframe slist): names are not symbols
 ```
 > (dataframe-dim (make-df* (a 1) (b 2) (c 3) (d 4)))
 (1 . 4)
+
 > (dataframe-dim (make-df* (a 1 2 3) (b 4 5 6)))
 (3 . 2)
 ```
@@ -327,49 +333,99 @@ Exception in (make-dataframe slist): names are not symbols
 #f
 ```
 
-#### <a name="df-crossing"></a> procedure: `(dataframe-crossing obj1 obj2 ...)`  
-**returns:** a dataframe formed from the cartesian products of `obj1`, `obj2`, etc.; objects must be either series or dataframes
+#### <a name="df-head"></a> procedure: `(dataframe-head df n)`  
+**returns:** a dataframe with first `n` rows from dataframe `df`  
+
+#### <a name="df-tail"></a> procedure: `(dataframe-tail df n)`  
+**returns:** a dataframe with the `n`th tail (zero-based) rows from dataframe `df`  
 
 ```
-> (dataframe-display 
-    (dataframe-crossing 
-      (make-series* (col1 'a 'b))
-      (make-series* (col2 'c 'd))))
+> (define df (make-df* (a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999)))
 
- dim: 4 rows x 2 cols
-    col1    col2 
-   <sym>   <sym> 
-       a       c 
-       a       d 
-       b       c 
-       b       d 
+> (dataframe-display (dataframe-head df 3))
 
-> (dataframe-display 
-      (dataframe-crossing 
-        (make-series* (col1 'a 'b))
-        (make-df* (col2 'c 'd))))
+ dim: 3 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+      1.      4.      7. 
+      2.      5.      8. 
+      3.      6.      9. 
 
- dim: 4 rows x 2 cols
-    col1    col2 
-   <sym>   <sym> 
-       a       c 
-       a       d 
-       b       c 
-       b       d 
+> (dataframe-display (dataframe-tail df 2))
 
-> (dataframe-display 
-      (dataframe-crossing 
-        (make-df* (col1 'a 'b) (col2 'c 'd))
-        (make-df* (col3 'e 'f) (col4 'g 'h))))
-
- dim: 4 rows x 4 cols
-    col1    col2    col3    col4 
-   <sym>   <sym>   <sym>   <sym> 
-       a       c       e       g 
-       a       c       f       h 
-       b       d       e       g 
-       b       d       f       h 
+ dim: 4 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+      3.      6.      9. 
+      1.      4.   -999. 
+      2.      5.   -999. 
+      3.      6.   -999. 
 ```
+
+#### <a name="df-equal"></a> procedure: `(dataframe-equal? df1 df2 ...)`  
+**returns:** `#t` if all dataframes are equal, `#f` otherwise  
+
+```
+> (dataframe-equal? (make-df* (a 1 2 3))
+                    (make-df* (a 1 "2" 3)))
+#t
+
+> (dataframe-equal? (make-df* (a 1 2 3) (b 4 5 6))
+                    (make-df* (b 4 5 6) (a 1 2 3)))
+#f
+
+> (dataframe-equal? (make-df* (a 1 2 3) (b 4 5 6))
+                    (make-df* (a 10 2 3) (b 4 5 6)))
+#f
+```
+
+#### <a name="df-ref"></a> procedure: `(dataframe-ref df indices [name ...])`  
+**returns:** a dataframe with only rows indicated by `indices` from dataframe `df`; default is to return all columns, but can optionally specify column `name(s)`  
+
+```
+> (define df (make-df* (a 100 200 300) (b 4 5 6) (c 700 800 900)))
+
+> (dataframe-display df)
+ dim: 3 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+    100.      4.    700. 
+    200.      5.    800. 
+    300.      6.    900. 
+
+> (dataframe-display (dataframe-ref df '(0 2)))
+ dim: 2 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+    100.      4.    700. 
+    300.      6.    900. 
+
+> (dataframe-display (dataframe-ref df '(0 2) 'a 'c))
+ dim: 2 rows x 2 cols
+       a       c 
+   <num>   <num> 
+    100.    700. 
+    300.    900. 
+
+```
+
+#### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
+**returns:** a list of values for column `name` from dataframe `df`  
+
+```
+> (define df (make-df* (a 100 200 300) (b 4 5 6) (c 700 800 900)))
+
+> (dataframe-values df 'b)
+(4 5 6)
+
+> ($ df 'b)                   ; $ is shorthand for dataframe-values; inspired by R, e.g., df$b.
+(4 5 6)
+
+> (map (lambda (name) ($ df name)) '(c a))
+((700 800 900) (100 200 300))
+```
+
+## Dataframe display   
 
 #### <a name="df-display"></a> procedure: `(dataframe-display df [n total-width min-width])`  
 **displays:** the dataframe `df` up to `n` rows and the number of columns that fit in `total-width` based on the actual contents of column or minimum column width `min-width`; `total-width` and `min-width` are measured in number of characters; default values: `n = 10`, `total-width = 80`, `min-width = 7` 
@@ -415,47 +471,7 @@ Exception in (make-dataframe slist): names are not symbols
       4.      5. 
 ```
 
-#### <a name="df-head"></a> procedure: `(dataframe-head df n)`  
-**returns:** a dataframe with first `n` rows from dataframe `df`  
-
-#### <a name="df-tail"></a> procedure: `(dataframe-tail df n)`  
-**returns:** a dataframe with the `n`th tail (zero-based) rows from dataframe `df`  
-
-```
-> (define df (make-df* (a 1 2 3 1 2 3) (b 4 5 6 4 5 6) (c 7 8 9 -999 -999 -999)))
-
-> (dataframe-display (dataframe-head df 3))
-
- dim: 3 rows x 3 cols
-       a       b       c 
-   <num>   <num>   <num> 
-      1.      4.      7. 
-      2.      5.      8. 
-      3.      6.      9. 
-
-> (dataframe-display (dataframe-tail df 2))
-
- dim: 4 rows x 3 cols
-       a       b       c 
-   <num>   <num>   <num> 
-      3.      6.      9. 
-      1.      4.   -999. 
-      2.      5.   -999. 
-      3.      6.   -999. 
-```
-
-#### <a name="df-equal"></a> procedure: `(dataframe-equal? df1 df2 ...)`  
-**returns:** `#t` if all dataframes are equal, `#f` otherwise  
-
-```
-> (dataframe-equal? (make-df* (a 1 2 3) (b 4 5 6))
-                    (make-df* (b 4 5 6) (a 1 2 3)))
-#f
-
-> (dataframe-equal? (make-df* (a 1 2 3) (b 4 5 6))
-                    (make-df* (a 10 2 3) (b 4 5 6)))
-#f
-```
+## Dataframe read/write    
 
 #### <a name="df-write"></a> procedure: `(dataframe-write df path overwrite?)`  
 **writes:** a dataframe `df` as a Scheme object to `path`; default value for `overwrite?` is #t  
@@ -477,22 +493,6 @@ Exception in (make-dataframe slist): names are not symbols
 
 > (dataframe-equal? df df2)
 #t
-```
-
-#### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
-**returns:** a list of values for column `name` from dataframe `df`  
-
-```
-> (define df (make-df* (a 100 200 300) (b 4 5 6) (c 700 800 900)))
-
-> (dataframe-values df 'b)
-(4 5 6)
-
-> ($ df 'b)                   ; $ is shorthand for dataframe-values; inspired by R, e.g., df$b.
-(4 5 6)
-
-> (map (lambda (name) ($ df name)) '(c a))
-((700 800 900) (100 200 300))
 ```
 
 ## Select, drop, and rename columns  
@@ -943,6 +943,52 @@ Exception in (dataframe-rename-all df names): names length must be 3, not 4
     dan    man    1.     2.   40. 
     bob    ert    1.     1.   20. 
     bob    ert    2.     3.   20. 
+```
+
+## Crossing  
+
+#### <a name="df-crossing"></a> procedure: `(dataframe-crossing obj1 obj2 ...)`  
+**returns:** a dataframe formed from the cartesian products of `obj1`, `obj2`, etc.; objects must be either series or dataframes
+
+```
+> (dataframe-display 
+    (dataframe-crossing 
+      (make-series* (col1 'a 'b))
+      (make-series* (col2 'c 'd))))
+
+ dim: 4 rows x 2 cols
+    col1    col2 
+   <sym>   <sym> 
+       a       c 
+       a       d 
+       b       c 
+       b       d 
+
+> (dataframe-display 
+      (dataframe-crossing 
+        (make-series* (col1 'a 'b))
+        (make-df* (col2 'c 'd))))
+
+ dim: 4 rows x 2 cols
+    col1    col2 
+   <sym>   <sym> 
+       a       c 
+       a       d 
+       b       c 
+       b       d 
+
+> (dataframe-display 
+      (dataframe-crossing 
+        (make-df* (col1 'a 'b) (col2 'c 'd))
+        (make-df* (col3 'e 'f) (col4 'g 'h))))
+
+ dim: 4 rows x 4 cols
+    col1    col2    col3    col4 
+   <sym>   <sym>   <sym>   <sym> 
+       a       c       e       g 
+       a       c       f       h 
+       b       d       e       g 
+       b       d       f       h 
 ```
 
 ## Reshape
