@@ -25,11 +25,11 @@
 
   (define (check-names-unique names who)
     (unless (= (length names) (length (remove-duplicates names)))
-      (assertion-violation who "names are not unique")))
+      (assertion-violation who "names not unique")))
 
   (define (check-names-symbol names who)
     (unless (for-all (lambda (name) (symbol? name)) names)
-      (assertion-violation who "name(s) are not symbols")))
+      (assertion-violation who "name(s) not symbol(s)")))
 
   (define (check-names names who)
     (check-names-symbol names who)
