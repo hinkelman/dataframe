@@ -25,7 +25,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ## Table of Contents  
 
-### Type Conversion  
+### Type conversion  
 
 [`(guess-type lst n-max)`](#guess-type)   
 [`(convert-type lst type)`](#convert-type)  
