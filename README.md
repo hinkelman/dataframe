@@ -68,8 +68,9 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 [`(dataframe-select df name ...)`](#df-select)  
 [`(dataframe-drop df name ...)`](#df-drop)  
-[`(dataframe-rename df name-pairs ...)`](#df-rename)  
-[`(dataframe-rename-all df names)`](#df-rename-all)  
+[`(dataframe-rename df old-names new-names)`](#df-rename)  
+[`(dataframe-rename* df (old-name new-name) ...)`](#df-rename*)  
+[`(dataframe-rename-all df new-names)`](#df-rename-all)  
 
 ### Filter and sort  
 
@@ -543,33 +544,53 @@ Exception in (make-series name src): name(s) not symbol(s)
     6.    9. 
 ```
 
-#### <a name="df-rename"></a> procedure: `(dataframe-rename df name-pairs ...)`  
-**returns:** a dataframe with column names from dataframe `df` renamed according to `name-pairs`, which takes the form `'(old-name new-name)` 
+#### <a name="df-rename"></a> procedure: `(dataframe-rename df old-names new-names)`  
+**returns:** a dataframe with a list of column names `old-names` from dataframe `df` renamed to `new-names`  
 
-#### <a name="df-rename-all"></a> procedure: `(dataframe-rename-all df names)`  
-**returns:** a dataframe with `names` replacing column names from dataframe `df`  
+#### <a name="df-rename*"></a> procedure: `(dataframe-rename* df (old-name new-name) ...)`  
+**returns:** a dataframe with column names from dataframe `df` renamed according to name pairs `(old-name new-name)`  
+
+#### <a name="df-rename-all"></a> procedure: `(dataframe-rename-all df new-names)`  
+**returns:** a dataframe with `new-names` replacing column names from dataframe `df`  
 
 ```
-> (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
+> (define df (make-df* (a 1 2 3) (b 4 5 6) (c 7 8 9)))
 
-> (dataframe-display (dataframe-rename df '(b Bee) '(c Sea)))
+> (dataframe-display (dataframe-rename df '(b c) '(Bee Sea)))
 
  dim: 3 rows x 3 cols
-     a   Bee   Sea 
-    1.    4.    7. 
-    2.    5.    8. 
-    3.    6.    9. 
+       a     Bee     Sea 
+   <num>   <num>   <num> 
+      1.      4.      7. 
+      2.      5.      8. 
+      3.      6.      9. 
+
+> (dataframe-display (dataframe-rename* df (b Bee) (c Sea)))
+
+ dim: 3 rows x 3 cols
+       a     Bee     Sea 
+   <num>   <num>   <num> 
+      1.      4.      7. 
+      2.      5.      8. 
+      3.      6.      9. 
+
+;; no change made when old name is not found
+> (dataframe-display (dataframe-rename* df (d Dee)))
+ dim: 3 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+      1.      4.      7. 
+      2.      5.      8. 
+      3.      6.      9. 
 
 > (dataframe-display (dataframe-rename-all df '(A B C)))
 
  dim: 3 rows x 3 cols
-     A     B     C 
-    1.    4.    7. 
-    2.    5.    8. 
-    3.    6.    9.
-
-> (dataframe-rename-all df '(A B C D))
-Exception in (dataframe-rename-all df names): names length must be 3, not 4
+       A       B       C 
+   <num>   <num>   <num> 
+      1.      4.      7. 
+      2.      5.      8. 
+      3.      6.      9. 
 ```
 
 ## Filter and sort  
