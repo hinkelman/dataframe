@@ -243,6 +243,7 @@
    (a 1 2 3)
    (b 4 5 6)
    (scary7 7 8 9)))
+
 (define df9
   (make-df*
    (A 1 2 3)
@@ -253,11 +254,15 @@
 
 (test-begin "dataframe-rename-test")
 (test-assert (dataframe-equal? df8 (dataframe-rename* df5 (c scary7))))
+(test-assert (dataframe-equal? df8 (dataframe-rename df5 '(c) '(scary7))))
 (test-assert (dataframe-equal? df9 (dataframe-rename* df5 (a A) (c scary7))))
+(test-assert (dataframe-equal? df9 (dataframe-rename df5 '(a c) '(A scary7))))
 ;; same dataframe is returned when old names are not found
 (test-assert (dataframe-equal? df8 (dataframe-rename* df8 (d D))))
-(test-error (dataframe-rename* 100 (a A)))
+(test-assert (dataframe-equal? df8 (dataframe-rename df8 '(d) '(D))))
 (test-error (dataframe-rename* df5 (a c)))
+(test-error (dataframe-rename* df5 (a "a")))
+(test-error (dataframe-rename df5 '(a b) '(A)))
 (test-end "dataframe-rename-test")
 
 ;;-------------------------------------------------------------
@@ -265,7 +270,6 @@
 (test-begin "dataframe-rename-all-test")
 (test-assert (dataframe-equal? df8 (dataframe-rename-all df5 '(a b scary7))))
 (test-assert (dataframe-equal? df9 (dataframe-rename-all df5 '(A b scary7))))
-(test-error (dataframe-rename-all 100 '(a)))
 (test-error (dataframe-rename-all df5 '(A B)))
 (test-error (dataframe-rename-all df5 '(a a b)))
 (test-error (dataframe-rename-all df5 '("a" b c)))
