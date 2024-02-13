@@ -655,31 +655,38 @@ Exception in (make-series name src): name(s) not symbol(s)
 **returns:** a dataframe with only the unique rows of dataframe `df`  
 
 ```
-> (define df (make-dataframe '((Name "Peter" "Paul" "Mary" "Peter")
-                               (Pet "Rabbit" "Cat" "Dog" "Rabbit"))))
+> (define df 
+    (make-df*
+      (Name "Peter" "Paul" "Mary" "Peter")
+      (Pet "Rabbit" "Cat" "Dog" "Rabbit")))
 
 > (dataframe-display (dataframe-unique df))
 
  dim: 3 rows x 2 cols
-     Name       Pet 
-     Paul       Cat 
-     Mary       Dog 
-    Peter    Rabbit  
+    Name     Pet 
+   <str>   <str> 
+   Peter  Rabbit 
+    Paul     Cat 
+    Mary     Dog 
 
-> (define df2 (make-dataframe '((grp a a b b b)
-                                (trt a b a b b)
-                                (adult 1 2 3 4 5)
-                                (juv 10 20 30 40 50))))
+> (define df2 
+    (make-df* 
+      (grp 'a 'a 'b 'b 'b)
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
 
-> (dataframe-display 
-    (dataframe-unique (dataframe-select df2 'grp 'trt)))
+> (dataframe-display
+    (dataframe-unique (dataframe-select* df2 grp trt)))
 
  dim: 4 rows x 2 cols
-   grp   trt 
-     a     a 
-     a     b 
-     b     a 
-     b     b 
+     grp     trt 
+   <sym>   <sym> 
+       a       a 
+       a       b 
+       b       a 
+       b       b 
+
 ```
 
 #### <a name="df-filter"></a> procedure: `(dataframe-filter df names procedure)`  
@@ -689,40 +696,46 @@ Exception in (make-series name src): name(s) not symbol(s)
 **returns:** a dataframe where the rows of dataframe `df` are filtered based on `expr` applied to columns `names`
 
 ```
-> (define df (make-dataframe '((grp a a b b b)
-                               (trt a b a b b)
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
+> (define df 
+    (make-df* 
+      (grp 'a 'a 'b 'b 'b)
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
 
 > (dataframe-display (dataframe-filter df '(adult) (lambda (adult) (> adult 3))))
 
  dim: 2 rows x 4 cols
-   grp   trt  adult   juv 
-     b     b     4.   40. 
-     b     b     5.   50. 
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       b      4.     40. 
+       b       b      5.     50. 
 
 > (dataframe-display (dataframe-filter* df (adult) (> adult 3)))
 
  dim: 2 rows x 4 cols
-   grp   trt  adult   juv 
-     b     b     4.   40. 
-     b     b     5.   50. 
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       b      4.     40. 
+       b       b      5.     50. 
 
 > (dataframe-display 
     (dataframe-filter df '(grp juv) (lambda (grp juv) (and (symbol=? grp 'b) (< juv 50)))))
 
  dim: 2 rows x 4 cols
-   grp   trt  adult   juv 
-     b     a     3.   30. 
-     b     b     4.   40. 
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       a      3.     30. 
+       b       b      4.     40. 
 
 > (dataframe-display 
     (dataframe-filter* df (grp juv) (and (symbol=? grp 'b) (< juv 50))))
 
  dim: 2 rows x 4 cols
-   grp   trt  adult   juv 
-     b     a     3.   30. 
-     b     b     4.   40. 
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       a      3.     30. 
+       b       b      4.     40. 
 ```
 
 #### <a name="df-filter-at"></a> procedure: `(dataframe-filter-at df procedure name ...)`  
@@ -732,30 +745,36 @@ Exception in (make-series name src): name(s) not symbol(s)
 **returns:** a dataframe where the rows of dataframe `df` are filtered based on `procedure` applied to all columns  
 
 ```
-> (define df (make-dataframe '((a 1 "NA" 3)
-                               (b "NA" 5 6)
-                               (c 7 "NA" 9))))
+> (define df 
+    (make-df* 
+      (a 1 'na 3)
+      (b 'na 5 6)
+      (c 7 'na 9)))
 
 > (dataframe-display df)
 
-  dim: 3 rows x 3 cols
-     a     b     c 
-     1    NA     7 
-    NA     5    NA 
-     3     6     9 
-         
+ dim: 3 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+       1      na       7 
+      na       5      na 
+       3       6       9 
+  
 > (dataframe-display (dataframe-filter-at df number? 'a 'c))
 
  dim: 2 rows x 3 cols
-     a     b     c 
-    1.    NA    7. 
-    3.     6    9. 
-         
+       a       b       c 
+   <num>   <num>   <num> 
+      1.      na      7. 
+      3.       6      9. 
+
+
 > (dataframe-display (dataframe-filter-all df number?))
 
  dim: 1 rows x 3 cols
-     a     b     c 
-    3.    6.    9. 
+       a       b       c 
+   <num>   <num>   <num> 
+      3.      6.      9. 
 ```
 
 #### <a name="df-partition"></a> procedure: `(dataframe-partition df names procedure)`  
@@ -765,30 +784,39 @@ Exception in (make-series name src): name(s) not symbol(s)
 **returns:** two dataframes where the rows of dataframe `df` are partitioned based on `expr` applied to columns `names`  
 
 ```
-> (define df (make-dataframe '((grp a a b b b)
-                               (trt a b a b b)
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
+> (define df 
+    (make-df* 
+      (grp 'a 'a 'b 'b 'b)
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
 
 > (define-values (keep drop) 
     (dataframe-partition df '(adult) (lambda (adult) (> adult 3))))
-> (define-values (keep drop) 
+> (define-values (keep* drop*) 
     (dataframe-partition* df (adult) (> adult 3)))
 
 > (dataframe-display keep)
 
  dim: 2 rows x 4 cols
-   grp   trt  adult   juv 
-     b     b     4.   40. 
-     b     b     5.   50. 
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       b      4.     40. 
+       b       b      5.     50. 
 
 > (dataframe-display drop)
 
  dim: 3 rows x 4 cols
-   grp   trt  adult   juv 
-     a     a     1.   10. 
-     a     b     2.   20. 
-     b     a     3.   30. 
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       a       a      1.     10. 
+       a       b      2.     20. 
+       b       a      3.     30. 
+
+> (dataframe-equal? keep keep*)
+#t
+> (dataframe-equal? drop drop*)
+#t
 ```
 
 #### <a name="df-sort"></a> procedure: `(dataframe-sort df predicates names)`  
@@ -798,50 +826,56 @@ Exception in (make-series name src): name(s) not symbol(s)
 **returns:** a dataframe where the rows of dataframe `df` are sorted according to the `predicate name` pairings
 
 ```
-> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
-                               (trt "a" "b" "a" "b" "b")
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
+> (define df 
+    (make-df* 
+      (grp "a" "a" "b" "b" "b")
+      (trt "a" "b" "a" "b" "b")
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
 
 > (dataframe-display (dataframe-sort df (list string>?) '(trt)))
 
  dim: 5 rows x 4 cols
-   grp   trt  adult   juv 
-     a     b     2.   20. 
-     b     b     4.   40. 
-     b     b     5.   50. 
-     a     a     1.   10. 
-     b     a     3.   30. 
+     grp     trt   adult     juv 
+   <str>   <str>   <num>   <num> 
+       a       b      2.     20. 
+       b       b      4.     40. 
+       b       b      5.     50. 
+       a       a      1.     10. 
+       b       a      3.     30. 
 
 > (dataframe-display (dataframe-sort* df (string>? trt)))
 
  dim: 5 rows x 4 cols
-   grp   trt  adult   juv 
-     a     b     2.   20. 
-     b     b     4.   40. 
-     b     b     5.   50. 
-     a     a     1.   10. 
-     b     a     3.   30. 
+     grp     trt   adult     juv 
+   <str>   <str>   <num>   <num> 
+       a       b      2.     20. 
+       b       b      4.     40. 
+       b       b      5.     50. 
+       a       a      1.     10. 
+       b       a      3.     30. 
 
 > (dataframe-display (dataframe-sort df (list string>? >) '(trt adult)))
 
  dim: 5 rows x 4 cols
-   grp   trt  adult   juv 
-     b     b     5.   50. 
-     b     b     4.   40. 
-     a     b     2.   20. 
-     b     a     3.   30. 
-     a     a     1.   10. 
+     grp     trt   adult     juv 
+   <str>   <str>   <num>   <num> 
+       b       b      5.     50. 
+       b       b      4.     40. 
+       a       b      2.     20. 
+       b       a      3.     30. 
+       a       a      1.     10. 
 
 > (dataframe-display (dataframe-sort* df (string>? trt) (> adult)))
 
  dim: 5 rows x 4 cols
-   grp   trt  adult   juv 
-     b     b     5.   50. 
-     b     b     4.   40. 
-     a     b     2.   20. 
-     b     a     3.   30. 
-     a     a     1.   10. 
+     grp     trt   adult     juv 
+   <str>   <str>   <num>   <num> 
+       b       b      5.     50. 
+       b       b      4.     40. 
+       a       b      2.     20. 
+       b       a      3.     30. 
+       a       a      1.     10. 
 ```
 
 ## Split, bind, and append  
