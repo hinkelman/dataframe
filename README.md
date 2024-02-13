@@ -53,6 +53,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(dataframe-tail df n)`](#df-tail)  
 [`(dataframe-equal? df1 df2 ...)`](#df-equal)  
 [`(dataframe-ref df indices [name ...])`](#df-ref)  
+[`(dataframe-series df name)`](#df-series)  
 [`(dataframe-values df name)`](#df-values)  
 
 ### Dataframe display  
@@ -66,8 +67,10 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ### Select, drop, and rename columns  
 
-[`(dataframe-select df name ...)`](#df-select)  
-[`(dataframe-drop df name ...)`](#df-drop)  
+[`(dataframe-select df names)`](#df-select)  
+[`(dataframe-select* df name ...)`](#df-select*)  
+[`(dataframe-drop df names)`](#df-drop)  
+[`(dataframe-drop* df name ...)`](#df-drop*)  
 [`(dataframe-rename df old-names new-names)`](#df-rename)  
 [`(dataframe-rename* df (old-name new-name) ...)`](#df-rename*)  
 [`(dataframe-rename-all df new-names)`](#df-rename-all)  
@@ -387,6 +390,7 @@ Exception in (make-series name src): name(s) not symbol(s)
 > (define df (make-df* (a 100 200 300) (b 4 5 6) (c 700 800 900)))
 
 > (dataframe-display df)
+ 
  dim: 3 rows x 3 cols
        a       b       c 
    <num>   <num>   <num> 
@@ -395,6 +399,7 @@ Exception in (make-series name src): name(s) not symbol(s)
     300.      6.    900. 
 
 > (dataframe-display (dataframe-ref df '(0 2)))
+ 
  dim: 2 rows x 3 cols
        a       b       c 
    <num>   <num>   <num> 
@@ -402,6 +407,7 @@ Exception in (make-series name src): name(s) not symbol(s)
     300.      6.    900. 
 
 > (dataframe-display (dataframe-ref df '(0 2) 'a 'c))
+ 
  dim: 2 rows x 2 cols
        a       c 
    <num>   <num> 
@@ -410,11 +416,17 @@ Exception in (make-series name src): name(s) not symbol(s)
 
 ```
 
+#### <a name="df-series"></a> procedure: `(dataframe-series df name)`  
+**returns:** a series for column `name` from dataframe `df`  
+
 #### <a name="df-values"></a> procedure: `(dataframe-values df name)`  
 **returns:** a list of values for column `name` from dataframe `df`  
 
 ```
 > (define df (make-df* (a 100 200 300) (b 4 5 6) (c 700 800 900)))
+
+> (dataframe-series df 'b)
+#[#{series ey38a8jsdkhs5t8j9gl1fo67w-59} b (4 5 6) (4 5 6) num 3]
 
 > (dataframe-values df 'b)
 (4 5 6)
@@ -498,50 +510,94 @@ Exception in (make-series name src): name(s) not symbol(s)
 
 ## Select, drop, and rename columns  
 
-#### <a name="df-select"></a> procedure: `(dataframe-select df name ...)`  
+#### <a name="df-select"></a> procedure: `(dataframe-select df names)`  
 **returns:** a dataframe of columns with `names` selected from dataframe `df`  
+
+#### <a name="df-select*"></a> procedure: `(dataframe-select* df name ...)`  
+**returns:** a dataframe of columns with `name(s)` selected from dataframe `df`  
 
 ```
 > (define df (make-df* (a 1 2 3) (b 4 5 6) (c 7 8 9)))
 
-> (dataframe-display (dataframe-select df 'a))
+> (dataframe-display (dataframe-select df '(a)))
 
  dim: 3 rows x 1 cols
-     a 
-    1. 
-    2. 
-    3. 
+       a 
+   <num> 
+      1. 
+      2. 
+      3. 
 
-> (dataframe-display (dataframe-select df 'c 'b))
+> (dataframe-display (dataframe-select* df a))
+
+ dim: 3 rows x 1 cols
+       a 
+   <num> 
+      1. 
+      2. 
+      3. 
+
+> (dataframe-display (dataframe-select df '(c b)))
 
  dim: 3 rows x 2 cols
-     c     b 
-    7.    4. 
-    8.    5. 
-    9.    6. 
+       c       b 
+   <num>   <num> 
+      7.      4. 
+      8.      5. 
+      9.      6. 
+
+> (dataframe-display (dataframe-select* df c b))
+
+ dim: 3 rows x 2 cols
+       c       b 
+   <num>   <num> 
+      7.      4. 
+      8.      5. 
+      9.      6. 
 ```
 
 #### <a name="df-drop"></a> procedure: `(dataframe-drop df name ...)`  
 **returns:** a dataframe of columns with `names` dropped from dataframe `df`  
 
 ```
-> (define df (make-dataframe '((a 1 2 3) (b 4 5 6) (c 7 8 9))))
+> (define df (make-df* (a 1 2 3) (b 4 5 6) (c 7 8 9)))
 
-> (dataframe-display (dataframe-drop df 'c 'b))
+> (dataframe-display (dataframe-drop df '(c b)))
 
  dim: 3 rows x 1 cols
-     a 
-    1. 
-    2. 
-    3.
+       a 
+   <num> 
+      1. 
+      2. 
+      3. 
 
-> (dataframe-display (dataframe-drop df 'a))
+> (dataframe-display (dataframe-drop* df c b))
+
+ dim: 3 rows x 1 cols
+       a 
+   <num> 
+      1. 
+      2. 
+      3. 
+
+> (dataframe-display (dataframe-drop df '(a)))
 
  dim: 3 rows x 2 cols
-     b     c 
-    4.    7. 
-    5.    8. 
-    6.    9. 
+       b       c 
+   <num>   <num> 
+      4.      7. 
+      5.      8. 
+      6.      9. 
+
+> (dataframe-display (dataframe-drop* df a))
+
+ dim: 3 rows x 2 cols
+       b       c 
+   <num>   <num> 
+      4.      7. 
+      5.      8. 
+      6.      9. 
+
 ```
 
 #### <a name="df-rename"></a> procedure: `(dataframe-rename df old-names new-names)`  

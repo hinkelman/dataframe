@@ -143,11 +143,21 @@
 
 ;;-------------------------------------------------------------
 
+(test-begin "dataframe-series-test")
+(test-assert (series-equal? (make-series* (a 1 2 3))
+                            (dataframe-series df1 'a)))
+(test-assert (series-equal? (make-series* (b 4 5 6))
+                            (dataframe-series df1 'b)))
+(test-error (dataframe-series df1 'd))
+(test-error (dataframe-series df1 'a 'b))
+(test-end "dataframe-series-test")
+
+;;-------------------------------------------------------------
+
 (test-begin "dataframe-values-test")
 (test-equal '(100 200 300) (dataframe-values (make-df* (a 100 200 300)) 'a))
 (test-equal '(4 5 6) (dataframe-values df1 'b))
 (test-error (dataframe-values df1 'd))
-(test-error (dataframe-values 100 'a))
 (test-error (dataframe-values df1 'a 'b))
 (test-end "dataframe-values-test")
 
@@ -231,8 +241,11 @@
 ;;-------------------------------------------------------------
 
 (test-begin "dataframe-drop-test")
-(test-error (dataframe-drop df5 'd))
+(test-error (dataframe-drop df5 '(d)))
+(test-error (dataframe-drop* df5 d))
+(test-assert (dataframe-equal? df6 (dataframe-drop df2 '(a))))
 (test-assert (dataframe-equal? df6 (dataframe-drop* df2 a)))
+(test-assert (dataframe-equal? df7 (dataframe-drop df2 '(a b))))
 (test-assert (dataframe-equal? df7 (dataframe-drop* df2 a b)))
 (test-end "dataframe-drop-test")
 
@@ -278,8 +291,11 @@
 ;;-------------------------------------------------------------
 
 (test-begin "dataframe-select-test")
-(test-error (dataframe-select df8 'd))
+(test-error (dataframe-select df8 '(d)))
+(test-error (dataframe-select* df8 d))
+(test-assert (dataframe-equal? df6 (dataframe-select df2 '(b c))))
 (test-assert (dataframe-equal? df6 (dataframe-select* df2 b c)))
+(test-assert (dataframe-equal? df7 (dataframe-select df2 '(c))))
 (test-assert (dataframe-equal? df7 (dataframe-select* df2 c)))
 (test-end "dataframe-select-test")
 
