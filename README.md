@@ -90,8 +90,8 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Split, bind, and append  
 
 [`(dataframe-split df group-name ...)`](#df-split)  
-[`(dataframe-bind df1 df2 ...)`](#df-bind)  
-[`(dataframe-bind-all missing-value df1 df2 ...)`](#df-bind-all)  
+[`(dataframe-bind df1 df2 [fill-value])`](#df-bind)  
+[`(dataframe-bind-all dfs [fill-value])`](#df-bind-all)  
 [`(dataframe-append df1 df2 ...)`](#df-append)
 
 ### Crossing  
@@ -882,117 +882,145 @@ Exception in (make-series name src): name(s) not symbol(s)
 
 #### <a name="df-split"></a> procedure: `(dataframe-split df group-names ...)`  
 **returns:** list of dataframes split into unique groups by `group-names` from dataframe `df`; requires that all values in each grouping column are the same type  
-```
-> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
-                               (trt "a" "b" "a" "b" "b")
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
 
-> (dataframe-split df 'grp)
-(#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a" "a") (trt "a" "b") (adult 1 2) (juv 10 20)) (grp trt adult juv) (2 . 4)]
-  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b" "b" "b") (trt "a" "b" "b") (adult 3 4 5) (juv 30 40 50)) (grp trt adult juv) (3 . 4)])
+```
+> (define df 
+    (make-df* 
+      (grp 'a 'a 'b 'b 'b)
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
+
+> (for-each dataframe-display (dataframe-split df 'grp))
+ 
+ dim: 2 rows x 4 cols
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       a       a      1.     10. 
+       a       b      2.     20. 
+
+ dim: 3 rows x 4 cols
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       a      3.     30. 
+       b       b      4.     40. 
+       b       b      5.     50. 
   
-> (dataframe-split df 'grp 'trt)
-(#[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a") (trt "a") (adult 1) (juv 10)) (grp trt adult juv) (1 . 4)]
-  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "a") (trt "b") (adult 2) (juv 20)) (grp trt adult juv) (1 . 4)]
-  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b") (trt "a") (adult 3) (juv 30)) (grp trt adult juv) (1 . 4)]
-  #[#{dataframe ovr2k7mu0mp76rg2arsmxbw6m-3} ((grp "b" "b") (trt "b" "b") (adult 4 5) (juv 40 50)) (grp trt adult juv) (2 . 4)])
+> (for-each dataframe-display (dataframe-split df 'grp 'trt))
+
+ dim: 1 rows x 4 cols
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       a       a      1.     10. 
+
+ dim: 1 rows x 4 cols
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       a       b      2.     20. 
+
+ dim: 1 rows x 4 cols
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       a      3.     30. 
+
+ dim: 2 rows x 4 cols
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       b       b      4.     40. 
+       b       b      5.     50. 
 ```
 
-#### <a name="df-bind"></a> procedure: `(dataframe-bind df1 df2 ...)`  
-**returns:** a dataframe formed by binding only shared columns of the dataframes `df1 df2 ...`  
+#### <a name="df-bind"></a> procedure: `(dataframe-bind df1 df2 [fill-value])`  
+**returns:** a dataframe formed by binding all columns of the dataframes `df1` and `df2` where `fill-value` is used to fill values for columns that are not common to all dataframes; `fill-value` defaults to `'na'`
 
-#### <a name="df-bind-all"></a> procedure: `(dataframe-bind-all missing-value df1 df2 ...)`  
-**returns:** a dataframe formed by binding all columns of the dataframes `df1 df2 ...` where `missing-value` is used to fill values for columns that are not common to all dataframes  
+#### <a name="df-bind-all"></a> procedure: `(dataframe-bind-all dfs [fill-value])`  
+**returns:** a dataframe formed by binding all columns of the list of dataframes `dfs` where `fill-value` is used to fill values for columns that are not common to all dataframes; `fill-value` defaults to `'na'`
 
 ```
-> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
-                               (trt "a" "b" "a" "b" "b")
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
+> (define df 
+    (make-df* 
+      (grp 'a 'a 'b 'b 'b)
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
 
-> (dataframe-display (apply dataframe-bind (dataframe-split df 'grp 'trt)))
+> (dataframe-display (dataframe-bind-all (dataframe-split df 'grp 'trt)))
 
  dim: 5 rows x 4 cols
-   grp   trt  adult   juv 
-     a     a     1.   10. 
-     a     b     2.   20. 
-     b     a     3.   30. 
-     b     b     4.   40. 
-     b     b     5.   50. 
+     grp     trt   adult     juv 
+   <sym>   <sym>   <num>   <num> 
+       a       a      1.     10. 
+       a       b      2.     20. 
+       b       a      3.     30. 
+       b       b      4.     40. 
+       b       b      5.     50. 
 
-> (define df1 (make-dataframe '((a 1 2 3) (b 10 20 30) (c 100 200 300))))
+> (define df1 (make-df* (a 1 2 3) (b 10 20 30) (c 100 200 300)))
 
-> (define df2 (make-dataframe '((a 4 5 6) (b 40 50 60))))
+> (define df2 (make-df* (a 4 5 6) (b 40 50 60)))
 
 > (dataframe-display (dataframe-bind df1 df2))
 
- dim: 6 rows x 2 cols
-     a     b 
-    1.   10. 
-    2.   20. 
-    3.   30. 
-    4.   40. 
-    5.   50. 
-    6.   60. 
+ dim: 6 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+      1.     10.     100 
+      2.     20.     200 
+      3.     30.     300 
+      4.     40.      na 
+      5.     50.      na 
+      6.     60.      na 
 
 > (dataframe-display (dataframe-bind df2 df1))
 
- dim: 6 rows x 2 cols
-     a     b 
-    4.   40. 
-    5.   50. 
-    6.   60. 
-    1.   10. 
-    2.   20. 
-    3.   30. 
+ dim: 6 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+      4.     40.      na 
+      5.     50.      na 
+      6.     60.      na 
+      1.     10.     100 
+      2.     20.     200 
+      3.     30.     300 
 
-> (dataframe-display (dataframe-bind-all -999 df1 df2))
+> (dataframe-display (dataframe-bind df1 df2 -999))
 
  dim: 6 rows x 3 cols
-     a     b      c 
-    1.   10.   100. 
-    2.   20.   200. 
-    3.   30.   300. 
-    4.   40.  -999. 
-    5.   50.  -999. 
-    6.   60.  -999.  
-
-> (dataframe-display (dataframe-bind-all -999 df2 df1))
-
- dim: 6 rows x 3 cols
-     a     b      c 
-    4.   40.  -999. 
-    5.   50.  -999. 
-    6.   60.  -999. 
-    1.   10.   100. 
-    2.   20.   200. 
-    3.   30.   300. 
+       a       b       c 
+   <num>   <num>   <num> 
+      1.     10.    100. 
+      2.     20.    200. 
+      3.     30.    300. 
+      4.     40.   -999. 
+      5.     50.   -999. 
+      6.     60.   -999. 
 ```
 
 #### <a name="df-append"></a> procedure: `(dataframe-append df1 df2 ...)`  
 **returns:** a dataframe formed by appending columns of the dataframes `df1 df2 ...`  
 
 ```
-> (define df1 (make-dataframe '((a 1 2 3) (b 4 5 6))))
+> (define df1 (make-df* (a 1 2 3) (b 4 5 6)))
 
-> (define df2 (make-dataframe '((c 7 8 9) (d 10 11 12))))
+> (define df2 (make-df* (c 7 8 9) (d 10 11 12)))
 
 > (dataframe-display (dataframe-append df1 df2))
 
  dim: 3 rows x 4 cols
-     a     b     c     d 
-    1.    4.    7.   10. 
-    2.    5.    8.   11. 
-    3.    6.    9.   12. 
+       a       b       c       d 
+   <num>   <num>   <num>   <num> 
+      1.      4.      7.     10. 
+      2.      5.      8.     11. 
+      3.      6.      9.     12. 
   
 > (dataframe-display (dataframe-append df2 df1))
 
  dim: 3 rows x 4 cols
-     c     d     a     b 
-    7.   10.    1.    4. 
-    8.   11.    2.    5. 
-    9.   12.    3.    6. 
+       c       d       a       b 
+   <num>   <num>   <num>   <num> 
+      7.     10.      1.      4. 
+      8.     11.      2.      5. 
+      9.     12.      3.      6. 
 ```
 
 ## Join
