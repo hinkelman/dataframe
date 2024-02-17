@@ -1355,72 +1355,78 @@ Exception in (make-series name src): name(s) not symbol(s)
 ```
 
 #### <a name="df-aggregate"></a> procedure: `(dataframe-aggregate df group-names new-names names procedure ...)`  
-**returns:** a dataframe where the dataframe `df` is split according to list of `group-names` and aggregated according to the `procedure` applied to column(s) `names`
+**returns:** a dataframe where the dataframe `df` is split according to list of `group-names` and aggregated according to the `procedure` applied to columns `names`
 
 #### <a name="df-aggregate*"></a> procedure: `(dataframe-aggregate* df group-names (new-name names expr) ...)`  
-**returns:** a dataframe where the dataframe `df` is split according to list of `group-names` and aggregated according to the `expr` applied to column(s) `names`  
+**returns:** a dataframe where the dataframe `df` is split according to list of `group-names` and aggregated according to the `expr` applied to columns `names`  
 
 ```
-> (define df (make-dataframe '((grp a a b b b)
-                               (trt a b a b b)
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
+> (define df 
+    (make-df* 
+      (grp 'a 'a 'b 'b 'b)
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
 
-> (dataframe-display
-   (dataframe-aggregate
-    df
-    '(grp)
-    '(adult-sum juv-sum)
-    '((adult) (juv))
-    (lambda (adult) (apply + adult))
-    (lambda (juv) (apply + juv)))) 
-                                                                
+> (dataframe-display 
+    (dataframe-aggregate 
+      df
+      '(grp)
+      '(adult-sum juv-sum)
+      '((adult) (juv))
+      (lambda (adult) (apply + adult))
+      (lambda (juv) (apply + juv)))) 
+
  dim: 2 rows x 3 cols
-   grp  adult-sum  juv-sum 
-     a         3.      30. 
-     b        12.     120. 
+     grp  adult-sum  juv-sum 
+   <sym>      <num>    <num> 
+       a         3.      30. 
+       b        12.     120. 
 
 > (dataframe-display
-   (dataframe-aggregate*
-    df
-    (grp)
-    (adult-sum (adult) (apply + adult))
-    (juv-sum (juv) (apply + juv))))
-                                        
+    (dataframe-aggregate*
+      df
+      (grp)
+      (adult-sum (adult) (apply + adult))
+      (juv-sum (juv) (apply + juv))))
+
  dim: 2 rows x 3 cols
-   grp  adult-sum  juv-sum 
-     a         3.      30. 
-     b        12.     120. 
+     grp  adult-sum  juv-sum 
+   <sym>      <num>    <num> 
+       a         3.      30. 
+       b        12.     120. 
 
 > (dataframe-display
-   (dataframe-aggregate
-    df
-    '(grp trt)
-    '(adult-sum juv-sum)
-    '((adult) (juv))
-    (lambda (adult) (apply + adult))
-    (lambda (juv) (apply + juv))))
+    (dataframe-aggregate
+      df
+      '(grp trt)
+      '(adult-sum juv-sum)
+      '((adult) (juv))
+      (lambda (adult) (apply + adult))
+      (lambda (juv) (apply + juv))))
 
  dim: 4 rows x 4 cols
-   grp   trt  adult-sum  juv-sum 
-     a     a         1.      10. 
-     a     b         2.      20. 
-     b     a         3.      30. 
-     b     b         9.      90. 
+     grp     trt  adult-sum  juv-sum 
+   <sym>   <sym>      <num>    <num> 
+       a       a         1.      10. 
+       a       b         2.      20. 
+       b       a         3.      30. 
+       b       b         9.      90. 
 
 > (dataframe-display
-   (dataframe-aggregate*
-    df
-    (grp trt)
-    (adult-sum (adult) (apply + adult))
-    (juv-sum (juv) (apply + juv))))
-                                        
+    (dataframe-aggregate*
+      df
+      (grp trt)
+      (adult-sum (adult) (apply + adult))
+      (juv-sum (juv) (apply + juv))))
+
  dim: 4 rows x 4 cols
-   grp   trt  adult-sum  juv-sum 
-     a     a         1.      10. 
-     a     b         2.      20. 
-     b     a         3.      30. 
-     b     b         9.      90. 
+     grp     trt  adult-sum  juv-sum 
+   <sym>   <sym>      <num>    <num> 
+       a       a         1.      10. 
+       a       b         2.      20. 
+       b       a         3.      30. 
+       b       b         9.      90. 
 ```
 
 ## Thread first and thread last
