@@ -100,7 +100,8 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ### Join  
 
-[`(dataframe-left-join df1 df2 join-names missing-value)`](#df-left-join)
+[`(dataframe-left-join df1 df2 join-names [fill-value])`](#df-left-join)  
+[`(dataframe-left-join-all dfs join-names [fill-value])`](#df-left-join-all)
 
 ### Reshape
 
@@ -931,10 +932,10 @@ Exception in (make-series name src): name(s) not symbol(s)
 ```
 
 #### <a name="df-bind"></a> procedure: `(dataframe-bind df1 df2 [fill-value])`  
-**returns:** a dataframe formed by binding all columns of the dataframes `df1` and `df2` where `fill-value` is used to fill values for columns that are not common to all dataframes; `fill-value` defaults to `'na'`
+**returns:** a dataframe formed by binding all columns of the dataframes `df1` and `df2` where `fill-value` is used to fill values for columns that are not common to both dataframes; `fill-value` defaults to `'na'`
 
 #### <a name="df-bind-all"></a> procedure: `(dataframe-bind-all dfs [fill-value])`  
-**returns:** a dataframe formed by binding all columns of the list of dataframes `dfs` where `fill-value` is used to fill values for columns that are not common to all dataframes; `fill-value` defaults to `'na'`
+**returns:** a dataframe formed by binding all columns of the list of dataframes `dfs`
 
 ```
 > (define df 
@@ -1023,67 +1024,6 @@ Exception in (make-series name src): name(s) not symbol(s)
       9.     12.      3.      6. 
 ```
 
-## Join
-
-#### <a name="df-left-join"></a> procedure: `(dataframe-left-join df1 df2 join-names missing-value)`  
-**returns:** a dataframe formed by joining on the shared columns, `join-names`, of the dataframes `df1` and  `df2` where `df1` is the left dataframe; rows in `df1` not matched by any rows in `df2` are filled with `missing-value`; if a row in `df1` matches multiple rows in `df2`, then rows in `df1` will be repeated for all matching rows in `df2`
-
-```
-> (define df1 (make-dataframe '((site "b" "a" "c")
-                               (habitat "grassland" "meadow" "woodland"))))
-
-> (define df2 (make-dataframe '((site "c" "b" "c" "b")
-                               (day 1 1 2 2)
-                               (catch 10 12 20 24))))
-
-> (dataframe-display (dataframe-left-join df1 df2 '(site) -999))
-
- dim: 5 rows x 4 cols
-  site      habitat    day  catch 
-     b    grassland     1.    12. 
-     b    grassland     2.    24. 
-     a       meadow  -999.  -999. 
-     c     woodland     1.    10. 
-     c     woodland     2.    20.  
-
-> (dataframe-display (dataframe-left-join df2 df1 '(site) -999))
-
- dim: 4 rows x 4 cols
-  site   day  catch      habitat 
-     c    1.    10.     woodland 
-     c    2.    20.     woodland 
-     b    1.    12.    grassland 
-     b    2.    24.    grassland 
-
-> (define df3 (make-dataframe '((first "sam" "bob" "sam" "dan")
-                               (last  "son" "ert" "jam" "man")
-                               (age 10 20 30 40))))
-
-> (define df4 (make-dataframe '((first "sam" "bob" "dan" "bob")
-                               (last "son" "ert" "man" "ert")
-                               (game 1 1 1 2)
-                               (goals 0 1 2 3))))
-
-> (dataframe-display (dataframe-left-join df3 df4 '(first last) -999))
-
- dim: 5 rows x 5 cols
-  first   last   age   game  goals 
-    sam    son   10.     1.     0. 
-    bob    ert   20.     1.     1. 
-    bob    ert   20.     2.     3. 
-    sam    jam   30.  -999.  -999. 
-    dan    man   40.     1.     2. 
-
-> (dataframe-display (dataframe-left-join df4 df3 '(first last) -999))
-
- dim: 4 rows x 5 cols
-  first   last  game  goals   age 
-    sam    son    1.     0.   10. 
-    dan    man    1.     2.   40. 
-    bob    ert    1.     1.   20. 
-    bob    ert    2.     3.   20. 
-```
-
 ## Crossing  
 
 #### <a name="df-crossing"></a> procedure: `(dataframe-crossing obj1 obj2 ...)`  
@@ -1128,6 +1068,92 @@ Exception in (make-series name src): name(s) not symbol(s)
        a       c       f       h 
        b       d       e       g 
        b       d       f       h 
+```
+
+## Join
+
+#### <a name="df-left-join"></a> procedure: `(dataframe-left-join df1 df2 join-names [fill-value])`  
+**returns:** a dataframe formed by joining on the columns, `join-names`, of the dataframes `df1` and  `df2` where `df1` is the left dataframe; rows in `df1` not matched by any rows in `df2` are filled with `fill-value`, which defaults to `'na'`; if a row in `df1` matches multiple rows in `df2`, then rows in `df1` will be repeated for all matching rows in `df2`
+
+#### <a name="df-left-join-all"></a> procedure: `(dataframe-left-join-all dfs join-names [fill-value])`  
+**returns:** a dataframe formed by joining on the columns, `join-names`, of the list of dataframes `dfs` where each data frame is recursively joined to the previous one in the list
+
+```
+> (define df1 
+    (make-df* 
+      (site "b" "a" "c")
+      (habitat "grassland" "meadow" "woodland")))
+
+> (define df2 
+    (make-df* 
+      (site "c" "b" "c" "b")
+      (day 1 1 2 2)
+      (catch 10 12 20 24)))
+
+> (dataframe-display (dataframe-left-join df1 df2 '(site)))
+
+ dim: 5 rows x 4 cols
+    site    habitat     day   catch 
+   <str>      <str>   <num>   <num> 
+       b  grassland       1      12 
+       b  grassland       2      24 
+       a     meadow      na      na 
+       c   woodland       1      10 
+       c   woodland       2      20 
+
+> (dataframe-display (dataframe-left-join df2 df1 '(site)))
+
+ dim: 4 rows x 4 cols
+    site     day   catch    habitat 
+   <str>   <num>   <num>      <str> 
+       c      1.     10.   woodland 
+       c      2.     20.   woodland 
+       b      1.     12.  grassland 
+       b      2.     24.  grassland 
+
+> (dataframe-display (dataframe-left-join-all (list df2 df1) '(site)))
+
+ dim: 4 rows x 4 cols
+    site     day   catch    habitat 
+   <str>   <num>   <num>      <str> 
+       c      1.     10.   woodland 
+       c      2.     20.   woodland 
+       b      1.     12.  grassland 
+       b      2.     24.  grassland 
+
+> (define df3
+    (make-df*
+      (first "sam" "bob" "sam" "dan")
+      (last  "son" "ert" "jam" "man")
+      (age 10 20 30 40)))
+
+> (define df4 
+    (make-df* 
+      (first "sam" "bob" "dan" "bob")
+      (last "son" "ert" "man" "ert")
+      (game 1 1 1 2)
+      (goals 0 1 2 3)))
+
+> (dataframe-display (dataframe-left-join df3 df4 '(first last) -999))
+
+ dim: 5 rows x 5 cols
+   first    last     age    game   goals 
+   <str>   <str>   <num>   <num>   <num> 
+     sam     son     10.      1.      0. 
+     bob     ert     20.      1.      1. 
+     bob     ert     20.      2.      3. 
+     sam     jam     30.   -999.   -999. 
+     dan     man     40.      1.      2. 
+
+> (dataframe-display (dataframe-left-join df4 df3 '(first last)))
+
+ dim: 4 rows x 5 cols
+   first    last    game   goals     age 
+   <str>   <str>   <num>   <num>   <num> 
+     sam     son      1.      0.     10. 
+     bob     ert      1.      1.     20. 
+     bob     ert      2.      3.     20. 
+     dan     man      1.      2.     40. 
 ```
 
 ## Reshape

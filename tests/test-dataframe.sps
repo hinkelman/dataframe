@@ -820,6 +820,13 @@
                (day 1 2 1 2)
                (catch 10 20 12 24)
                (habitat "woodland" "woodland" "grassland" "grassland"))))
+(test-assert (dataframe-equal?
+              (dataframe-left-join-all (list df29 df28) '(site))
+              (make-df*
+               (site "c" "c" "b" "b")
+               (day 1 2 1 2)
+               (catch 10 20 12 24)
+               (habitat "woodland" "woodland" "grassland" "grassland"))))
 (test-error (dataframe-left-join df31 (dataframe-slist df30) '(first last) -999))
 (test-error (dataframe-left-join df29 df28 '(site day catch) -999))
 (test-error (dataframe-left-join df31 df30 '(first) -999))
