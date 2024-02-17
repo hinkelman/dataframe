@@ -25,7 +25,8 @@
         (assertion-violation who "names-to must be symbol"))
       (unless (symbol? values-to)
         (assertion-violation who "values-to must be symbol"))
-      (when (dataframe-contains? df names-to values-to)
+      (when (or (dataframe-contains? df names-to)
+                (dataframe-contains? df values-to))
         (assertion-violation who "names-to or values-to already exist in df")))
     (let* ([other-names (not-in (dataframe-names df) names)]
            [slist-rep (slist-repeat-rows
