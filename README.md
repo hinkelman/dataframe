@@ -111,7 +111,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Modify and aggregate  
 
 [`(dataframe-modify df new-names names procedure ...)`](#df-modify)  
-[`(dataframe-modify* df (new-names names expr) ...)`](#df-modify*)  
+[`(dataframe-modify* df (new-name names expr) ...)`](#df-modify*)  
 [`(dataframe-modify-at df procedure name ...)`](#df-modify-at)  
 [`(dataframe-modify-all df procedure)`](#df-modify-all)  
 [`(dataframe-aggregate df group-names new-names names procedure ...)`](#df-aggregate)  
@@ -1254,93 +1254,104 @@ Exception in (make-series name src): name(s) not symbol(s)
 ## Modify and aggregate  
 
 #### <a name="df-modify"></a> procedure: `(dataframe-modify df new-names names procedure ...)`  
-**returns:** a dataframe where the columns `names` of dataframe `df` are modified or added according to the `procedure`  
+**returns:** a dataframe where the columns `names` of dataframe `df` are modified according to the `procedure`  
 
 #### <a name="df-modify*"></a> procedure: `(dataframe-modify* df (new-name names expr) ...)`  
-**returns:** a dataframe where the columns `names` of dataframe `df` are modified or added according to the `expr`  
+**returns:** a dataframe where the columns `names` of dataframe `df` are modified according to the `expr`  
 
 ```
-> (define df (make-dataframe '((grp "a" "a" "b" "b" "b")
-                               (trt a b a b b)
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
+> (define df 
+    (make-df* 
+      (grp "a" "a" "b" "b" "b")
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
                                
 ;; if new name occurs in dataframe, then column is replaced
 ;; if not, then new column is added
 
 ;; if names is empty, 
-;;   and expr is a scalar, then the scalar is repeated to match the number of rows in the dataframe
-;;   and expr is a list of length equal to number of rows in dataframe, then the list is used as a column
+;;   and procedure or expr is a scalar, then the scalar is repeated to match the number of rows in the dataframe
+;;   and procedure or expr is a list of length equal to number of rows in dataframe, then the list is used as a column
 
 > (dataframe-display
-   (dataframe-modify
-    df
-    '(grp total scalar lst)
-    '((grp) (adult juv) () ())
-    (lambda (grp) (string-upcase grp))  
-    (lambda (adult juv) (+ adult juv))
-    (lambda () 42)
-    (lambda () '(2 4 6 8 10))))
+    (dataframe-modify
+      df
+      '(grp total scalar lst)
+      '((grp) (adult juv) () ())
+      (lambda (grp) (string-upcase grp))  
+      (lambda (adult juv) (+ adult juv))
+      (lambda () 42)
+      (lambda () '(2 4 6 8 10))))
                                      
  dim: 5 rows x 7 cols
-   grp   trt  adult   juv  total  scalar   lst 
-     A     a     1.   10.    11.     42.    2. 
-     A     b     2.   20.    22.     42.    4. 
-     B     a     3.   30.    33.     42.    6. 
-     B     b     4.   40.    44.     42.    8. 
-     B     b     5.   50.    55.     42.   10. 
+     grp     trt   adult     juv   total  scalar     lst 
+   <str>   <sym>   <num>   <num>   <num>   <num>   <num> 
+       A       a      1.     10.     11.     42.      2. 
+       A       b      2.     20.     22.     42.      4. 
+       B       a      3.     30.     33.     42.      6. 
+       B       b      4.     40.     44.     42.      8. 
+       B       b      5.     50.     55.     42.     10. 
 
 > (dataframe-display
-   (dataframe-modify*
-    df
-    (grp (grp) (string-upcase grp))    
-    (total (adult juv) (+ adult juv))
-    (scalar () 42)
-    (lst () '(2 4 6 8 10))))
-                                     
+    (dataframe-modify*
+      df
+      (grp (grp) (string-upcase grp))    
+      (total (adult juv) (+ adult juv))
+      (scalar () 42)
+      (lst () '(2 4 6 8 10))))
+
  dim: 5 rows x 7 cols
-   grp   trt  adult   juv  total  scalar   lst 
-     A     a     1.   10.    11.     42.    2. 
-     A     b     2.   20.    22.     42.    4. 
-     B     a     3.   30.    33.     42.    6. 
-     B     b     4.   40.    44.     42.    8. 
-     B     b     5.   50.    55.     42.   10. 
+     grp     trt   adult     juv   total  scalar     lst 
+   <str>   <sym>   <num>   <num>   <num>   <num>   <num> 
+       A       a      1.     10.     11.     42.      2. 
+       A       b      2.     20.     22.     42.      4. 
+       B       a      3.     30.     33.     42.      6. 
+       B       b      4.     40.     44.     42.      8. 
+       B       b      5.     50.     55.     42.     10. 
+
 ```
 
 #### <a name="df-modify-at"></a> procedure: `(dataframe-modify-at df procedure name ...)`  
-**returns:** a dataframe where the specified columns (`names`) of dataframe `df` are modified based on `procedure`, which can only take one argument  
+**returns:** a dataframe where the specified columns `names` of dataframe `df` are modified based on `procedure`, which can only take one argument  
 
 #### <a name="df-modify-all"></a> procedure: `(dataframe-modify-all df procedure)`  
 **returns:** a dataframe where all columns of dataframe `df` are modified based on `procedure`, which can only take one argument  
 
 ```
-> (define df (make-dataframe '((grp a a b b b)
-                               (trt a b a b b)
-                               (adult 1 2 3 4 5)
-                               (juv 10 20 30 40 50))))
-                               
+> (define df 
+    (make-df* 
+      (grp 'a 'a 'b 'b 'b)
+      (trt 'a 'b 'a 'b 'b)
+      (adult 1 2 3 4 5)
+      (juv 10 20 30 40 50)))
+
 > (dataframe-display (dataframe-modify-at df symbol->string 'grp 'trt))
 
  dim: 5 rows x 4 cols
-   grp   trt  adult   juv 
-     a     a     1.   10. 
-     a     b     2.   20. 
-     b     a     3.   30. 
-     b     b     4.   40. 
-     b     b     5.   50. 
-  
-> (define df2 (make-dataframe '((a 1 2 3)
-                                (b 4 5 6)
-                                (c 7 8 9))))
-                                
+     grp     trt   adult     juv 
+   <str>   <str>   <num>   <num> 
+       a       a      1.     10. 
+       a       b      2.     20. 
+       b       a      3.     30. 
+       b       b      4.     40. 
+       b       b      5.     50. 
+
+> (define df2 
+    (make-df* 
+      (a 1 2 3)
+      (b 4 5 6)
+      (c 7 8 9)))
+
 > (dataframe-display
-   (dataframe-modify-all df2 (lambda (x) (* x 100))))
+    (dataframe-modify-all df2 (lambda (x) (* x 100))))
 
  dim: 3 rows x 3 cols
-     a     b     c 
-  100.  400.  700. 
-  200.  500.  800. 
-  300.  600.  900. 
+       a       b       c 
+   <num>   <num>   <num> 
+    100.    400.    700. 
+    200.    500.    800. 
+    300.    600.    900. 
 ```
 
 #### <a name="df-aggregate"></a> procedure: `(dataframe-aggregate df group-names new-names names procedure ...)`  

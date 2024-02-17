@@ -630,6 +630,8 @@
                '((juv))
                (lambda (juv) (/ juv 2)))))
 (test-error (dataframe-modify* df22 ("test" (juv) (/ juv 2))))
+(test-error (dataframe-modify df22 '(total1 total2) '((adult juv))
+                              (lambda (adult juv) (+ adult juv))))
 (test-end "dataframe-modify-test")
 
 ;;-------------------------------------------------------------
