@@ -106,7 +106,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Reshape
 
 [`(dataframe-stack df names names-to values-to)`](#df-stack)  
-[`(dataframe-spread df names-from values-from missing-value)`](#df-spread)  
+[`(dataframe-spread df names-from values-from [fill-value])`](#df-spread)  
 
 ### Modify and aggregate  
 
@@ -122,7 +122,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(-> expr ...)`](#thread-first)  
 [`(->> expr ...)`](#thread-last)  
 
-## Type Conversion  
+## Type conversion  
 
 #### <a name="guess-type"></a> procedure: `(guess-type lst n-max)`  
 **returns:** type of elements in `lst` (bool, chr, str, sym, num, or other); evaluates up to `n-max` elements of `lst` before guessing; strings that are valid numbers are assumed to be `'num`
@@ -1162,47 +1162,51 @@ Exception in (make-series name src): name(s) not symbol(s)
 **returns:** a dataframe formed by stacking pieces of a wide-format `df`; `names` is a list of column names to be combined into a single column; `names-to` is the name of the new column formed from the columns selected in `names`; `values-to` is the the name of the new column formed from the values in the columns selected in `names`
 
 ```
-> (define df (make-dataframe '((day 1 2)
-                               (hour 10 11)
-                               (a 97 78)
-                               (b 84 47)
-                               (c 55 54))))
+> (define df 
+    (make-df* 
+      (day 1 2)
+      (hour 10 11)
+      (a 97 78)
+      (b 84 47)
+      (c 55 54)))
 
 > (dataframe-display (dataframe-stack df '(a b c) 'site 'count))
 
  dim: 6 rows x 4 cols
-   day  hour  site  count 
-    1.   10.     a    97. 
-    2.   11.     a    78. 
-    1.   10.     b    84. 
-    2.   11.     b    47. 
-    1.   10.     c    55. 
-    2.   11.     c    54. 
+     day    hour    site   count 
+   <num>   <num>   <sym>   <num> 
+      1.     10.       a     97. 
+      2.     11.       a     78. 
+      1.     10.       b     84. 
+      2.     11.       b     47. 
+      1.     10.       c     55. 
+      2.     11.       c     54. 
 
 ;; reshaping to long format is useful for aggregating
-> (-> '((day 1 1 2 2)
+> (-> (make-df* 
+        (day 1 1 2 2)
         (hour 10 11 10 11)
         (a 97 78 83 80)
         (b 84 47 73 46)
         (c 55 54 38 58))
-      (make-dataframe)
       (dataframe-stack '(a b c) 'site 'count)
       (dataframe-aggregate*
-       (hour site)
-       (total-count (count) (apply + count)))
+        (hour site)
+        (total-count (count) (apply + count)))
       (dataframe-display))
 
  dim: 6 rows x 3 cols
-  hour  site  total-count 
-   10.     a         180. 
-   11.     a         158. 
-   10.     b         157. 
-   11.     b          93. 
-   10.     c          93. 
-   11.     c         112. 
+    hour    site  total-count 
+   <num>   <sym>        <num> 
+     10.       a         180. 
+     11.       a         158. 
+     10.       b         157. 
+     11.       b          93. 
+     10.       c          93. 
+     11.       c         112.
 ```
 
-#### <a name="df-spread"></a> procedure: `(dataframe-spread df names-from values-from missing-value)`  
+#### <a name="df-spread"></a> procedure: `(dataframe-spread df names-from values-from [fill-value])`  
 **returns:** a dataframe formed by spreading a long format `df` into a wide-format dataframe; `names-from` is the name of the column containing the names of the new columns; `values-from` is the the name of the column containing the values that will be spread across the new columns; `missing-value` is a scalar value used to fill combinations that are not found in the long format `df`
 
 ```

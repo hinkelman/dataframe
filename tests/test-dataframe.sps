@@ -859,10 +859,9 @@
                (hour 10 11 10 11 10 11)
                (site 'a 'a 'b 'b 'c 'c)
                (count 97 78 84 47 55 54))))
-(test-error (dataframe-stack '(1 2 3) 'stage 'count '(adult juv)))
-(test-error (dataframe-stack df22 'grp 'count '(adult juv)))
-(test-error (dataframe-stack df22 'stage "count" '(adult juv)))
-(test-error (dataframe-stack df22 'stage 'count '(adult juvenile)))
+(test-error (dataframe-stack df22 '(adult juv) 'stage "count"))
+(test-error (dataframe-stack df22 '(adult juv) "stage" 'count))
+(test-error (dataframe-stack df22 '(adult juv) 'stage 'grp))
 (test-end "dataframe-stack-test")
 
 ;;-------------------------------------------------------------
