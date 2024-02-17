@@ -1207,33 +1207,48 @@ Exception in (make-series name src): name(s) not symbol(s)
 ```
 
 #### <a name="df-spread"></a> procedure: `(dataframe-spread df names-from values-from [fill-value])`  
-**returns:** a dataframe formed by spreading a long format `df` into a wide-format dataframe; `names-from` is the name of the column containing the names of the new columns; `values-from` is the the name of the column containing the values that will be spread across the new columns; `missing-value` is a scalar value used to fill combinations that are not found in the long format `df`
+**returns:** a dataframe formed by spreading a long format dataframe `df` into a wide-format dataframe; `names-from` is the name of the column containing the names of the new columns; `values-from` is the the name of the column containing the values that will be spread across the new columns; `fill-value` is used to fill combinations that are not found in the long format `df` and defaults to `'na`
 
 ```
-> (define df1 (make-dataframe '((day 1 1 2)
-                                (grp "A" "B" "B")
-                                (val 10 20 30))))
+> (define df1 
+    (make-df* 
+      (day 1 1 2)
+      (grp "A" "B" "B")
+      (val 10 20 30)))
 
-> (dataframe-display (dataframe-spread df1 'grp 'val -999))
+> (dataframe-display (dataframe-spread df1 'grp 'val))
 
  dim: 2 rows x 3 cols
-   day      A     B 
-    1.    10.   20. 
-    2.  -999.   30.
+     day       A       B 
+   <num>   <num>   <num> 
+      1.      10     20. 
+      2.      na     30. 
 
-> (define df2 (make-dataframe '((day 1 1 1 1 2 2 2 2)
-                                (hour 10 10 11 11 10 10 11 11)
-                                (grp a b a b a b a b)
-                                (val 83 78 80 105 95 77 96 99))))
+> (dataframe-display (dataframe-spread df1 'grp 'val 0))
 
-> (dataframe-display (dataframe-spread df2 'grp 'val -999))
+ dim: 2 rows x 3 cols
+     day       A       B 
+   <num>   <num>   <num> 
+      1.     10.     20. 
+      2.      0.     30. 
+
+> (define df2 
+    (make-df* 
+      (day 1 1 1 1 2 2 2 2)
+      (hour 10 10 11 11 10 10 11 11)
+      (grp 'a 'b 'a 'b 'a 'b 'a 'b)
+      (val 83 78 80 105 95 77 96 99)))
+
+> (dataframe-display (dataframe-spread df2 'grp 'val))
 
  dim: 4 rows x 4 cols
-   day  hour     a     b 
-    1.   10.   83.   78. 
-    1.   11.   80.  105. 
-    2.   10.   95.   77. 
-    2.   11.   96.   99. 
+     day    hour       a       b 
+   <num>   <num>   <num>   <num> 
+      1.     10.     83.     78. 
+      1.     11.     80.    105. 
+      2.     10.     95.     77. 
+      2.     11.     96.     99. 
+
 ```
 
 ## Modify and aggregate  

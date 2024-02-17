@@ -230,10 +230,12 @@
    (a 1 2 3)
    (b 4 5 6)
    (c 7 8 9)))
+
 (define df6
   (make-df*
    (b 4 5 6)
    (c 7 8 9)))
+
 (define df7
   (make-df*
    (c 7 8 9)))
@@ -393,6 +395,7 @@
    (a 200)
    (b 5)
    (c 800)))
+
 (define df17
   (make-df*
    (a 100 300)
@@ -422,6 +425,7 @@
   (make-df*
    (a 1 2 3 1 2 3)
    (b 4 5 6 4 5 6)))
+
 (define df19
   (make-df*
    (c 1 2 3)))
@@ -528,6 +532,7 @@
    (trt 'A 'A 'A 'B 'B 'B)
    (grp 'A 'B 'A 'B 'A 'B)
    (resp 1 2 3 4 5 6)))
+
 (define df21
   (make-df*
    (trt 'A 'A 'B 'B)
@@ -573,12 +578,14 @@
    (adult 1 2 3 4 5)
    (juv 10 20 30 40 50)
    (total 11 22 33 44 55)))
+
 (define df24
   (make-df*
    (grp 'a 'a 'b 'b 'b)
    (trt 'a 'b 'a 'b 'b)
    (adult 1 2 3 4 5)
    (juv 5 10 15 20 25)))
+
 (define df25
   (make-df*
    (grp 'a 'b)
@@ -586,6 +593,7 @@
    (adult 2 5)
    (juv 20 50)
    (juv-mean 15 40)))
+
 (define df26
   (make-df*
    (grp 'a 'a 'b 'b 'b)
@@ -873,29 +881,30 @@
               df32
               (-> df32
                   (dataframe-stack '(a b c) 'site 'count)
-                  (dataframe-spread 'site 'count -999))))
+                  (dataframe-spread 'site 'count))))
 (test-assert (dataframe-equal?
               df22
               (-> df22
                   (dataframe-stack '(adult juv) 'stage 'count)
-                  (dataframe-spread 'stage 'count -999))))
+                  (dataframe-spread 'stage 'count))))
 (test-assert (dataframe-equal?
               (-> (make-df*
                    (day 1 2 3)
                    (grp "A" "B" "B")
                    (val 10 20 30))
-                  (dataframe-spread 'grp 'val -999))
+                  (dataframe-spread 'grp 'val))
               (make-df*
                (day 1 2 3)
-               (A 10 -999 -999)
-               (B -999 20 30))))
+               (A 10 'na 'na)
+               (B 'na 20 30))))
 (test-error (dataframe-spread
              (make-df*
               (day 1 2 3)
               (hr 10 11 12)
               (val 10 20 30))
-             'hr 'val -999))
-(test-error (dataframe-spread (make-df* (A 1 2 3) (B 4 5 6)) 'B 'C -999))
+             'hr 'val))
+(test-error (dataframe-spread (make-df* (A 1 2 3) (B 4 5 6)) 'A 'B))
+(test-error (dataframe-spread (make-df* (A 1 2 3) (B 4 5 6)) 'B 'C))
 (test-end "dataframe-spread-test")
 
 ;;-------------------------------------------------------------
