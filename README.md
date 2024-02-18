@@ -1438,50 +1438,49 @@ Exception in (make-series name src): name(s) not symbol(s)
 **returns:** an object derived from passing result of previous expression `expr` as input to *last* argument of the next `expr`  
 
 ```
-> (define (mean ls) (/ (apply + ls) (length ls)))
-
-> (-> '(1 2 3) (mean) (+ 10))
+> (-> '(1 2 3) 
+      (mean) 
+      (+ 10))
 12
 
-> (define x (-> '(1 2 3) (->> (apply +))))
-> x
-6
-
-> (-> '((grp a a b b b)
-        (trt a b a b b)
+> (-> (make-df*
+        (grp 'a 'a 'b 'b 'b)
+        (trt 'a 'b 'a 'b 'b)
         (adult 1 2 3 4 5)
         (juv 10 20 30 40 50))
-      (make-dataframe)
       (dataframe-modify*
-       (total (adult juv) (+ adult juv)))
+        (total (adult juv) (+ adult juv)))
       (dataframe-display))
-      
+
  dim: 5 rows x 5 cols
-   grp   trt  adult   juv  total 
-     a     a     1.   10.    11. 
-     a     b     2.   20.    22. 
-     b     a     3.   30.    33. 
-     b     b     4.   40.    44. 
-     b     b     5.   50.    55. 
+     grp     trt   adult     juv   total 
+   <sym>   <sym>   <num>   <num>   <num> 
+       a       a      1.     10.     11. 
+       a       b      2.     20.     22. 
+       b       a      3.     30.     33. 
+       b       b      4.     40.     44. 
+       b       b      5.     50.     55. 
+
   
-> (-> '((grp a a b b b)
-        (trt a b a b b)
+> (-> (make-df*
+        (grp 'a 'a 'b 'b 'b)
+        (trt 'a 'b 'a 'b 'b)
         (adult 1 2 3 4 5)
         (juv 10 20 30 40 50))
-      (make-dataframe)
       (dataframe-split 'grp)
       (->> (map (lambda (df)
                   (dataframe-modify*
-                   df
-                   (juv-mean () (mean ($ df 'juv)))))))
-      (->> (apply dataframe-bind))
+                    df
+                    (juv-mean () (mean ($ df 'juv)))))))
+      (->> (dataframe-bind-all))
       (dataframe-filter* (juv juv-mean) (> juv juv-mean))
       (dataframe-display))
-       
+
  dim: 2 rows x 5 cols
-   grp   trt  adult   juv  juv-mean 
-     a     b     2.   20.       15. 
-     b     b     5.   50.       40. 
+     grp     trt   adult     juv  juv-mean 
+   <sym>   <sym>   <num>   <num>     <num> 
+       a       b      2.     20.       15. 
+       b       b      5.     50.       40. 
 ```
 
 
