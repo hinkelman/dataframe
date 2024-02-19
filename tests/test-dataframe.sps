@@ -26,6 +26,10 @@
 (test-equal '(na na na) (convert-type '(1 2 3) 'chr))
 (test-equal '(1 2 3) (convert-type '(1 2 3) 'other))
 (test-equal '(a b na) (convert-type '(a b "c") 'sym))
+(test-equal '("a" "b" "c" na na na na na)
+  (convert-type '(a "b" c na "" " " "NA" "na") 'str))
+(test-equal '(a na c na na na na na)
+  (convert-type '(a "b" c na "" " " "NA" "na") 'sym))
 (test-end "types-test")
 
 ;;-------------------------------------------------------------

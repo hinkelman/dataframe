@@ -157,6 +157,12 @@ sym
 
 > (convert-type '(1 2 "3") 'num)
 (1 2 3)
+
+> (convert-type '(1 2 3 na "" " " "NA" "na") 'num)
+(1 2 3 na na na na na)
+
+> (convert-type '(a "b" c na "" " " "NA" "na") 'str)
+("a" "b" "c" na na na na na)
 ```
 
 ## Series record type  
