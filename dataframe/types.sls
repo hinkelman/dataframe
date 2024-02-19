@@ -24,7 +24,8 @@
           [(symbol=? type 'str)
            (map (lambda (x)
                   (let ([->string (get->string x)])
-                    (cond [(string? x) x]
+                    (cond [(or (na? x) (na-string? x)) 'na]
+                          [(string? x) x]
                           [(->string x) (->string x)]
                           [else 'na])))
                 lst)]
@@ -71,16 +72,22 @@
              (loop (cdr procs))])))
 
   (define (get-type object)
-    ;; na needs to be before symbol because na is a symbol
-    (let loop ([preds (list boolean? number? na? symbol? char? string?)]
-               [types '(bool num na sym chr str)])
+    (cond [(or (na? object) (na-string? object))
+           'na]
+          ;; string->number is only attempted automatic conversion 
+          [(and (string? object)
+                (or (na-string? object)
+                    (string->number object)))
+           'num]
+          ;; loop through other predicates
+          [else
+           (get-type-loop object)]))
+
+  (define (get-type-loop object)
+    (let loop ([preds (list boolean? number? symbol? char? string?)]
+               [types '(bool num sym chr str)])
       (cond [(null? preds) ;; no matching type 
              'other]
-            ;; string->number is only attempted automatic conversion 
-            [(and (string? object)
-                  (or (na-string? object)
-                      (string->number object)))
-             'num]
             [((car preds) object)
              (car types)]
             [else
