@@ -152,10 +152,12 @@
   	  (let* ([item (car lst)]
                  ;; don't place sep-char before first item
   		 [sep-str (if first? "" (string sep-char))]
-  		 [item-new (cond [(char? item) (string item)]
+  		 [item-new (cond [(boolean? item) (if item "#t" "#f")]
+                                 [(char? item) (string item)]
   				 [(symbol? item) (symbol->string item)]
   				 [(real? item) (number->string item)]
-  				 [else (quote-string item sep-char)])])
+  				 [(string? item) (quote-string item sep-char)]
+                                 [else "NA"])])
   	    (loop (cdr lst) (string-append result sep-str item-new) #f)))))
 
   (define (quote-string str sep-char)
