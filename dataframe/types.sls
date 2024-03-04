@@ -12,7 +12,9 @@
                 remove-duplicates))
 
   (define (convert-type lst type)
-    (cond [(or (na? type) (symbol=? type 'other)) lst]
+    (cond [(or (na? type) (symbol=? type 'other))
+           (map (lambda (x)
+                  (if (or (na? x) (na-string? x)) 'na x)) lst)]
           ;; string->number is only attempted automatic conversion 
           [(symbol=? type 'num)
            (map (lambda (x)
