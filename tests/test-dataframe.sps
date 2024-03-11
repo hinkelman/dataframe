@@ -406,6 +406,40 @@
    (b 4 6)
    (c 700 900)))
 
+(define df-na
+  (make-df*
+   (a 1 2 3 "")
+   (b "a" "b" "c" " ")
+   (c "NA" 'a 'b 'c)
+   (d #t #f "na" #f)))
+
+(define df-types
+  (make-df* 
+   (Boolean #t #f #t)
+   (Char #\y #\e #\s)
+   (String "these" "are" "strings")
+   (Symbol 'these 'are 'symbols)
+   (Exact 1/2 1/3 1/4)
+   (Integer 1 -2 3)
+   (Expt 1e6 -123456 1.2346e-6)
+   (Dec4 132.1 -157 10.234)   ; based on size of numbers
+   (Dec2 1234 5784 -76833.123)
+   (Other (cons 1 2) '(a b c) (make-df* (a 2)))))
+
+(define df-types-str
+  (make-df* 
+   (Boolean "#t" "#f" "#t")
+   (Char "y" "e" "s")
+   (String "these" "are" "strings")
+   (Symbol "these" "are" "symbols")
+   (Exact 1/2 1/3 1/4)
+   (Integer 1 -2 3)
+   (Expt 1e6 -123456 1.2346e-6)
+   (Dec4 132.1 -157 10.234)   ; based on size of numbers
+   (Dec2 1234 5784 -76833.123)
+   ;; other category is written as "NA," which is read as 'na
+   (Other 'na 'na 'na)))
+
 ;;-------------------------------------------------------------
 
 (test-begin "dataframe-partition-test")
@@ -421,6 +455,15 @@
 (test-error (dataframe-write df10 "example.scm" #f))
 (test-assert (dataframe-equal? df10 (dataframe-read "example.scm")))
 (delete-file "example.scm")
+(dataframe-write df-na "df-na.scm")
+(test-assert (dataframe-equal? df-na (dataframe-read "df-na.scm")))
+(delete-file "df-na.scm")
+(dataframe->csv df-types "df-types.csv")
+(test-assert (dataframe-equal? (csv->dataframe "df-types.csv") df-types-str))
+(delete-file "df-types.csv")
+(dataframe->tsv df-types "df-types.tsv")
+(test-assert (dataframe-equal? (tsv->dataframe "df-types.tsv") df-types-str))
+(delete-file "df-types.tsv")
 (test-end "df-read-write-test")
 
 ;;-------------------------------------------------------------

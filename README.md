@@ -62,8 +62,12 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ### Dataframe read/write  
 
-[`(dataframe-write df path overwrite?)`](#df-write)  
+[`(dataframe-write df path overwrite)`](#df-write)  
 [`(dataframe-read path)`](#df-read)  
+[`(dataframe->csv df path overwrite)`](#df-csv)  
+[`(dataframe->tsv df path overwrite)`](#df-tsv)  
+[`(csv->dataframe path header)`](#csv-df)  
+[`(tsv->dataframe path header)`](#tsv-df)  
 
 ### Select, drop, and rename columns  
 
@@ -493,26 +497,56 @@ Exception in (make-series name src): name(s) not symbol(s)
 
 ## Dataframe read/write    
 
-#### <a name="df-write"></a> procedure: `(dataframe-write df path overwrite?)`  
-**writes:** a dataframe `df` as a Scheme object to `path`; default value for `overwrite?` is #t  
+#### <a name="df-write"></a> procedure: `(dataframe-write df path overwrite)`  
+#### <a name="df-csv"></a> procedure: `(dataframe->csv df path overwrite)`  
+#### <a name="df-tsv"></a> procedure: `(dataframe->tsv df path overwrite)`  
+**writes:** a dataframe `df` as a Scheme object or CSV/TSV file to `path`; default value for `overwrite` is #t  
 
 #### <a name="df-read"></a> procedure: `(dataframe-read path)`  
-**returns:** a dataframe from `path`
+#### <a name="csv-df"></a> procedure: `(csv->dataframe path header)`  
+#### <a name="tsv-df"></a> procedure: `(tsv->dataframe path header)`  
+**returns:** a dataframe from Scheme object or CSV/TSV file at `path`; for CSV/TSV file, default value for `header` is #t
 
 ```
 > (define df 
     (make-df* 
-      (grp "b" "b" "a" "b" "a")
-      (trt 'b 'b 'b 'a 'a)
-      (adult 5 4 2 3 1)
-      (juv 50 40 20 30 10)))
+      (Boolean #t #f #t)
+      (Char #\y #\e #\s)
+      (String "these" "are" "strings")
+      (Symbol 'these 'are 'symbols)
+      (Number 1.1 2 3.2)
+      (Other (cons 1 2) '(a b c) (make-df* (a 2)))))
 
-> (dataframe-write df "df-example.scm" #t)
+> (dataframe-display df)
 
-> (define df2 (dataframe-read "df-example.scm"))
+ dim: 3 rows x 6 cols
+  Boolean    Char   String   Symbol  Number        Other 
+   <bool>   <chr>    <str>    <sym>   <num>      <other> 
+       #t       y    these    these  1.1000       <pair> 
+       #f       e      are      are  2.0000       <list> 
+       #t       s  strings  symbols  3.2000  <dataframe> 
 
-> (dataframe-equal? df df2)
-#t
+> (dataframe-write df "df-example.scm")
+
+> (dataframe-display (dataframe-read "df-example.scm"))
+ ;; types are preserved
+ dim: 3 rows x 6 cols
+  Boolean    Char   String   Symbol  Number        Other 
+   <bool>   <chr>    <str>    <sym>   <num>      <other> 
+       #t       y    these    these  1.1000       <pair> 
+       #f       e      are      are  2.0000       <list> 
+       #t       s  strings  symbols  3.2000  <dataframe> 
+
+> (dataframe->csv df "df-example.csv")
+
+> (dataframe-display (csv->dataframe "df-example.csv"))
+ ;; types are not preserved; for `other`, values are not preserved
+ dim: 3 rows x 6 cols
+  Boolean    Char   String   Symbol  Number   Other 
+    <str>   <str>    <str>    <str>   <num>    <na> 
+       #t       y    these    these  1.1000      na 
+       #f       e      are      are  2.0000      na 
+       #t       s  strings  symbols  3.2000      na 
 ```
 
 ## Select, drop, and rename columns  
