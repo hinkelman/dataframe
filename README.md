@@ -62,12 +62,12 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ### Dataframe read/write  
 
-[`(dataframe-write df path overwrite)`](#df-write)  
+[`(dataframe-write df path [overwrite])`](#df-write)  
 [`(dataframe-read path)`](#df-read)  
-[`(dataframe->csv df path overwrite)`](#df-csv)  
-[`(dataframe->tsv df path overwrite)`](#df-tsv)  
-[`(csv->dataframe path header)`](#csv-df)  
-[`(tsv->dataframe path header)`](#tsv-df)  
+[`(dataframe->csv df path [overwrite])`](#df-csv)  
+[`(dataframe->tsv df path [overwrite])`](#df-tsv)  
+[`(csv->dataframe path [header])`](#csv-df)  
+[`(tsv->dataframe path [header])`](#tsv-df)  
 
 ### Select, drop, and rename columns  
 
@@ -125,6 +125,17 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 [`(-> expr ...)`](#thread-first)  
 [`(->> expr ...)`](#thread-last)  
+
+### Aggregation procedures
+
+[`(sum lst [na-rm])`](#sum)  
+[`(mean lst [na-rm])`](#mean)  
+[`(median lst [type na-rm])`](#median)  
+[`(quantile lst p [type na-rm])`](#quantile)  
+
+### Element-wise procedures
+
+[`(cumulative-sum lst)`](#cumulative-sum)  
 
 ## Type conversion  
 
@@ -497,14 +508,14 @@ Exception in (make-series name src): name(s) not symbol(s)
 
 ## Dataframe read/write    
 
-#### <a name="df-write"></a> procedure: `(dataframe-write df path overwrite)`  
-#### <a name="df-csv"></a> procedure: `(dataframe->csv df path overwrite)`  
-#### <a name="df-tsv"></a> procedure: `(dataframe->tsv df path overwrite)`  
+#### <a name="df-write"></a> procedure: `(dataframe-write df path [overwrite])`  
+#### <a name="df-csv"></a> procedure: `(dataframe->csv df path [overwrite])`  
+#### <a name="df-tsv"></a> procedure: `(dataframe->tsv df path [overwrite])`  
 **writes:** a dataframe `df` as a Scheme object or CSV/TSV file to `path`; default value for `overwrite` is #t  
 
 #### <a name="df-read"></a> procedure: `(dataframe-read path)`  
-#### <a name="csv-df"></a> procedure: `(csv->dataframe path header)`  
-#### <a name="tsv-df"></a> procedure: `(tsv->dataframe path header)`  
+#### <a name="csv-df"></a> procedure: `(csv->dataframe path [header])`  
+#### <a name="tsv-df"></a> procedure: `(tsv->dataframe path [header])`  
 **returns:** a dataframe from Scheme object or CSV/TSV file at `path`; for CSV/TSV file, default value for `header` is #t
 
 ```
@@ -1523,4 +1534,76 @@ Exception in (make-series name src): name(s) not symbol(s)
        b       b      5.     50.       40. 
 ```
 
+## Aggregation procedures
 
+#### <a name="sum"></a> procedure: `(sum lst [na-rm])`
+**returns:** the sum of the values in `lst`; `na-rm` defaults to #t
+
+```
+> (sum (iota 10))
+45
+> (apply + (iota 10))
+45
+> (sum (cons 'na (iota 10)))
+45
+> (apply + (cons 'na (iota 10)))
+Exception in +: na is not a number
+> (sum (cons 'na (iota 10)) #f)
+na
+> (sum '(#t #f #t #f #t))
+3
+> (length (filter (lambda (x) x) '(#t #f #t #f #t)))
+3
+```
+
+#### <a name="mean"></a> procedure: `(mean lst [na-rm])`
+**returns:** the arithmetic mean of the values in `lst`; `na-rm` defaults to #t
+
+```
+> (mean '(1 2 3 4 5))
+3
+> (mean '(-10 0 10))
+0
+> (mean '(-10 0 10 na) #f)
+na
+> (exact->inexact (mean '(1 2 3 4 5 150)))
+27.5
+```
+
+#### <a name="median"></a> procedure: `(median lst [na-rm])`
+**returns:** the median of `lst`; `na-rm` defaults to #t
+
+```
+> (median '(1 2 3 4 5 6))
+3.5
+> (quantile '(1 2 3 4 5 6) 0.5 7)
+3.5
+```
+
+#### <a name="quantile"></a> procedure: `(quantile lst p [type])`
+**returns:** the sample quantile of the values in `lst` corresponding to the given probability, `p`, and `type`; `na-rm` defaults to #t
+
+The quantile function follows [Hyndman and Fan 1996](https://www.jstor.org/stable/2684934) who recommend type 8, which is the default here. The [default in R](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/quantile.html) is type 7.
+
+```
+> (quantile '(1 2 3 4 5 6) 0.5 1)
+3
+> (quantile '(1 2 3 4 5 6) 0.5 4)
+3.0
+> (quantile '(1 2 3 4 5 6) 0.5 8)
+3.5
+> (quantile '(1 2 3 4 5 6) 0.025 7)
+1.125
+```
+  
+## Element-wise procedures
+
+#### <a name="cumulative-sum"></a> procedure: `(cumulative-sum lst)`
+**returns:** a list that is the cumulative sum of the values in `lst`
+
+```
+> (cumulative-sum '(1 2 3 4 5))
+(1 3 6 10 15)
+> (cumulative-sum '(5 4 3 2 1))
+(5 9 12 14 15)
+```
