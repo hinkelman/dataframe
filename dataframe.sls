@@ -54,6 +54,7 @@
    dataframe-unique
    ;; display
    dataframe-display
+   dataframe-glimpse
    ;; sort
    dataframe-sort
    dataframe-sort*

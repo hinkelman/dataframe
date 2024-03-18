@@ -59,6 +59,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Dataframe display  
 
 [`(dataframe-display df [n total-width min-width])`](#df-display)  
+[`(dataframe-glimpse df [total-width])`](#df-glimpse)  
 
 ### Dataframe read/write  
 
@@ -463,7 +464,10 @@ Exception in (make-series name src): name(s) not symbol(s)
 ## Dataframe display   
 
 #### <a name="df-display"></a> procedure: `(dataframe-display df [n total-width min-width])`  
-**displays:** the dataframe `df` up to `n` rows and the number of columns that fit in `total-width` based on the actual contents of column or minimum column width `min-width`; `total-width` and `min-width` are measured in number of characters; default values: `n = 10`, `total-width = 80`, `min-width = 7` 
+**displays:** the dataframe `df` up to `n` rows and the number of columns that fit in `total-width` based on the actual contents of column or minimum column width `min-width`; `total-width` and `min-width` are measured in number of characters; default values: `n = 10`, `total-width = 76`, `min-width = 7`  
+
+#### <a name="df-glimpse"></a> procedure: `(dataframe-glimpse df [total-width])`  
+**displays:** a transposed version of `dataframe-display` where the column names and types are displayed vertically and the data runs across the page up to `total-width`, which has a default value of 76. 
 
 ```
 > (define df 
@@ -487,14 +491,28 @@ Exception in (make-series name src): name(s) not symbol(s)
        #t       y    these    these     1/2       1.   1.000E+6   132.1000    1234.00       <pair> 
        #f       e      are      are     1/3      -2.  -1.235E+5  -157.0000    5784.00       <list> 
        #t       s  strings  symbols     1/4       3.   1.235E-6    10.2340  -76833.12  <dataframe> 
+
+> (dataframe-glimpse df)
+
+ dim: 3 rows x 10 cols
+ Boolean  <bool>   #t, #f, #t                                                   
+ Char     <chr>    y, e, s                                                      
+ String   <str>    these, are, strings                                          
+ Symbol   <sym>    these, are, symbols                                          
+ Exact    <num>    1/2, 1/3, 1/4                                                
+ Integer  <num>    1, -2, 3                                                     
+ Expt     <num>    1000000.0, -123456, 1.2346e-6                                
+ Dec4     <num>    132.1, -157, 10.234                                          
+ Dec2     <num>    1234, 5784, -76833.123                                       
+ Other    <other>  <pair>, <list>, <dataframe>    
         
-> (define df 
+> (define df2 
     (make-dataframe
      (list 
-      (make-series 'a (iota 15))
-      (make-series 'b (map add1 (iota 15))))))
+      (make-series 'a (iota 25))
+      (make-series 'b (map add1 (iota 25))))))
 
-> (dataframe-display df 5)
+> (dataframe-display df2 5)
 
  dim: 15 rows x 2 cols
        a       b 
@@ -504,6 +522,12 @@ Exception in (make-series name src): name(s) not symbol(s)
       2.      3. 
       3.      4. 
       4.      5. 
+
+> (dataframe-glimpse df2)
+
+ dim: 25 rows x 2 cols
+ a       <num>   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, ...  
+ b       <num>   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, ... 
 ```
 
 ## Dataframe read/write    
