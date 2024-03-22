@@ -10,6 +10,18 @@
 
 ;;-------------------------------------------------------------
 
+(test-begin "na-test")
+(test-equal '(1 2 3) (remove-na '(1 2 3 na)))
+(test-equal '(1 2 3) (remove-na '(1 na 2 3)))
+(test-equal '(1 NA 2 3) (remove-na '(1 NA 2 3)))
+(test-equal '(1 "na" 2 3) (remove-na '(1 "na" 2 3)))
+(test-assert (na? 'na))
+(test-assert (not (na? "na")))
+(test-assert (not (na? 'NA)))
+(test-end "na-test")
+
+;;-------------------------------------------------------------
+
 (test-begin "types-test")
 (test-equal 'num (guess-type (iota 10) 10))
 (test-equal 'str (guess-type '("a" "b" "c") 3))

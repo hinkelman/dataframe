@@ -25,6 +25,11 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ## Table of Contents  
 
+### Missing values  
+
+[`(na? obj)`](#na)   
+[`(remove-na lst)`](#remove-na)  
+
 ### Type conversion  
 
 [`(guess-type lst n-max)`](#guess-type)   
@@ -135,13 +140,38 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(median lst [type na-rm])`](#median)  
 [`(cumulative-sum lst)`](#cumulative-sum)  
 
+## Missing values  
+ 
+[`(remove-na lst)`](#remove-na)  
+
+#### <a name="na"></a> procedure: `(na? obj)`  
+**returns:** `#t` if `obj` is `'n` and `#f` otherwise
+
+```
+> (na? 'na)
+#t
+> (na? "na")
+#f
+> (na? 'NA)
+#f
+```
+
+#### <a name="remove-na"></a> procedure: `(remove-na lst)`  
+**returns:** a list with all `'na` elements removed from `lst`
+
+```
+> (remove-na '(1 na 2 3))
+(1 2 3)
+> (remove-na '(1 NA 2 3))
+(1 NA 2 3)
+> (remove-na '(1 "na" 2 3))
+(1 "na" 2 3)
+```
+
 ## Type conversion  
 
 #### <a name="guess-type"></a> procedure: `(guess-type lst n-max)`  
 **returns:** type of elements in `lst` (bool, chr, str, sym, num, or other); evaluates up to `n-max` elements of `lst` before guessing; strings that are valid numbers are assumed to be `'num`
-
-#### <a name="convert-type"></a> procedure: `(convert-type lst type)`  
-**returns:** a list with all elements of `lst` converted to `type`; elements that can't be converted to `type` are replaced with `'na`
 
 ```
 > (guess-type '(1 2 3) 3)
@@ -158,7 +188,12 @@ str
 
 > (guess-type '(a b "c") 2)
 sym
+```
 
+#### <a name="convert-type"></a> procedure: `(convert-type lst type)`  
+**returns:** a list with all elements of `lst` converted to `type`; elements that can't be converted to `type` are replaced with `'na`
+
+```
 > (convert-type '(a b "c") 'sym)
 (a b na)
 
