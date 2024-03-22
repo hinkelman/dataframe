@@ -1000,6 +1000,18 @@
 
 ;;-------------------------------------------------------------
 
+(test-begin "prod-test")
+(test-assert (= 120 (product '(1 2 3 4 5))))
+(test-assert (= 120 (product '(1 2 3 4 5 na))))
+(test-assert (symbol=? 'na (product '(1 2 3 4 5 na) #f)))
+(test-assert (= 0 (product '(#t #f #t #t #f #f))))
+(test-assert (= 1 (product '(#t #t #t #t #t))))
+(test-assert (= -48 (product '(-1 -2 -4 6))))
+(test-assert (= 6 (product '(1 2 3 #t))))
+(test-end "prod-test")
+
+;;-------------------------------------------------------------
+
 (test-begin "rle-test")
 (test-equal '((1 . 1) (2 . 1) (3 . 1) (4 . 1) (2 . 1) (1 . 1))
   (rle '(1 2 3 4 2 1)))

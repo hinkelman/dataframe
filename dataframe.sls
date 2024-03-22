@@ -84,10 +84,9 @@
    dataframe-read
    dataframe-write
    ;; statistics
-   add
-   multiply
    cumulative-sum
    sum
+   product
    mean
    median
    list-min
@@ -96,6 +95,7 @@
    rle
    ;; helpers
    na?
+   remove-na
    remove-duplicates
    rep
    transpose)

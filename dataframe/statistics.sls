@@ -1,9 +1,8 @@
 (library (dataframe statistics)
   (export
-   add
-   multiply
    cumulative-sum
    sum
+   product
    mean
    median
    list-min
@@ -18,46 +17,42 @@
                 sub1
                 make-list
                 na?
+                remove-na
                 remove-duplicates
                 transpose))
 
-  (define (add . lst)
-    (add/multiply lst +))
-    
-  (define (multiply . lst)
-    (add/multiply lst *))
- 
-  (define (add/multiply lst proc)
-    (map (lambda (row)
-           (apply proc (filter (lambda (x) (not (na? x))) row)))
-         (transpose lst)))
-    
   (define sum
     (case-lambda
       [(lst) (sum lst #t)]
-      [(lst na-rm) (sum/mean lst na-rm 'sum)]))
+      [(lst na-rm) (sum/mean/prod lst na-rm 'sum)]))
+
+  (define product
+    (case-lambda
+      [(lst) (product lst #t)]
+      [(lst na-rm) (sum/mean/prod lst na-rm 'prod)]))
 
   (define mean
     (case-lambda
       [(lst) (mean lst #t)]
-      [(lst na-rm) (sum/mean lst na-rm 'mean)]))
+      [(lst na-rm) (sum/mean/prod lst na-rm 'mean)]))
   
-  (define (sum/mean lst na-rm type)
-    (let loop ([lst lst]
-               [total 0]
-               [count 0])
-      (cond [(null? lst)
-             (if (symbol=? type 'sum) total (/ total count))]
-            [(and (na? (car lst)) (not na-rm))
-             'na]
-            [(na? (car lst))
-             (loop (cdr lst) total count)]
-            [(and (boolean? (car lst)) (not (car lst)))
-             (loop (cdr lst) total (add1 count))]
-            [(and (boolean? (car lst)) (car lst))
-             (loop (cdr lst) (add1 total) (add1 count))]
-            [else
-             (loop (cdr lst) (+ (car lst) total) (add1 count))])))
+  (define (sum/mean/prod lst na-rm type)
+    (let ([op (if (symbol=? type 'prod) * +)]
+          [init-total (if (symbol=? type 'prod) 1 0)])
+      (let loop ([lst lst]
+                 [total init-total]
+                 [count 0])
+        (cond [(null? lst)
+               (if (symbol=? type 'mean) (/ total count) total)]
+              [(and (na? (car lst)) (not na-rm))
+               'na]
+              [(na? (car lst))
+               (loop (cdr lst) total count)]
+              [(boolean? (car lst))
+               (let ([val (if (car lst) 1 0)])
+                 (loop (cdr lst) (op val total) (add1 count)))]
+              [else
+               (loop (cdr lst) (op (car lst) total) (add1 count))]))))
 
   (define (cumulative-sum lst)
     (let ([n (length lst)])
@@ -128,7 +123,7 @@
       [(lst p) (quantile lst p 8 #t)]
       [(lst p type) (quantile lst p type #t)]
       [(lst p type na-rm)
-       (let ([lst-sub (filter (lambda (x) (not (na? x))) lst)])
+       (let ([lst-sub (remove-na lst)])
          (if (and (not na-rm) (< (length lst-sub) (length lst)))
              'na
              (quantile-helper lst-sub p type)))]))

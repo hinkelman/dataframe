@@ -130,6 +130,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Aggregation procedures
 
 [`(sum lst [na-rm])`](#sum)  
+[`(product lst [na-rm])`](#prod)  
 [`(mean lst [na-rm])`](#mean)  
 [`(median lst [type na-rm])`](#median)  
 [`(quantile lst p [type na-rm])`](#quantile)  
@@ -1578,6 +1579,36 @@ na
 3
 > (length (filter (lambda (x) x) '(#t #f #t #f #t)))
 3
+
+> (define df
+    (make-df*
+     (b 4 5 6)
+     (c 7 8 'na)))
+
+> (dataframe-display 
+    (dataframe-modify* df5 (row-sum (a b c) (sum (list a b c)))))
+
+ dim: 3 rows x 4 cols
+       a       b       c  row-sum 
+   <num>   <num>   <num>    <num> 
+      1.      4.       7      12. 
+      2.      5.       8      15. 
+      3.      6.      na       9. 
+```
+
+#### <a name="prod"></a> procedure: `(product lst [na-rm])`
+**returns:** the product of the values in `lst`; `na-rm` defaults to #t
+
+```
+> (product (map add1 (iota 10)))
+3628800
+> (apply * (map add1 (iota 10)))
+3628800
+> (product (cons 'na (map add1 (iota 10))))
+> (product (cons 'na (map add1 (iota 10))) #f)
+na
+> (product '(#t #f #t #f #t))
+0
 ```
 
 #### <a name="mean"></a> procedure: `(mean lst [na-rm])`
@@ -1592,6 +1623,8 @@ na
 na
 > (exact->inexact (mean '(1 2 3 4 5 150)))
 27.5
+> (mean '(#t #f #t na))
+2/3
 ```
 
 #### <a name="median"></a> procedure: `(median lst [na-rm])`
@@ -1630,4 +1663,6 @@ The quantile function follows [Hyndman and Fan 1996](https://www.jstor.org/stabl
 (1 3 6 10 15)
 > (cumulative-sum '(5 4 3 2 1))
 (5 9 12 14 15)
+> (cumulative-sum '(1 2 3 na 4))
+(1 3 6 na na)
 ```
