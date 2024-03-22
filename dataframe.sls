@@ -89,8 +89,6 @@
    product
    mean
    median
-   list-min
-   list-max
    quantile
    rle
    ;; helpers

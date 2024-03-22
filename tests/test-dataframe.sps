@@ -959,19 +959,17 @@
 ;;-------------------------------------------------------------
 
 (test-begin "min-test")
-(test-assert (= 2 (list-min '(4 5 2))))
-(test-assert (= 2 (list-min '(na 4 5 2))))
-(test-assert (symbol=? 'na (list-min '(na 4 5 2) #f)))
-(test-error (list-min '(4 5 2 "test")))
+(test-assert (= 2 (apply min '(4 5 2))))
+(test-assert (= 2 (apply min (remove-na '(na 4 5 2)))))
+(test-error (apply min '(4 5 2 na)))
 (test-end "min-test")
 
 ;;-------------------------------------------------------------
 
 (test-begin "max-test")
-(test-assert (= 5 (list-max '(4 5 2))))
-(test-assert (= 5 (list-max '(na 4 5 2))))
-(test-assert (symbol=? 'na (list-max '(na 4 5 2) #f)))
-(test-error (list-max '(4 5 2 "test")))
+(test-assert (= 5 (apply max '(4 5 2))))
+(test-assert (= 5 (apply max (remove-na '(na 4 5 2)))))
+(test-error (apply max '(4 5 2 na)))
 (test-end "max-test")
 
 ;;-------------------------------------------------------------

@@ -5,8 +5,6 @@
    product
    mean
    median
-   list-min
-   list-max
    quantile
    rle)
 
@@ -72,31 +70,6 @@
                (loop (cdr lst) (add1 count) (+ (car lst) total)
                      (cons (+ (car lst) total) out))]))))
 
-  ;; need different names for min/max to avoid name collision
-  (define list-min
-    (case-lambda
-      [(lst) (list-min lst #t)]
-      [(lst na-rm) (min/max lst na-rm 'min)]))
-
-  (define list-max
-    (case-lambda
-      [(lst) (list-max lst #t)]
-      [(lst na-rm) (min/max lst na-rm 'max)]))
-
-  (define (min/max lst na-rm type)
-    ;; not including boolean here b/c seems less useful
-    (let ([comp (if (symbol=? type 'min) < >)])
-      (let loop ([lst lst]
-                 [result (if (symbol=? type 'min) +inf.0 -inf.0)])
-        (cond [(null? lst) result]
-              [(and (na? (car lst)) (not na-rm)) 'na]
-              [(na? (car lst))
-               (loop (cdr lst) result)]
-              [else
-               (loop (cdr lst) (if (comp (car lst) result)
-                                   (car lst)
-                                   result))]))))
-  
   (define (rle lst)
     ;; run length encoding
     ;; returns a list of pairs where the car and cdr of each pair
