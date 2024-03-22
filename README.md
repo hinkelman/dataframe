@@ -127,16 +127,12 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(-> expr ...)`](#thread-first)  
 [`(->> expr ...)`](#thread-last)  
 
-### Aggregation procedures
+### Descriptive statistics
 
 [`(sum lst [na-rm])`](#sum)  
 [`(product lst [na-rm])`](#prod)  
 [`(mean lst [na-rm])`](#mean)  
 [`(median lst [type na-rm])`](#median)  
-[`(quantile lst p [type na-rm])`](#quantile)  
-
-### Element-wise procedures
-
 [`(cumulative-sum lst)`](#cumulative-sum)  
 
 ## Type conversion  
@@ -1559,7 +1555,7 @@ Exception in (make-series name src): name(s) not symbol(s)
        b       b      5.     50.       40. 
 ```
 
-## Aggregation procedures
+## Descriptive statistics
 
 #### <a name="sum"></a> procedure: `(sum lst [na-rm])`
 **returns:** the sum of the values in `lst`; `na-rm` defaults to #t
@@ -1652,8 +1648,6 @@ The quantile function follows [Hyndman and Fan 1996](https://www.jstor.org/stabl
 > (quantile '(1 2 3 4 5 6) 0.025 7)
 1.125
 ```
-  
-## Element-wise procedures
 
 #### <a name="cumulative-sum"></a> procedure: `(cumulative-sum lst)`
 **returns:** a list that is the cumulative sum of the values in `lst`
