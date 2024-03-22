@@ -7,6 +7,7 @@
    iota
    enumerate
    na?
+   remove-na
    flatten
    not-in
    remove-duplicates
@@ -18,6 +19,9 @@
   (define (na? obj)
     (and (symbol? obj)
          (symbol=? obj 'na)))
+
+  (define (remove-na lst)
+    (filter (lambda (x) (not (na? x))) lst))
 
   (define (flatten x)
     (cond ((null? x) '())
