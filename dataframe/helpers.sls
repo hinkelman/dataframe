@@ -49,13 +49,13 @@
     (filter (lambda (x) (not (member x ys))) xs))
 
   (define (rep lst n type)
-    (cond [(symbol=? type 'each)
-           (apply append (map (lambda (x) (make-list n x)) lst))]
-          [(symbol=? type 'times)
-           (rep-times lst n)]
-          [else
-           (assertion-violation "(rep lst n type)"
-                                "type must be 'each or 'times")]))
+    (unless (and (symbol? type) (member type '(times each)))
+      (assertion-violation
+       "(rep lst n type)"
+       "type must be 'each or 'times"))
+    (if (symbol=? type 'each)
+        (apply append (map (lambda (x) (make-list n x)) lst))
+        (rep-times lst n)))
 
   (define (rep-times lst n)
     (define (loop out n)
