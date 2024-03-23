@@ -1022,6 +1022,21 @@
 
 ;;-------------------------------------------------------------
 
+(test-begin "count-test")
+(test-equal 3 (count 'a '(a b a b a)))
+(test-equal 2 (count "test" '("test" "this" "test" "that")))
+(test-equal '((1 . 2) (2 . 2) (3 . 1) (4 . 1))
+  (count-elements '(1 2 3 4 2 1)))
+(test-equal '((1.1 . 3) (1 . 1) (2.2 . 1) (2 . 1))
+  (count-elements '(1.1 1 2.2 2 1.1 1.1)))
+(test-equal '((0.5 . 1) (1/2 . 2) (1 . 2) (2 . 1))
+ (count-elements '(0.5 1/2 #e0.5 1 1 2)))
+(test-equal '(("a" . 2) ("b" . 2))
+  (count-elements '("a" "b" "b" "a")))
+(test-end "count-test")
+
+;;-------------------------------------------------------------
+
 (test-begin "rle-test")
 (test-equal '((1 . 1) (2 . 1) (3 . 1) (4 . 1) (2 . 1) (1 . 1))
   (rle '(1 2 3 4 2 1)))
@@ -1035,16 +1050,13 @@
 
 ;;-------------------------------------------------------------
 
-(test-begin "count-elements-test")
-(test-equal '((1 . 2) (2 . 2) (3 . 1) (4 . 1))
-  (count-elements '(1 2 3 4 2 1)))
-(test-equal '((1.1 . 3) (1 . 1) (2.2 . 1) (2 . 1))
-  (count-elements '(1.1 1 2.2 2 1.1 1.1)))
-(test-equal '((0.5 . 1) (1/2 . 2) (1 . 2) (2 . 1))
- (count-elements '(0.5 1/2 #e0.5 1 1 2)))
-(test-equal '(("a" . 2) ("b" . 2))
-  (count-elements '("a" "b" "b" "a")))
-(test-end "count-elements-test")
+(test-begin "rep-test")
+(test-equal '(1 2 1 2 1 2) (rep '(1 2) 3 'times))
+(test-equal '(1 1 1 2 2 2) (rep '(1 2) 3 'each))
+(test-equal '("test" "this" "test" "this") (rep '("test" "this") 2 'times))
+(test-error (rep 10 2 'each))
+(test-error (rep '(10) 2 "each"))
+(test-end "rep-test")
 
 ;;-------------------------------------------------------------
 
@@ -1077,6 +1089,20 @@
 (test-assert (= 1.125 (quantile '(1 2 3 4 5 6) 0.025 7)))
 (test-error (quantile '(1 2) 0.5 100))
 (test-end "quantile-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "transpose-test")
+(test-equal '((1 5) (2 6) (3 7) (4 8)) (transpose '((1 2 3 4) (5 6 7 8))))
+(test-equal '((1 2 3 4) (5 6 7 8)) (transpose '((1 5) (2 6) (3 7) (4 8))))
+(test-end "transpose-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "remove-duplicates-test")
+(test-equal '(a b c d na) (remove-duplicates '(a b b c c c d d d d na)))
+(test-equal '(1 2 3 4) (remove-duplicates '(1 2 3 4 2 3 4 3 4 4)))
+(test-end "remove-duplicates-test")
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 

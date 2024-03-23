@@ -25,11 +25,6 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ## Table of Contents  
 
-### Missing values  
-
-[`(na? obj)`](#na)   
-[`(remove-na lst)`](#remove-na)  
-
 ### Type conversion  
 
 [`(guess-type lst n-max)`](#guess-type)   
@@ -132,41 +127,24 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(-> expr ...)`](#thread-first)  
 [`(->> expr ...)`](#thread-last)  
 
+### Missing values  
+
+[`(na? obj)`](#na)   
+[`(remove-na lst)`](#remove-na)  
+
 ### Descriptive statistics
 
+[`(count obj lst)`](#count)  
+[`(count-elements lst)`](#count-elements)  
+[`(rle lst)`](#rle)  
+[`(remove-duplicates lst)`](#remove-duplicates)  
+[`(rep lst n type)`](#rep)  
+[`(tranpose lst)`](#transpose)  
 [`(sum lst [na-rm])`](#sum)  
 [`(product lst [na-rm])`](#prod)  
 [`(mean lst [na-rm])`](#mean)  
 [`(median lst [type na-rm])`](#median)  
 [`(cumulative-sum lst)`](#cumulative-sum)  
-
-## Missing values  
- 
-[`(remove-na lst)`](#remove-na)  
-
-#### <a name="na"></a> procedure: `(na? obj)`  
-**returns:** `#t` if `obj` is `'n` and `#f` otherwise
-
-```
-> (na? 'na)
-#t
-> (na? "na")
-#f
-> (na? 'NA)
-#f
-```
-
-#### <a name="remove-na"></a> procedure: `(remove-na lst)`  
-**returns:** a list with all `'na` elements removed from `lst`
-
-```
-> (remove-na '(1 na 2 3))
-(1 2 3)
-> (remove-na '(1 NA 2 3))
-(1 NA 2 3)
-> (remove-na '(1 "na" 2 3))
-(1 "na" 2 3)
-```
 
 ## Type conversion  
 
@@ -1590,7 +1568,82 @@ Exception in (make-series name src): name(s) not symbol(s)
        b       b      5.     50.       40. 
 ```
 
+## Missing values  
+ 
+[`(remove-na lst)`](#remove-na)  
+
+#### <a name="na"></a> procedure: `(na? obj)`  
+**returns:** `#t` if `obj` is `'n` and `#f` otherwise
+
+```
+> (na? 'na)
+#t
+> (na? "na")
+#f
+> (na? 'NA)
+#f
+```
+
+#### <a name="remove-na"></a> procedure: `(remove-na lst)`  
+**returns:** a list with all `'na` elements removed from `lst`
+
+```
+> (remove-na '(1 na 2 3))
+(1 2 3)
+> (remove-na '(1 NA 2 3))
+(1 NA 2 3)
+> (remove-na '(1 "na" 2 3))
+(1 "na" 2 3)
+```
+
 ## Descriptive statistics
+
+#### <a name="count"></a> procedure: `(count obj lst)`
+**returns:** number of `obj` in `lst`
+
+#### <a name="count-elements"></a> procedure: `(count-elements lst)`
+**returns:** list of pairs (element . count) for every unique element in `lst`
+
+#### <a name="rle"></a> procedure: `(rle lst)`
+**returns:** list of pairs (element . count) for the run-lenght encoding of `lst`
+
+#### <a name="remove-duplicates"></a> procedure: `(remove-duplicates lst)`
+**returns:** list of unique elements in `lst`
+
+```
+> (define x '(a b b c c c d d d d na))
+> (count 'c x)
+3
+> (count 'e x)
+0
+> (count-elements x)
+((a . 1) (b . 2) (c . 3) (d . 4) (na . 1))
+> (rle x)
+((a . 1) (b . 2) (c . 3) (d . 4) (na . 1))
+> (rle '(1 1 2 1 1 0 2 2))
+((1 . 2) (2 . 1) (1 . 2) (0 . 1) (2 . 2))
+> (remove-duplicates x)
+(a b c d na)
+```
+#### <a name="rep"></a> procedure: `(rep lst n type)`
+**returns:** list formed by repeating `lst` `n` times; `type` should be either `'times` or `'each`
+
+```
+> (rep '(1 2) 3 'times)
+(1 2 1 2 1 2)
+> (rep '(1 2) 3 'each)
+(1 1 1 2 2 2)
+```
+
+#### <a name="transpose"></a> procedure: `(transpose lst)`
+**returns:** transposed list of elements in `lst`
+
+```
+> (transpose '((1 2 3 4) (5 6 7 8)))
+((1 5) (2 6) (3 7) (4 8))
+> (transpose '((1 5) (2 6) (3 7) (4 8)))
+((1 2 3 4) (5 6 7 8))
+```
 
 #### <a name="sum"></a> procedure: `(sum lst [na-rm])`
 **returns:** the sum of the values in `lst`; `na-rm` defaults to #t
