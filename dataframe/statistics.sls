@@ -9,6 +9,7 @@
    weighted-mean
    median
    quantile
+   interquartile-range
    rle)
 
   (import (rnrs)
@@ -159,9 +160,18 @@
 
   (define median
     (case-lambda
-      [(lst) (quantile lst 0.5)]
-      [(lst type) (quantile lst 0.5 type)]
-      [(lst type na.rm) (quantile lst 0.5 type na.rm)]))
+      [(lst) (quantile lst 0.5 8 #t)]
+      [(lst type) (quantile lst 0.5 type #t)]
+      [(lst type na-rm) (quantile lst 0.5 type na-rm)]))
+
+  (define interquartile-range
+    (case-lambda
+      [(lst) (interquartile-range lst 8 #t)]
+      [(lst type) (interquartile-range lst type #t)]
+      [(lst type na-rm)
+       (let ([lwr (quantile lst 0.25 type na-rm)]
+             [upr (quantile lst 0.75 type na-rm)])
+         (if (or (na? lwr) (na? upr)) 'na (- upr lwr)))]))
 
   )
 

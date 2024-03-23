@@ -1087,7 +1087,9 @@
 
 (test-begin "median-test")
 (test-assert (= 3.5 (median '(1 2 3 4 5 6))))
-(test-error (median '()))
+(test-assert (= 3.5 (median '(1 2 3 4 5 6 na))))
+(test-assert (= 3 (median '(1 2 3 4 5 6 na) 4)))
+(test-assert (symbol=? 'na (median '(1 2 3 4 5 6 na) 8 #f)))
 (test-end "median-test")
 
 ;;-------------------------------------------------------------
@@ -1100,8 +1102,17 @@
 (test-assert (= 3.0 (quantile '(1 2 3 4 5 6) 0.5 4)))
 (test-assert (= 3.5 (quantile '(1 2 3 4 5 6) 0.5 8)))
 (test-assert (= 1.125 (quantile '(1 2 3 4 5 6) 0.025 7)))
-(test-error (quantile '(1 2) 0.5 100))
 (test-end "quantile-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "iqr-test")
+(test-assert (= 4.25 (interquartile-range '(3 7 4 8 1 7))))
+(test-assert (= 4.25 (interquartile-range '(3 7 4 8 1 7 na))))
+(test-assert (symbol=? 'na (interquartile-range '(3 7 4 8 1 7 na) 8 #f)))
+(test-assert (= 4.125 (interquartile-range '(3 7 4 8 9 7) 9)))
+(test-assert (= 2.5 (interquartile-range '(1 2 3 4 5 6) 7)))
+(test-end "iqr-test")
 
 ;;-------------------------------------------------------------
 

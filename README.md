@@ -145,6 +145,8 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(mean lst [na-rm])`](#mean)  
 [`(weighted-mean lst weights [na-rm])`](#weighted-mean)  
 [`(median lst [type na-rm])`](#median)  
+[`(quantile lst p [type na-rm])`](#quantile)  
+[`(interquartile-range lst [type na-rm])`](#iqr)  
 [`(cumulative-sum lst)`](#cumulative-sum)  
 
 ## Type conversion  
@@ -1713,7 +1715,7 @@ na
 ```
 
 #### <a name="weighted-mean"></a> procedure: `(weighted-mean lst weights [na-rm])`
-**returns:** the arithmetic mean of the values in `lst` weighted by the values in `weights`; `na-rm` is only applied to `lst`; any `'na` in weights yields `'na`
+**returns:** the arithmetic mean of the values in `lst` weighted by the values in `weights`; `na-rm` is only applied to `lst` and defaults to `#t`; any `'na` in weights yields `'na`
 
 ```
 > (weighted-mean '(1 2 3 4 5) '(5 4 3 2 1))
@@ -1732,18 +1734,17 @@ na
 13/4
 ```
 
-
-#### <a name="median"></a> procedure: `(median lst [na-rm])`
-**returns:** the median of `lst`; `na-rm` defaults to #t
+#### <a name="median"></a> procedure: `(median lst [type na-rm])`
+**returns:** the median of `lst` corresponding to the given `type`, which defaults to 8 (see `quantile` for more info on `type`); `na-rm` defaults to `#t`
 
 ```
 > (median '(1 2 3 4 5 6))
 3.5
-> (quantile '(1 2 3 4 5 6) 0.5 7)
+> (quantile '(1 2 3 4 5 6) 0.5)
 3.5
 ```
 
-#### <a name="quantile"></a> procedure: `(quantile lst p [type])`
+#### <a name="quantile"></a> procedure: `(quantile lst p [type na-rm])`
 **returns:** the sample quantile of the values in `lst` corresponding to the given probability, `p`, and `type`; `na-rm` defaults to #t
 
 The quantile function follows [Hyndman and Fan 1996](https://www.jstor.org/stable/2684934) who recommend type 8, which is the default here. The [default in R](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/quantile.html) is type 7.
@@ -1757,6 +1758,18 @@ The quantile function follows [Hyndman and Fan 1996](https://www.jstor.org/stabl
 3.5
 > (quantile '(1 2 3 4 5 6) 0.025 7)
 1.125
+```
+
+#### <a name="iqr"></a> procedure: `(interquartile-range lst [type na-rm])`
+**returns:** the difference in the 0.25 and 0.75 sample quantiles of the values in `lst` corresponding to the given `type`, which defaults to 8 (see `quantile` for more info on `type`); `na-rm` defaults to `#t`
+
+```
+> (interquartile-range '(1 2 3 5 5))
+3.3333333333333335
+> (interquartile-range '(1 2 3 5 5) 1)
+3
+> (interquartile-range '(3 7 4 8 9 7) 9)
+4.125
 ```
 
 #### <a name="cumulative-sum"></a> procedure: `(cumulative-sum lst)`

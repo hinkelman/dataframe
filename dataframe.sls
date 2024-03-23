@@ -91,6 +91,7 @@
    weighted-mean
    median
    quantile
+   interquartile-range
    rle
    ;; helpers
    na?
