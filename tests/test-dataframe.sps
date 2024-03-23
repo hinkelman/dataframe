@@ -990,11 +990,24 @@
 ;; they work correctly in the REPL
 (test-begin "mean-test")
 (test-assert (= 3 (mean '(1 2 3 4 5))))
-;; (test-assert (= 3 (mean '(1 2 3 4 5 na))))
+;; (test-equal (= 3 (mean '(1 2 3 4 5 na))))
 (test-assert (= 0 (mean '(-10 0 10))))
 (test-assert (= 27.5 (exact->inexact (mean '(1 2 3 4 5 150)))))
 ;; (test-assert (symbol=? 'na (mean '(-10 0 10 na) #f)))
 (test-end "mean-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "weighted-mean-test")
+(test-assert (= 7/3 (weighted-mean '(1 2 3 4 5) '(5 4 3 2 1))))
+(test-assert (= 3 (weighted-mean '(1 2 3 4 5) '(2 2 2 2 2))))
+(test-assert (= 3 (weighted-mean '(1 2 3 4 5 na) '(2 2 2 2 2 2))))
+(test-assert (symbol=? 'na (weighted-mean '(1 2 3 4 5 na) '(2 2 2 2 2 2) #f)))
+(test-assert (symbol=? 'na (weighted-mean '(1 2 3 4 5 6) '(2 2 na 2 2 2) #f)))
+(test-assert (symbol=? 'na (weighted-mean '(1 2 3 4 5 6) '(2 2 na 2 2 2))))
+(test-assert (= 13/4 (weighted-mean '(1 2 3 4 5) '(2 0 2 2 2))))
+(test-error (weighted-mean '(1) '(1 2 3)))
+(test-end "weighted-mean-test")
 
 ;;-------------------------------------------------------------
 

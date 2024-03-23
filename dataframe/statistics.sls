@@ -1,9 +1,12 @@
+;; only bringing procedures here from chez-stats  where want to auto remove 'na (and calculate on booleans)
+
 (library (dataframe statistics)
   (export
    cumulative-sum
    sum
    product
    mean
+   weighted-mean
    median
    quantile
    rle)
@@ -22,35 +25,60 @@
   (define sum
     (case-lambda
       [(lst) (sum lst #t)]
-      [(lst na-rm) (sum/mean/prod lst na-rm 'sum)]))
+      [(lst na-rm)
+       (let-values ([(total count)
+                     (sum/prod/mean lst na-rm + 0 1)])
+         total)]))
 
   (define product
     (case-lambda
       [(lst) (product lst #t)]
-      [(lst na-rm) (sum/mean/prod lst na-rm 'prod)]))
+      [(lst na-rm)
+       (let-values ([(total count)
+                     (sum/prod/mean lst na-rm * 1 1)])
+         total)]))
 
   (define mean
     (case-lambda
       [(lst) (mean lst #t)]
-      [(lst na-rm) (sum/mean/prod lst na-rm 'mean)]))
+      [(lst na-rm)
+       (let-values ([(total count)
+                     (sum/prod/mean lst na-rm + 0 1)])
+         (if (na? total) 'na (/ total count)))]))
+
+  (define weighted-mean
+    (case-lambda
+      [(lst weights) (weighted-mean lst weights #t)]
+      [(lst weights na-rm)
+       (let-values ([(total count)
+                     (sum/prod/mean lst na-rm + 0 weights)])
+         (if (na? total) 'na (/ total count)))]))
   
-  (define (sum/mean/prod lst na-rm type)
-    (let ([op (if (symbol=? type 'prod) * +)]
-          [init-total (if (symbol=? type 'prod) 1 0)])
-      (let loop ([lst lst]
-                 [total init-total]
-                 [count 0])
+  (define (sum/prod/mean lst na-rm op init-total weights)
+    ;; for everything except weighted mean; weights will be scalar = 1
+    (when (list? weights)
+      (unless (= (length lst) (length weights))
+        (assertion-violation "(weighted-mean lst weights)"
+                             "lst and weights are not the same length")))
+    (let loop ([lst lst]
+               [weights weights]
+               [total init-total]
+               [count 0])
+      (let* ([weight-test (and (list? weights) (not (null? weights)))]
+             [weight (if weight-test (car weights) weights)]
+             [next-weight (if weight-test (cdr weights) weights)])
         (cond [(null? lst)
-               (if (symbol=? type 'mean) (/ total count) total)]
-              [(and (na? (car lst)) (not na-rm))
-               'na]
+               (values total count)]
+              ;; any na values in weights yields na
+              [(or (na? weight) (and (not na-rm) (na? (car lst))))
+               (values 'na 'na)]
               [(na? (car lst))
-               (loop (cdr lst) total count)]
+               (loop (cdr lst) next-weight total count)]
               [(boolean? (car lst))
                (let ([val (if (car lst) 1 0)])
-                 (loop (cdr lst) (op val total) (add1 count)))]
+                 (loop (cdr lst) next-weight (op (* val weight) total) (+ weight count)))]
               [else
-               (loop (cdr lst) (op (car lst) total) (add1 count))]))))
+               (loop (cdr lst) next-weight (op (* (car lst) weight) total) (+ weight count))]))))
 
   (define (cumulative-sum lst)
     (let ([n (length lst)])
@@ -62,13 +90,12 @@
                (reverse out)]
               [(na? (car lst))
                (append (reverse out) (make-list (- n count) 'na))]
-              [(and (boolean? (car lst)) (not (car lst)))
-               (loop (cdr lst) (add1 count) total (cons total out))]
-              [(and (boolean? (car lst)) (car lst))
-               (loop (cdr lst) (add1 count) (add1 total) (cons (add1 total) out))]
-              [else
-               (loop (cdr lst) (add1 count) (+ (car lst) total)
-                     (cons (+ (car lst) total) out))]))))
+              [(boolean? (car lst))
+               (let ([val (if (car lst) 1 0)])
+                 (loop (cdr lst) (add1 count) (+ val total) (cons (+ val total) out)))]
+               [else
+                (loop (cdr lst) (add1 count) (+ (car lst) total)
+                      (cons (+ (car lst) total) out))]))))
 
   (define (rle lst)
     ;; run length encoding

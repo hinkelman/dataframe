@@ -143,6 +143,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(sum lst [na-rm])`](#sum)  
 [`(product lst [na-rm])`](#prod)  
 [`(mean lst [na-rm])`](#mean)  
+[`(weighted-mean lst weights [na-rm])`](#weighted-mean)  
 [`(median lst [type na-rm])`](#median)  
 [`(cumulative-sum lst)`](#cumulative-sum)  
 
@@ -1710,6 +1711,27 @@ na
 > (mean '(#t #f #t na))
 2/3
 ```
+
+#### <a name="weighted-mean"></a> procedure: `(weighted-mean lst weights [na-rm])`
+**returns:** the arithmetic mean of the values in `lst` weighted by the values in `weights`; `na-rm` is only applied to `lst`; any `'na` in weights yields `'na`
+
+```
+> (weighted-mean '(1 2 3 4 5) '(5 4 3 2 1))
+7/3
+> (weighted-mean '(1 2 3 4 na) '(5 4 3 2 1))
+15/7
+> (weighted-mean '(1 2 3 4 5) '(5 4 3 2 na))
+na
+> (weighted-mean '(1 2 3 4 5) '(2 2 2 2 2))
+3
+> (mean '(1 2 3 4 5))
+3
+> (weighted-mean '(1 2 3 4 5) '(2 0 2 2 2))
+13/4
+> (mean '(1 3 4 5))
+13/4
+```
+
 
 #### <a name="median"></a> procedure: `(median lst [na-rm])`
 **returns:** the median of `lst`; `na-rm` defaults to #t

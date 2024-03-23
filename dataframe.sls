@@ -88,6 +88,7 @@
    sum
    product
    mean
+   weighted-mean
    median
    quantile
    rle
