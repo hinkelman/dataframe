@@ -133,6 +133,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 ### Missing values  
 
 [`(na? obj)`](#na)   
+[`(any-na? lst)`](#any-na)   
 [`(remove-na lst)`](#remove-na)  
 
 ### Descriptive statistics
@@ -147,6 +148,8 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(product lst [na-rm])`](#prod)  
 [`(mean lst [na-rm])`](#mean)  
 [`(weighted-mean lst weights [na-rm])`](#weighted-mean)  
+[`(variance lst [na-rm])`](#variance)  
+[`(standard-deviation lst [na-rm])`](#standard-deviation)  
 [`(median lst [type na-rm])`](#median)  
 [`(quantile lst p [type na-rm])`](#quantile)  
 [`(interquartile-range lst [type na-rm])`](#iqr)  
@@ -1578,10 +1581,11 @@ Exception in (make-series name src): name(s) not symbol(s)
 
 ## Missing values  
  
-[`(remove-na lst)`](#remove-na)  
-
 #### <a name="na"></a> procedure: `(na? obj)`  
-**returns:** `#t` if `obj` is `'n` and `#f` otherwise
+**returns:** `#t` if `obj` is `'na` and `#f` otherwise
+
+#### <a name="any-na"></a> procedure: `(any-na? lst)`  
+**returns:** `#t` if any elements of `lst` are `'na` and `#f` otherwise
 
 ```
 > (na? 'na)
@@ -1589,6 +1593,12 @@ Exception in (make-series name src): name(s) not symbol(s)
 > (na? "na")
 #f
 > (na? 'NA)
+#f
+> (any-na? (iota 10))
+#f
+> (any-na? (cons 'na (iota 10)))
+#t
+> (any-na? (cons "na" (iota 10)))
 #f
 ```
 
@@ -1713,7 +1723,7 @@ na
 0
 > (mean '(-10 0 10 na) #f)
 na
-> (exact->inexact (mean '(1 2 3 4 5 150)))
+> (inexact (mean '(1 2 3 4 5 150)))
 27.5
 > (mean '(#t #f #t na))
 2/3
@@ -1737,6 +1747,26 @@ na
 13/4
 > (mean '(1 3 4 5))
 13/4
+```
+
+#### <a name="variance"></a> procedure: `(variance lst [na-rm])`
+**returns:** the sample variance of the values in `lst` based on [Welford's algorithm](https://www.johndcook.com/blog/standard_deviation/); `na-rm` defaults to `#t`
+
+```
+> (inexact (variance '(1 10 100 1000)))
+233840.25
+> (variance '(0 1 2 3 4 5))
+7/2
+```
+
+#### <a name="standard-deviation"></a> procedure: `(standard-deviation lst [na-rm])`
+**returns:** the standard deviation of the values in `lst`; `na-rm` defaults to `#t`
+
+```
+> (standard-deviation '(0 1 2 3 4 5))
+1.8708286933869707
+> (sqrt (variance '(0 1 2 3 4 5)))
+1.8708286933869707
 ```
 
 #### <a name="median"></a> procedure: `(median lst [type na-rm])`

@@ -7,6 +7,7 @@
    iota
    enumerate
    na?
+   any-na?
    remove-na
    flatten
    not-in
@@ -19,6 +20,11 @@
   (define (na? obj)
     (and (symbol? obj)
          (symbol=? obj 'na)))
+
+  (define (any-na? lst)
+    (cond [(null? lst) #f]
+          [(na? (car lst)) #t]
+          [else (any-na? (cdr lst))]))
 
   (define (remove-na lst)
     (filter (lambda (x) (not (na? x))) lst))

@@ -1,4 +1,4 @@
-;; only bringing procedures here from chez-stats  where want to auto remove 'na (and calculate on booleans)
+;; only bringing procedures here from chez-stats where want to autoremove 'na (and calculate on booleans)
 
 (library (dataframe statistics)
   (export
@@ -7,6 +7,8 @@
    product
    mean
    weighted-mean
+   variance
+   standard-deviation
    median
    quantile
    interquartile-range
@@ -19,9 +21,8 @@
                 sub1
                 make-list
                 na?
-                remove-na
-                remove-duplicates
-                transpose))
+                any-na?
+                remove-na))
 
   (define sum
     (case-lambda
@@ -117,6 +118,40 @@
        [else
 	(loop (car rest) (cdr rest) 1 (cons first vals) (cons n counts))])))
 
+  (define variance
+    (case-lambda
+      [(lst) (variance-helper lst #t)]
+      [(lst na-rm) (variance-helper lst na-rm)]))
+
+  (define (variance-helper lst na-rm)
+    ;; https://www.johndcook.com/blog/standard_deviation/
+    (define (update-ms x ms i)
+      ;; ms is a pair of m and s variables
+      ;; x is current value of lst in loop
+      (let* ([m (car ms)]
+	     [s (cdr ms)]
+	     [new-m (+ m (/ (- x m) (add1 i)))]
+             [new-s (+ s (* (- x m) (- x new-m)))])
+	(cons new-m new-s)))
+    (let loop ([lst (cdr lst)]
+	       [ms (cons (car lst) 0)] 
+	       [i 1])                 ; one-based indexing in the algorithm
+      (cond [(null? lst)
+	     (/ (cdr ms) (- i 1))]
+            [(and (not na-rm) (na? (car lst)))
+             'na]
+            [(na? (car lst))
+             (loop (cdr lst) ms i)]
+            [else
+             (loop (cdr lst) (update-ms (car lst) ms i) (add1 i))])))
+  
+  (define standard-deviation
+    (case-lambda
+      [(lst) (standard-deviation lst #t)]
+      [(lst na-rm)
+       (let ([var (variance lst na-rm)])
+         (if (na? var) 'na (sqrt var)))]))
+
   (define quantile
     ;; type is an integer from 1-9
     ;; 7 is default used for R
@@ -124,10 +159,13 @@
       [(lst p) (quantile lst p 8 #t)]
       [(lst p type) (quantile lst p type #t)]
       [(lst p type na-rm)
-       (let ([lst-sub (remove-na lst)])
-         (if (and (not na-rm) (< (length lst-sub) (length lst)))
-             'na
-             (quantile-helper lst-sub p type)))]))
+       (if (and (not na-rm) (any-na? lst))
+           'na
+           ;; on large lists, this remove na step is costly (considerably more so than any-na above)
+           ;; but the iteration happens in list-sort in quantile-helper
+           ;; so would have to write custom sort that bows out when encountering the first na
+           ;; maybe do that later???
+           (quantile-helper (remove-na lst) p type))]))
 
   (define (quantile-helper lst p type)
     ;; see https://www.jstor.org/stable/2684934 for

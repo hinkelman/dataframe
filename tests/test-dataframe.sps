@@ -18,6 +18,9 @@
 (test-assert (na? 'na))
 (test-assert (not (na? "na")))
 (test-assert (not (na? 'NA)))
+(test-assert (not (any-na? (iota 10))))
+(test-assert (any-na? (cons 'na (iota 10))))
+(test-assert (not (any-na? (cons "na" (iota 10)))))
 (test-end "na-test")
 
 ;;-------------------------------------------------------------
@@ -1032,6 +1035,24 @@
 (test-assert (= -48 (product '(-1 -2 -4 6))))
 (test-assert (= 6 (product '(1 2 3 #t))))
 (test-end "prod-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "variance-test")
+(test-assert (= 233840.25 (variance '(1 10 100 1000))))
+(test-assert (= 233840.25 (variance '(1 10 100 1000 na))))
+(test-assert (symbol=? 'na (variance '(1 10 100 1000 na) #f)))
+(test-assert (= 3.5 (variance '(0 1 2 3 4 5))))
+(test-end "variance-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "standard-deviation-test")
+(test-assert (= 1.8708286933869707 (standard-deviation '(0 1 2 3 4 5))))
+(test-assert (= 1.8708286933869707 (standard-deviation '(0 1 2 3 4 5 na))))
+(test-assert (symbol=? 'na (standard-deviation '(0 1 2 3 4 5 na) #f)))
+(test-assert (= 0 (standard-deviation '(1 1 1))))
+(test-end "standard-deviation-test")
 
 ;;-------------------------------------------------------------
 

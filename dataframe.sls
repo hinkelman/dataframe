@@ -89,12 +89,15 @@
    product
    mean
    weighted-mean
+   variance
+   standard-deviation
    median
    quantile
    interquartile-range
    rle
    ;; helpers
    na?
+   any-na?
    remove-na
    remove-duplicates
    rep
