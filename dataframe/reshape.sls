@@ -5,24 +5,18 @@
   (import (rnrs)
           (dataframe join)
           (dataframe split)
-          (only (dataframe df)
-                $
-                check-df-names
-                dataframe-alist
-                dataframe-contains?
-                dataframe-dim
-                dataframe-names
-                dataframe-select
+          (dataframe record-types)
+          (only (dataframe filter)
                 dataframe-unique
-                dataframe-values-map
-                make-dataframe)
+                slist-ref)
+          (only (dataframe select)
+                dataframe-select
+                slist-drop
+                slist-select
+                $)
           (only (dataframe helpers)
-                add-names-ls-vals
                 not-in
-                rep
-                alist-drop
-                alist-ref
-                alist-repeat-rows))
+                rep))
 
   (define (dataframe-stack df names names-to values-to)
     (let ([who "(dataframe-stack df names names-to values-to)"])
@@ -31,42 +25,56 @@
         (assertion-violation who "names-to must be symbol"))
       (unless (symbol? values-to)
         (assertion-violation who "values-to must be symbol"))
-      (when (dataframe-contains? df names-to values-to)
+      (when (or (dataframe-contains? df names-to)
+                (dataframe-contains? df values-to))
         (assertion-violation who "names-to or values-to already exist in df")))
     (let* ([other-names (not-in (dataframe-names df) names)]
-           [alist-rep (alist-repeat-rows
-                       (dataframe-alist (apply dataframe-select df other-names))
+           [slist-rep (slist-repeat-rows
+                       (slist-select (dataframe-slist df) other-names)
                        (length names)
                        'times)]
            [nrows (car (dataframe-dim df))]
            [names-to-vals (rep names nrows 'each)]
-           [values-to-vals (apply append (dataframe-values-map df names))])
+           [slist-sel (slist-select (dataframe-slist df) names)]
+           ;; stack the values from each column
+           [values-to-vals (apply append (map series-lst slist-sel))])
       (make-dataframe
-       (append alist-rep
-               (list (cons names-to names-to-vals))
-               (list (cons values-to values-to-vals))))))
+       (append slist-rep
+               (list (make-series names-to names-to-vals))
+               (list (make-series values-to values-to-vals))))))
 
-  (define (dataframe-spread df names-from values-from missing-value)
-    (let ([who "(dataframe-spread df names-from values-from missing-value)"])
-      (check-df-names df who names-from values-from)
-      (unless (for-all (lambda (val) (or (symbol? val) (string? val))) ($ df names-from))
-        (assertion-violation who "values in names-from must be strings or symbols"))
-      (let* ([not-spread-names
-              (not-in (dataframe-names df) (list names-from values-from))]
-             [left-df
-              (dataframe-unique (apply dataframe-select df not-spread-names))]
-             [alists (dataframe-split-helper df (list names-from) who)]
-             ;; for each alist, we need to rename the values-from column
-             ;; with the first value in the names-from (nf) column (b/c split alist all have same value)
-             ;; then we drop the names-from column and left-join all the new dfs
-             [dfs (map (lambda (alist)
-                         (let* ([nf1 (cadar (alist-ref alist '(0) (list names-from)))]
-                                [nf2 (if (symbol? nf1) nf1 (string->symbol nf1))]
-                                [ls-vals (map cdr (alist-drop alist (list names-from)))])
-                           (make-dataframe
-                            (add-names-ls-vals (append not-spread-names (list nf2)) ls-vals))))
-                       alists)])
-        (dataframe-left-join-all (cons left-df dfs) not-spread-names missing-value))))
+  (define dataframe-spread
+    (case-lambda
+      [(df names-from values-from)
+       (dataframe-spread df names-from values-from 'na)]
+      [(df names-from values-from fill-value)
+       (let ([who "(dataframe-spread df names-from values-from fill-value)"])
+         (check-df-names df who names-from values-from)
+         (unless (for-all (lambda (val) (or (symbol? val) (string? val))) ($ df names-from))
+           (assertion-violation who "values in names-from must be strings or symbols"))
+         (let* ([not-spread-names
+                 (not-in (dataframe-names df) (list names-from values-from))]
+                [left-df
+                 (dataframe-unique (dataframe-select df not-spread-names))]
+                [slists (dataframe-split-helper df (list names-from) who)]
+                ;; for each slist, we need to rename the values-from column
+                ;; with the first value in the names-from (nf) column
+                ;; b/c split slist all have same value
+                ;; then we drop the names-from column and left-join all the new dfs
+                [dfs (map (lambda (slist)
+                            (let* ([nf1
+                                    ;; the car's are annoying; need to do lots of unwrapping
+                                    (car (series-lst
+                                          (car (slist-ref slist '(0) (list names-from)))))]
+                                   [nf2
+                                    (if (symbol? nf1) nf1 (string->symbol nf1))]
+                                   [ls-vals
+                                    (map series-lst
+                                         (slist-drop slist (list names-from)))])
+                              (make-dataframe
+                               (make-slist (append not-spread-names (list nf2)) ls-vals))))
+                          slists)])
+           (dataframe-left-join-all (cons left-df dfs) not-spread-names fill-value)))]))
   
   )
 

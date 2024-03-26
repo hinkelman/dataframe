@@ -14,7 +14,7 @@
 *.sps#*
 .#*.sps
 
-.DS_Store
-
 *.akku
 *.akku.sig
+
+tests/data

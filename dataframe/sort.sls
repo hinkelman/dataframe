@@ -3,14 +3,11 @@
           dataframe-sort*)
 
   (import (rnrs)
-          (only (dataframe df)
-                check-dataframe
-                dataframe-alist
-                make-dataframe)   
+          (dataframe record-types)
+          (only (dataframe select)
+                slist-select)
           (only (dataframe helpers)
                 enumerate
-                add-names-ls-vals
-                alist-values-map
                 remove-duplicates))
 
   ;; sort ------------------------------------------------------------------------
@@ -34,28 +31,24 @@
 
   (define (df-sort df predicates names who)
     (check-dataframe df who)
-    (let* ([alist (dataframe-alist df)]
-           [all-names (map car alist)]
-           [ranks (sum-row-ranks alist predicates names)]
-           [ls-vals-sorted (sort-ls-vals ranks (map cdr alist))])
-      (make-dataframe (add-names-ls-vals all-names ls-vals-sorted))))
-  
-  ;; sort list of values in increasing order by ranks
-  (define (sort-vals ranks vals)
-    (let ([ranks-vals (map cons ranks vals)])
-      (map cdr (list-sort (lambda (x y) (< (car x) (car y))) ranks-vals))))
-  
-  (define (sort-ls-vals ranks ls-vals)
-    (map (lambda (vals) (sort-vals ranks vals)) ls-vals))
-  
+    (let* ([slist (dataframe-slist df)]
+           [slist-sel (slist-select (dataframe-slist df) names)]
+           [all-names (dataframe-names df)]
+           [ranks (sum-row-ranks slist-sel predicates)]
+           [ls-vals-sorted (sort-ls-vals ranks (map series-lst slist))])
+      (make-dataframe (make-slist all-names ls-vals-sorted))))
+
   ;; returns the weighted sum of the ranks for each row
-  (define (sum-row-ranks alist predicates names)
-    (let* ([ls-vals (alist-values-map alist names)]
+  (define (sum-row-ranks slist predicates)
+    (let* ([ls-vals (map series-lst slist)]
            [weights (calc-weights ls-vals)]
            [ls-ranks (map (lambda (predicate ls weight)
                             (rank-list predicate ls weight))
                           predicates ls-vals weights)])
       (apply map + ls-ranks)))
+
+  (define (sort-ls-vals ranks ls-vals)
+    (map (lambda (vals) (sort-vals ranks vals)) ls-vals))
 
   ;; calculate weights for each column
   ;; logic is to start with arbitrary weight for first column
@@ -80,10 +73,10 @@
            [lookup (map cons unique-sorted ranks)]) 
       (map (lambda (x) (cdr (assoc x lookup))) ls)))
 
-  ;; (define (other-names selected-names all-names)
-  ;;   (let* ([bools (map (lambda (x) (not (member x selected-names))) all-names)]
-  ;;          [ls-rows (transpose (list bools all-names))])
-  ;;     (map cadr (filter (lambda (x) (equal? #t (car x))) ls-rows))))
-
+  ;; sort list of values in increasing order by ranks
+  (define (sort-vals ranks vals)
+    (let ([ranks-vals (map cons ranks vals)])
+      (map cdr (list-sort (lambda (x y) (< (car x) (car y))) ranks-vals))))
+  
   )
 
