@@ -1,15 +1,7 @@
+;; assumes that you are working in main dataframe directory
+(import (dataframe))
+
 ;; procedures ------------------------------------------------------
-
-(define (remove-duplicates ls)
-  (let loop ([ls ls]
-             [results '()])
-    (cond [(null? ls)
-           (reverse results)]
-          [(member (car ls) results)
-           (loop (cdr ls) results)]
-          [else
-           (loop (cdr ls) (cons (car ls) results))])))
-
 ;; parts must be strings
 (define (make-rel-path . parts)
   (let ([ds (string (directory-separator))])
@@ -64,8 +56,6 @@
              (loop (cdr lst))]))))
 
 ;; data processing ---------------------------------------------------------
-;; assumes that you are working in main dataframe directory
-(import (dataframe))
 (define fldr "dataframe")
 (define files (directory-list fldr))
 
