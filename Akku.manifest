@@ -1,7 +1,7 @@
 #!r6rs ; -*- mode: scheme; coding: utf-8 -*-
 (import (akku format manifest))
 
-(akku-package ("dataframe" "0.6.0")
+(akku-package ("dataframe" "0.7.0")
   (synopsis
    "A dataframe record type for Scheme (R6RS) with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes.")
   (authors "Travis Hinkelman")
