@@ -1,4 +1,5 @@
 ;; only bringing procedures here from chez-stats where want to autoremove 'na (and calculate on booleans)
+;; rank has more complicated 'na handling (in R) so not bringing over from chez-stats now
 
 (library (dataframe statistics)
   (export
