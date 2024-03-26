@@ -80,7 +80,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(dataframe-rename* df (old-name new-name) ...)`](#df-rename*)  
 [`(dataframe-rename-all df new-names)`](#df-rename-all)  
 
-### Filter and sort  
+### Filter
 
 [`(dataframe-unique df)`](#df-unique)  
 [`(dataframe-filter df names procedure)`](#df-filter)  
@@ -89,6 +89,9 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(dataframe-filter-all df predicate)`](#df-filter-all)  
 [`(dataframe-partition df names procedure)`](#df-partition)  
 [`(dataframe-partition* df names expr)`](#df-partition*)  
+
+### Sort 
+
 [`(dataframe-sort df predicates names)`](#df-sort)  
 [`(dataframe-sort* df (predicate name) ...)`](#df-sort*)  
 
@@ -907,6 +910,8 @@ Exception in (make-series name src): name(s) not symbol(s)
 > (dataframe-equal? drop drop*)
 #t
 ```
+
+## Sort 
 
 #### <a name="df-sort"></a> procedure: `(dataframe-sort df predicates names)`  
 **returns:** a dataframe where the rows of dataframe `df` are sorted according a list of `predicate` procedures acting on a list of column `names` 
