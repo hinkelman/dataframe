@@ -16,5 +16,3 @@
 
 *.akku
 *.akku.sig
-
-tests/data
