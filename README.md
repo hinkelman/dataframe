@@ -1366,45 +1366,50 @@ Exception in (make-series name src): name(s) not symbol(s)
 ;; if new name occurs in dataframe, then column is replaced
 ;; if not, then new column is added
 
+;; expr can refer to columns created in previous expr within the same call to dataframe-modify
+
 ;; if names is empty, 
 ;;   and procedure or expr is a scalar, then the scalar is repeated to match the number of rows in the dataframe
 ;;   and procedure or expr is a list of length equal to number of rows in dataframe, then the list is used as a column
 
 > (dataframe-display
-    (dataframe-modify
-      df
-      '(grp total scalar lst)
-      '((grp) (adult juv) () ())
-      (lambda (grp) (string-upcase grp))  
-      (lambda (adult juv) (+ adult juv))
-      (lambda () 42)
-      (lambda () '(2 4 6 8 10))))
-                                     
- dim: 5 rows x 7 cols
-     grp     trt   adult     juv   total  scalar     lst 
-   <str>   <sym>   <num>   <num>   <num>   <num>   <num> 
-       A       a      1.     10.     11.     42.      2. 
-       A       b      2.     20.     22.     42.      4. 
-       B       a      3.     30.     33.     42.      6. 
-       B       b      4.     40.     44.     42.      8. 
-       B       b      5.     50.     55.     42.     10. 
+      (dataframe-modify
+        df
+        '(grp total prop-juv scalar lst)
+        '((grp) (adult juv) (juv total) () ())
+        (lambda (grp) (string-upcase grp))  
+        (lambda (adult juv) (+ adult juv))
+        (lambda (juv total) (/ juv total))
+        (lambda () 42)
+        (lambda () '(2 4 6 8 10))))
+
+ dim: 5 rows x 8 cols
+     grp     trt   adult     juv   total  prop-juv  scalar     lst 
+   <str>   <sym>   <num>   <num>   <num>     <num>   <num>   <num> 
+       A       a      1.     10.     11.     10/11     42.      2. 
+       A       b      2.     20.     22.     10/11     42.      4. 
+       B       a      3.     30.     33.     10/11     42.      6. 
+       B       b      4.     40.     44.     10/11     42.      8. 
+       B       b      5.     50.     55.     10/11     42.     10. 
+
 
 > (dataframe-display
     (dataframe-modify*
       df
       (grp (grp) (string-upcase grp))    
       (total (adult juv) (+ adult juv))
+      (prop-juv (juv total) (/ juv total))
       (scalar () 42)
       (lst () '(2 4 6 8 10))))
 
- dim: 5 rows x 7 cols
-     grp     trt   adult     juv   total  scalar     lst 
-   <str>   <sym>   <num>   <num>   <num>   <num>   <num> 
-       A       a      1.     10.     11.     42.      2. 
-       A       b      2.     20.     22.     42.      4. 
-       B       a      3.     30.     33.     42.      6. 
-       B       b      4.     40.     44.     42.      8. 
-       B       b      5.     50.     55.     42.     10. 
+ dim: 5 rows x 8 cols
+     grp     trt   adult     juv   total  prop-juv  scalar     lst 
+   <str>   <sym>   <num>   <num>   <num>     <num>   <num>   <num> 
+       A       a      1.     10.     11.     10/11     42.      2. 
+       A       b      2.     20.     22.     10/11     42.      4. 
+       B       a      3.     30.     33.     10/11     42.      6. 
+       B       b      4.     40.     44.     10/11     42.      8. 
+       B       b      5.     50.     55.     10/11     42.     10. 
 
 ```
 
@@ -1470,8 +1475,8 @@ Exception in (make-series name src): name(s) not symbol(s)
       '(grp)
       '(adult-sum juv-sum)
       '((adult) (juv))
-      (lambda (adult) (apply + adult))
-      (lambda (juv) (apply + juv)))) 
+      (lambda (adult) (sum adult))
+      (lambda (juv) (sum juv)))) 
 
  dim: 2 rows x 3 cols
      grp  adult-sum  juv-sum 
@@ -1483,8 +1488,8 @@ Exception in (make-series name src): name(s) not symbol(s)
     (dataframe-aggregate*
       df
       (grp)
-      (adult-sum (adult) (apply + adult))
-      (juv-sum (juv) (apply + juv))))
+      (adult-sum (adult) (sum adult))
+      (juv-sum (juv) (sum juv))))
 
  dim: 2 rows x 3 cols
      grp  adult-sum  juv-sum 
@@ -1498,8 +1503,8 @@ Exception in (make-series name src): name(s) not symbol(s)
       '(grp trt)
       '(adult-sum juv-sum)
       '((adult) (juv))
-      (lambda (adult) (apply + adult))
-      (lambda (juv) (apply + juv))))
+      (lambda (adult) (sum adult))
+      (lambda (juv) (sum juv))))
 
  dim: 4 rows x 4 cols
      grp     trt  adult-sum  juv-sum 
@@ -1513,8 +1518,8 @@ Exception in (make-series name src): name(s) not symbol(s)
     (dataframe-aggregate*
       df
       (grp trt)
-      (adult-sum (adult) (apply + adult))
-      (juv-sum (juv) (apply + juv))))
+      (adult-sum (adult) (sum adult))
+      (juv-sum (juv) (sum juv))))
 
  dim: 4 rows x 4 cols
      grp     trt  adult-sum  juv-sum 
