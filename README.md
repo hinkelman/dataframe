@@ -27,8 +27,9 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ### Type conversion  
 
+[`(get-type obj)`](#get-type)  
 [`(guess-type lst n-max)`](#guess-type)   
-[`(convert-type lst type)`](#convert-type)  
+[`(convert-type obj type)`](#convert-type)  
 
 ### Series record type  
 
@@ -157,10 +158,19 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 ## Type conversion  
 
+#### <a name="get-type"></a> procedure: `(get-type obj)`  
+**returns:** type of obj (bool, chr, str, sym, num, or other); strings that are valid numbers are assumed to be `'num`
+
 #### <a name="guess-type"></a> procedure: `(guess-type lst n-max)`  
 **returns:** type of elements in `lst` (bool, chr, str, sym, num, or other); evaluates up to `n-max` elements of `lst` before guessing; strings that are valid numbers are assumed to be `'num`
 
 ```
+> (get-type "3")
+num
+
+> (get-type '(1 2 3))
+other
+
 > (guess-type '(1 2 3) 3)
 num
 
@@ -177,26 +187,26 @@ str
 sym
 ```
 
-#### <a name="convert-type"></a> procedure: `(convert-type lst type)`  
-**returns:** a list with all elements of `lst` converted to `type`; elements that can't be converted to `type` are replaced with `'na`
+#### <a name="convert-type"></a> procedure: `(convert-type obj type)`  
+**returns:** an `obj` converted to `type`; elements that can't be converted to `type` are replaced with `'na`
 
 ```
-> (convert-type '(a b "c") 'sym)
-(a b na)
+> (convert-type "c" 'sym)
+na
 
-> (convert-type '(a b "c") 'str)
-("a" "b" "c")
+> (convert-type 'b 'str)
+"b"
 
-> (convert-type '(a b "c") 'other)
+> (map (lambda (x) (convert-type x 'other)) '(a b "c"))
 (a b "c")
 
-> (convert-type '(1 2 "3") 'num)
-(1 2 3)
+> (convert-type "3" 'num)
+3
 
-> (convert-type '(1 2 3 na "" " " "NA" "na") 'num)
+> (map (lambda (x) (convert-type x 'num)) '(1 2 3 na "" " " "NA" "na"))
 (1 2 3 na na na na na)
 
-> (convert-type '(a "b" c na "" " " "NA" "na") 'str)
+> (map (lambda (x) (convert-type x 'str)) '(a "b" c na "" " " "NA" "na"))
 ("a" "b" "c" na na na na na)
 ```
 

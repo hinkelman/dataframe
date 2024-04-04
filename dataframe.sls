@@ -24,6 +24,7 @@
    count
    count-elements
    convert-type
+   get-type
    guess-type
    ;; rename
    dataframe-rename*

@@ -44,7 +44,7 @@
        (lambda (name src)
          (check-series name src "(make-series name src)")
          (let* ([type (guess-type src 1000)]
-                [lst (convert-type src type)])
+                [lst (map (lambda (x) (convert-type x type)) src)])
            (new name src lst type (length lst)))))))
 
   (define-syntax make-series*

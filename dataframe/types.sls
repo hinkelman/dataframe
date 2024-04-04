@@ -3,6 +3,7 @@
    count
    count-elements
    convert-type
+   get-type
    guess-type)
 
   (import (rnrs)
@@ -11,27 +12,23 @@
                 na?
                 remove-duplicates))
 
-  (define (convert-type lst type)
+  (define (convert-type obj type)
     (cond [(or (na? type) (symbol=? type 'other))
-           (map (lambda (x)
-                  (if (or (na? x) (na-string? x)) 'na x)) lst)]
+           (if (or (na? obj) (na-string? obj)) 'na obj)]
           ;; string->number is only attempted automatic conversion 
           [(symbol=? type 'num)
-           (map (lambda (x)
-                  (cond [(and (string? x) (string->number x))
-                         (string->number x)]
-                        [(not (number? x)) 'na]
-                        [else x]))
-                lst)]
+           (cond [(and (string? obj) (string->number obj))
+                  (string->number obj)]
+                 [(not (number? obj)) 'na]
+                 [else obj])]
           [(symbol=? type 'str)
-           (map (lambda (x)
-                  (let ([->string (get->string x)])
-                    (cond [(or (na? x) (na-string? x)) 'na]
-                          [(string? x) x]
-                          [(->string x) (->string x)]
-                          [else 'na])))
-                lst)]
-          [else (map obj->na lst)]))
+           (let ([->string (get->string obj)])
+             (cond [(or (na? obj) (na-string? obj)) 'na]
+                   [(string? obj) obj]
+                   [(->string obj) (->string obj)]
+                   [else 'na]))]
+          [else (obj->na obj)]))
+
 
   (define (guess-type lst n-max)
     ;; need to add check for empty vector
@@ -73,41 +70,41 @@
             [else
              (loop (cdr procs))])))
 
-  (define (get-type object)
-    (cond [(or (na? object) (na-string? object))
+  (define (get-type obj)
+    (cond [(or (na? obj) (na-string? obj))
            'na]
           ;; string->number is only attempted automatic conversion 
-          [(and (string? object)
-                (or (na-string? object)
-                    (string->number object)))
+          [(and (string? obj)
+                (or (na-string? obj)
+                    (string->number obj)))
            'num]
           ;; loop through other predicates
           [else
-           (get-type-loop object)]))
+           (get-type-loop obj)]))
 
-  (define (get-type-loop object)
+  (define (get-type-loop obj)
     (let loop ([preds (list boolean? number? symbol? char? string?)]
                [types '(bool num sym chr str)])
       (cond [(null? preds) ;; no matching type 
              'other]
-            [((car preds) object)
+            [((car preds) obj)
              (car types)]
             [else
              (loop (cdr preds) (cdr types))])))
 
-  (define (na-string? object)
-    (and (string? object)
-         (or (string=? object "")
-             (string=? object " ")
-             (string=? object "NA")
-             (string=? object "na"))))
+  (define (na-string? obj)
+    (and (string? obj)
+         (or (string=? obj "")
+             (string=? obj " ")
+             (string=? obj "NA")
+             (string=? obj "na"))))
 
-  (define (obj->na object)
+  (define (obj->na obj)
     ;; sets value to 'na if not one of three types
     (let loop ([preds (list boolean? symbol? char?)]
                [types '(boolean symbol char)])
       (cond [(null? preds) 'na]
-            [((car preds) object) object]
+            [((car preds) obj) obj]
             [else (loop (cdr preds) (cdr types))])))
 
   (define (bool->string obj)
