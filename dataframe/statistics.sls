@@ -47,7 +47,7 @@
       [(lst na-rm)
        (let-values ([(total count)
                      (sum/prod/mean lst na-rm + 0 1)])
-         (if (na? total) 'na (/ total count)))]))
+         (if (or (na? total) (= 0 count)) 'na (/ total count)))]))
 
   (define weighted-mean
     (case-lambda
@@ -55,7 +55,7 @@
       [(lst weights na-rm)
        (let-values ([(total count)
                      (sum/prod/mean lst na-rm + 0 weights)])
-         (if (na? total) 'na (/ total count)))]))
+         (if (or (na? total) (= 0 count)) 'na (/ total count)))]))
   
   (define (sum/prod/mean lst na-rm op init-total weights)
     ;; for everything except weighted mean; weights will be scalar = 1
@@ -134,17 +134,21 @@
 	     [new-m (+ m (/ (- x m) (add1 i)))]
              [new-s (+ s (* (- x m) (- x new-m)))])
 	(cons new-m new-s)))
-    (let loop ([lst (cdr lst)]
-	       [ms (cons (car lst) 0)] 
-	       [i 1])                 ; one-based indexing in the algorithm
-      (cond [(null? lst)
-	     (/ (cdr ms) (- i 1))]
-            [(and (not na-rm) (na? (car lst)))
-             'na]
-            [(na? (car lst))
-             (loop (cdr lst) ms i)]
-            [else
-             (loop (cdr lst) (update-ms (car lst) ms i) (add1 i))])))
+    (if (null? lst)                        ;; return 'na for empty list
+        'na
+        (let loop ([lst (cdr lst)]
+	           [ms (cons (car lst) 0)] 
+	           [i 1])                  ;; one-based indexing in the algorithm
+          (cond [(and (null? lst) (= i 1)) ;; return 'na when all values are 'na
+                 'na]
+                [(null? lst)
+	         (/ (cdr ms) (- i 1))]
+                [(and (not na-rm) (na? (car lst)))
+                 'na]
+                [(na? (car lst))
+                 (loop (cdr lst) ms i)]
+                [else
+                 (loop (cdr lst) (update-ms (car lst) ms i) (add1 i))]))))
   
   (define standard-deviation
     (case-lambda
@@ -171,15 +175,17 @@
   (define (quantile-helper lst p type)
     ;; see https://www.jstor.org/stable/2684934 for
     ;; quantile-helper, calc-Q, and get-gamma
-    (let* ([n (length lst)]
-           [order-stats (list-sort < lst)]
-	   ;; ms is list of m values for each quantile type
-	   [ms (list 0 0 -1/2 0 1/2 p (- 1 p) (* (add1 p) 1/3) (+ (* p 1/4) 3/8))]
-	   [m (list-ref ms (sub1 type))]
-	   [j (exact (floor (+ (* n p) m)))]
-	   [g (- (+ (* n p) m) j)]
-	   [gamma (get-gamma g j type)])
-      (calc-Q order-stats j gamma)))
+    (if (null? lst)
+        'na
+        (let* ([n (length lst)]
+               [order-stats (list-sort < lst)]
+	       ;; ms is list of m values for each quantile type
+	       [ms (list 0 0 -1/2 0 1/2 p (- 1 p) (* (add1 p) 1/3) (+ (* p 1/4) 3/8))]
+	       [m (list-ref ms (sub1 type))]
+	       [j (exact (floor (+ (* n p) m)))]
+	       [g (- (+ (* n p) m) j)]
+	       [gamma (get-gamma g j type)])
+          (calc-Q order-stats j gamma))))
 
   (define (calc-Q order-stats j gamma)
     ;; j is described for one-based indexing; adjusted for zero-based indexing

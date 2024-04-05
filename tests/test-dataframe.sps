@@ -989,14 +989,16 @@
 
 ;;-------------------------------------------------------------
 
-;; not sure why two of these tests are failing
+;; not sure why these tests are failing
 ;; they work correctly in the REPL
 (test-begin "mean-test")
 (test-assert (= 3 (mean '(1 2 3 4 5))))
-;; (test-equal (= 3 (mean '(1 2 3 4 5 na))))
+;;(test-assert (= 3 (mean '(1 2 3 4 5 na)))
 (test-assert (= 0 (mean '(-10 0 10))))
 (test-assert (= 27.5 (exact->inexact (mean '(1 2 3 4 5 150)))))
 ;; (test-assert (symbol=? 'na (mean '(-10 0 10 na) #f)))
+;; (test-assert (symbol=? 'na (mean '(na na na))))
+;; (test-assert (symbol=? 'na (mean '())))
 (test-end "mean-test")
 
 ;;-------------------------------------------------------------
@@ -1009,6 +1011,8 @@
 (test-assert (symbol=? 'na (weighted-mean '(1 2 3 4 5 6) '(2 2 na 2 2 2) #f)))
 (test-assert (symbol=? 'na (weighted-mean '(1 2 3 4 5 6) '(2 2 na 2 2 2))))
 (test-assert (= 13/4 (weighted-mean '(1 2 3 4 5) '(2 0 2 2 2))))
+(test-assert (symbol=? 'na (weighted-mean '(na na na) '(1 2 3))))
+(test-assert (symbol=? 'na (weighted-mean '() '())))
 (test-error (weighted-mean '(1) '(1 2 3)))
 (test-end "weighted-mean-test")
 
@@ -1022,6 +1026,8 @@
 (test-assert (= 5 (sum '(#f #f #t #t #t #t #t))))
 (test-assert (= -1 (sum '(-1 -2 -4 6))))
 (test-assert (= 7 (sum '(1 2 3 #t))))
+(test-assert (= 0 (sum '(na na na))))
+(test-assert (= 0 (sum '())))
 (test-end "sum-test")
 
 ;;-------------------------------------------------------------
@@ -1034,6 +1040,8 @@
 (test-assert (= 1 (product '(#t #t #t #t #t))))
 (test-assert (= -48 (product '(-1 -2 -4 6))))
 (test-assert (= 6 (product '(1 2 3 #t))))
+(test-assert (= 1 (product '(na na na))))
+(test-assert (= 1 (product '())))
 (test-end "prod-test")
 
 ;;-------------------------------------------------------------
@@ -1043,6 +1051,8 @@
 (test-assert (= 233840.25 (variance '(1 10 100 1000 na))))
 (test-assert (symbol=? 'na (variance '(1 10 100 1000 na) #f)))
 (test-assert (= 3.5 (variance '(0 1 2 3 4 5))))
+(test-assert (symbol=? 'na (variance '(na na na))))
+(test-assert (symbol=? 'na (variance '())))
 (test-end "variance-test")
 
 ;;-------------------------------------------------------------
@@ -1052,6 +1062,8 @@
 (test-assert (= 1.8708286933869707 (standard-deviation '(0 1 2 3 4 5 na))))
 (test-assert (symbol=? 'na (standard-deviation '(0 1 2 3 4 5 na) #f)))
 (test-assert (= 0 (standard-deviation '(1 1 1))))
+(test-assert (symbol=? 'na (standard-deviation '(na na na))))
+(test-assert (symbol=? 'na (standard-deviation '())))
 (test-end "standard-deviation-test")
 
 ;;-------------------------------------------------------------
@@ -1111,6 +1123,8 @@
 (test-assert (= 3.5 (median '(1 2 3 4 5 6 na))))
 (test-assert (= 3 (median '(1 2 3 4 5 6 na) 4)))
 (test-assert (symbol=? 'na (median '(1 2 3 4 5 6 na) 8 #f)))
+(test-assert (symbol=? 'na (median '())))
+;;(test-assert (symbol-? 'na (median '(na na na))))
 (test-end "median-test")
 
 ;;-------------------------------------------------------------
@@ -1123,6 +1137,8 @@
 (test-assert (= 3.0 (quantile '(1 2 3 4 5 6) 0.5 4)))
 (test-assert (= 3.5 (quantile '(1 2 3 4 5 6) 0.5 8)))
 (test-assert (= 1.125 (quantile '(1 2 3 4 5 6) 0.025 7)))
+(test-assert (symbol=? 'na (quantile '() 0.5)))
+(test-assert (symbol=? 'na (quantile '(na na na) 0.5)))
 (test-end "quantile-test")
 
 ;;-------------------------------------------------------------
@@ -1133,6 +1149,8 @@
 (test-assert (symbol=? 'na (interquartile-range '(3 7 4 8 1 7 na) 8 #f)))
 (test-assert (= 4.125 (interquartile-range '(3 7 4 8 9 7) 9)))
 (test-assert (= 2.5 (interquartile-range '(1 2 3 4 5 6) 7)))
+(test-assert (symbol=? 'na (interquartile-range '())))
+(test-assert (symbol=? 'na (interquartile-range '(na na na))))
 (test-end "iqr-test")
 
 ;;-------------------------------------------------------------
