@@ -191,6 +191,8 @@ sym
 **returns:** an `obj` converted to `type`; elements that can't be converted to `type` are replaced with `'na`
 
 ```
+;; arguably, this is overly opinionated, but was chosen to avoid surprise about things like 
+;; (string->symbol "10") --> \x31;0
 > (convert-type "c" 'sym)
 na
 
