@@ -43,14 +43,21 @@
              (reverse out)]
             [(symbol? (car lst))
              (loop (cdr lst) empty-n (cons (car lst) out))]
+            ;; missing column names are named X1, X2, etc.
             [(and (string? (car lst))
                   (member (car lst) '("" " ")))
              (loop (cdr lst) (add1 empty-n)
                    (cons (string->symbol
                           (string-append "X" (number->string empty-n)))
                          out))]
+            ;; if first character in string is a number, append lowercase x
+            [(and (string? (car lst)) (string->number (string (car (string->list (car lst))))))
+             (loop (cdr lst)
+                   empty-n
+                   (cons (string->symbol (string-append "x" (car lst))) out))]
             [(string? (car lst))
-             (loop (cdr lst) empty-n
+             (loop (cdr lst)
+                   empty-n
                    (cons (string->symbol (replace-special (car lst) #\-)) out))]
             [else
              (assertion-violation who "lst should only contain symbols or strings")])))

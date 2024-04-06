@@ -576,6 +576,15 @@
                  (2 4))
                #f "test")))
 (test-assert (dataframe-equal?
+              (make-df*
+               (x1col 1 2)
+               (x2 3 4))
+              (rowtable->dataframe
+               '(("1col" "2")
+                 (1 3)
+                 (2 4))
+               #t "test")))
+(test-assert (dataframe-equal?
               df2
 	      (rowtable->dataframe
                '(("a" b c)
