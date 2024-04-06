@@ -18,7 +18,7 @@
          (dataframe-split-helper
           df
           group-names
-          "(datframe-split df group-names)")))
+          "(dataframe-split df group-names)")))
 
   ;; returns list of slists that are split by groups in group-names
   (define (dataframe-split-helper df group-names who)
