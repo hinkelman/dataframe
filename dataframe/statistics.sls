@@ -124,39 +124,43 @@
       [(lst) (variance-helper lst #t)]
       [(lst na-rm) (variance-helper lst na-rm)]))
 
-  (define (variance-helper lst na-rm)
-    ;; https://www.johndcook.com/blog/standard_deviation/
-    (define (update-ms x ms i)
-      ;; ms is a pair of m and s variables
-      ;; x is current value of lst in loop
-      (let* ([m (car ms)]
-	     [s (cdr ms)]
-	     [new-m (+ m (/ (- x m) (add1 i)))]
-             [new-s (+ s (* (- x m) (- x new-m)))])
-	(cons new-m new-s)))
-    (if (null? lst)                        ;; return 'na for empty list
-        'na
-        (let loop ([lst (cdr lst)]
-	           [ms (cons (car lst) 0)] 
-	           [i 1])                  ;; one-based indexing in the algorithm
-          (cond [(and (null? lst) (= i 1)) ;; return 'na when all values are 'na
-                 'na]
-                [(null? lst)
-	         (/ (cdr ms) (- i 1))]
-                [(and (not na-rm) (na? (car lst)))
-                 'na]
-                [(na? (car lst))
-                 (loop (cdr lst) ms i)]
-                [else
-                 (loop (cdr lst) (update-ms (car lst) ms i) (add1 i))]))))
-  
   (define standard-deviation
     (case-lambda
       [(lst) (standard-deviation lst #t)]
       [(lst na-rm)
        (let ([var (variance lst na-rm)])
          (if (na? var) 'na (sqrt var)))]))
+  
+  ;; https://www.johndcook.com/blog/standard_deviation/
+  (define (variance-helper lst na-rm)
+    (if (null? lst)
+        'na
+        (let loop ([lst lst]
+	           [ms '()] 
+	           [i 0])                 
+          (cond [(or (and (not na-rm) (na? (car lst)))
+                     ;; return 'na when all values are 'na
+                     (and (null? lst) (= i 0)))
+                 'na]
+                [(null? lst)
+	         (/ (cdr ms) (- i 1))]
+                [(na? (car lst))
+                 (loop (cdr lst) ms i)]
+                [(= i 0)
+                 ;; first time through the loop with after removing any na's at beginning
+                 (loop (cdr lst) (cons (car lst) 0) 1)]
+                [else
+                 (loop (cdr lst) (update-ms (car lst) ms i) (add1 i))]))))
 
+  (define (update-ms x ms i)
+    ;; ms is a pair of m and s variables
+    ;; x is current value of lst in loop
+    (let* ([m (car ms)]
+	   [s (cdr ms)]
+	   [new-m (+ m (/ (- x m) (add1 i)))]
+           [new-s (+ s (* (- x m) (- x new-m)))])
+      (cons new-m new-s)))
+  
   (define quantile
     ;; type is an integer from 1-9
     ;; 7 is default used for R
