@@ -74,7 +74,7 @@
   (define (df-ref-helper df indices names)
     (let ([who "(dataframe-ref df indices)"]
           [n-max (car (dataframe-dim df))])
-      ;; (apply check-df-names df who names)
+      (apply check-df-names df who names)
       (map (lambda (n)
              (check-integer-gte-zero n "index" who)
              (check-index n n-max who))
@@ -111,15 +111,15 @@
   (define-syntax dataframe-filter*
     (syntax-rules ()
       [(_ df names expr)
-       (df-filter df (quote names) (lambda names expr)
-                  "(dataframe-filter* df names expr)")]))
+       (df-filter df (quote names) (lambda names expr))]))
 
   (define (dataframe-filter df names procedure)
-    (df-filter df names procedure "(dataframe-filter df names procedure)"))
+    (df-filter df names procedure))
 
-  (define (df-filter df names proc who)
-    (check-dataframe df who)
-    (apply check-df-names df who names)
+  (define (df-filter df names proc)
+    (let ([who "(dataframe-filter df names procedure)"])
+      (check-dataframe df who)
+      (apply check-df-names df who names))
     (let* ([all-names (dataframe-names df)]
            [slist (dataframe-slist df)]
            [slist-sel (slist-select slist names)]
@@ -164,15 +164,15 @@
   (define-syntax dataframe-partition*
     (syntax-rules ()
       [(_ df names expr)
-       (df-partition df (quote names) (lambda names expr)
-                     "(dataframe-partition* df names expr)")]))
+       (df-partition df (quote names) (lambda names expr))]))
 
   (define (dataframe-partition df names procedure)
-    (df-partition df names procedure "(dataframe-partition df names procedure)"))
+    (df-partition df names procedure))
 
-  (define (df-partition df names proc who)
-    (check-dataframe df who)
-    (apply check-df-names df who names)
+  (define (df-partition df names proc)
+    (let ([who "(dataframe-partition df names procedure)"])
+      (check-dataframe df who)
+      (apply check-df-names df who names))
     (let* ([all-names (dataframe-names df)]
            [slist (dataframe-slist df)]
            [slist-sel (slist-select slist names)]

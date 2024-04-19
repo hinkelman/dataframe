@@ -23,22 +23,21 @@
         (quote group-names)
         (list (quote new-name) ...)
         (list (quote names) ...)
-        (list (lambda names expr) ...)
-        "(dataframe-aggregate* df group-names (new-name names expr) ...)")]))
+        (list (lambda names expr) ...))]))
   
   (define (dataframe-aggregate df group-names new-names names . procedure)
-    (df-aggregate df group-names new-names names procedure
-                  "(dataframe-aggregate df group-names new-names procedure ...)"))
+    (df-aggregate df group-names new-names names procedure))
 
-  (define (df-aggregate df group-names new-names names procs who)
-    (check-dataframe df who)
-    (check-names new-names who)
-    ;; slists is a list of slists
-    (let ([slists (dataframe-split-helper df group-names who)])
-      (dataframe-bind-all
-             (map (lambda (slist)
-                    (df-aggregate-helper slist group-names new-names names procs))
-                  slists))))
+  (define (df-aggregate df group-names new-names names procs)
+    (let ([who "(dataframe-aggregate df group-names new-names procedure ...)"])
+      (check-dataframe df who)
+      (check-names new-names who)
+      ;; slists is a list of slists
+      (let ([slists (dataframe-split-helper df group-names who)])
+        (dataframe-bind-all
+         (map (lambda (slist)
+                (df-aggregate-helper slist group-names new-names names procs))
+              slists)))))
     
   (define (df-aggregate-helper slist group-names new-names names procs)
     ;; all values in the group columns of a split slist will be the same

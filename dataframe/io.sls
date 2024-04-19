@@ -19,6 +19,7 @@
     (case-lambda
       [(df path) (dataframe-write df path #t)]
       [(df path overwrite)
+       (check-dataframe df "(dataframe-write df path [overwrite])")
        (when (and (file-exists? path) (not overwrite))
          (assertion-violation path "file already exists"))
        (when (file-exists? path)
@@ -51,12 +52,14 @@
     (case-lambda
       [(df path) (dataframe->csv df path #t)]
       [(df path overwrite)
+       (check-dataframe df "(dataframe->csv df path [overwrite])")
        (write-delim (dataframe->rowtable df) path #\, overwrite)]))
 
   (define dataframe->tsv
     (case-lambda
       [(df path) (dataframe->tsv df path #t)]
       [(df path overwrite)
+       (check-dataframe df "(dataframe->tsv df path [overwrite])")
        (write-delim (dataframe->rowtable df) path #\tab overwrite)]))
 
   ;; read-delim ---------------------------------------------------------------------

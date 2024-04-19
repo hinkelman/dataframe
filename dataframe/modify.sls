@@ -88,8 +88,9 @@
         (char? obj) (string? obj) (number? obj)))
 
   (define (dataframe-modify-all df procedure)
+    (check-dataframe df "(dataframe-modify-all df procedure)")
     (df-modify-at df procedure (dataframe-names df)))
-  
+
   (define (dataframe-modify-at df procedure . names)
     (apply check-df-names df "(dataframe-modify-at df procedure names)" names)
     (df-modify-at df procedure names))

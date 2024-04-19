@@ -42,7 +42,7 @@
       [(dfs fill-value) (df-bind dfs fill-value)]))
   
   (define (df-bind dfs fill-value)
-    (check-all-dataframes dfs "(dataframe-bind fill-value dfs)")
+    (check-all-dataframes dfs "(dataframe-bind dfs fill-value)")
     (let* ([names (combine-names-ordered dfs)]
            [ls-vals (map (lambda (name) (bind-rows dfs fill-value name)) names)])
     (make-dataframe (make-slist names ls-vals))))
