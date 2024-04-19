@@ -136,6 +136,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 [`(na? obj)`](#na)   
 [`(any-na? lst)`](#any-na)   
 [`(remove-na lst)`](#remove-na)  
+[`(dataframe-remove-na df)`](#df-remove-na)  
 
 ### Descriptive statistics
 
@@ -1629,6 +1630,24 @@ Exception in (make-series name src): name(s) not symbol(s)
 (1 NA 2 3)
 > (remove-na '(1 "na" 2 3))
 (1 "na" 2 3)
+```
+
+#### <a name="df-remove-na"></a> procedure: `(dataframe-remove-na df)`  
+**returns:** a dataframe with any rows containing `'na` in any columns removed
+
+```
+> (define df 
+    (make-df* 
+      (a 1 2 3 4 'na)
+      (b 'na 7 8 9 10)
+      (c 11 12 'na 14 15)))
+
+> (dataframe-display (dataframe-remove-na df))
+ dim: 2 rows x 3 cols
+       a       b       c 
+   <num>   <num>   <num> 
+      2.      7.     12. 
+      4.      9.     14. 
 ```
 
 ## Descriptive statistics

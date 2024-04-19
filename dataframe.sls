@@ -53,6 +53,7 @@
    dataframe-tail
    dataframe-ref
    dataframe-unique
+   dataframe-remove-na
    ;; display
    dataframe-display
    dataframe-glimpse

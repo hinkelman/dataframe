@@ -405,6 +405,14 @@
               (dataframe-filter-all df10 even?)))
 (test-assert (dataframe-equal? df10 (dataframe-filter-at df10 even? 'a 'c)))
 (test-error (dataframe-filter-all df10 odd?))
+(test-assert (dataframe-equal?
+              (make-df* (a 2 4)
+                        (b 7 9)
+                        (c 12 14))
+              (dataframe-remove-na
+               (make-df* (a 1 2 3 4 'na)
+                         (b 'na 7 8 9 10)
+                         (c 11 12 'na 14 15)))))
 (test-end "dataframe-filter-test")
 
 ;;-------------------------------------------------------------

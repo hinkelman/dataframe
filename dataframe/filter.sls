@@ -11,6 +11,7 @@
    dataframe-tail
    dataframe-ref
    dataframe-unique
+   dataframe-remove-na
    slist-ref)
 
   (import (rnrs)
@@ -20,6 +21,7 @@
           (only (dataframe helpers)
                 add1
                 list-head
+                na?
                 remove-duplicates
                 transpose)
           (only (dataframe assertions)
@@ -64,6 +66,12 @@
            [ls-vals-unique (transpose (remove-duplicates (transpose ls-vals)))])
       (make-dataframe (make-slist names ls-vals-unique))))
 
+  ;; dataframe-remove-na ----------------------------------------------------------
+
+  (define (dataframe-remove-na df)
+    (check-dataframe df "(dataframe-remove-na df)")
+    (dataframe-filter-all df (lambda (x) (not (na? x)))))
+    
   ;; dataframe-ref ---------------------------------------------------------------
   
   (define dataframe-ref
