@@ -73,6 +73,7 @@ sort.sls	dataframe-sort*
 types.sls	count
 types.sls	count-elements
 types.sls	convert-type
+types.sls	get-type
 types.sls	guess-type
 select.sls	dataframe-drop
 select.sls	dataframe-drop*
@@ -93,6 +94,7 @@ filter.sls	dataframe-head
 filter.sls	dataframe-tail
 filter.sls	dataframe-ref
 filter.sls	dataframe-unique
+filter.sls	dataframe-remove-na
 filter.sls	slist-ref
 helpers.sls	list-head
 helpers.sls	make-list
@@ -144,6 +146,7 @@ join.sls	join-no-match
 join.sls	slist-fill-missing
 statistics.sls	sum/prod/mean
 statistics.sls	variance-helper
+statistics.sls	update-ms
 statistics.sls	quantile-helper
 statistics.sls	calc-Q
 statistics.sls	get-gamma
@@ -187,7 +190,6 @@ sort.sls	calc-weights
 sort.sls	rank-list
 sort.sls	sort-vals
 types.sls	get->string
-types.sls	get-type
 types.sls	get-type-loop
 types.sls	na-string?
 types.sls	obj->na
