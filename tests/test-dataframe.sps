@@ -948,6 +948,14 @@
                (hour 10 11 10 11 10 11)
                (site 'a 'a 'b 'b 'c 'c)
                (count 97 78 84 47 55 54))))
+;; this is a contrived example, but I encountered a situatation where I wanted to reuse a name
+(test-assert (dataframe-equal?
+              (dataframe-stack df32 '(a b c) 'a 'count)
+              (make-df*
+               (day 1 2 1 2 1 2)
+               (hour 10 11 10 11 10 11)
+               (a 'a 'a 'b 'b 'c 'c)
+               (count 97 78 84 47 55 54))))
 (test-error (dataframe-stack df22 '(adult juv) 'stage "count"))
 (test-error (dataframe-stack df22 '(adult juv) "stage" 'count))
 (test-error (dataframe-stack df22 '(adult juv) 'stage 'grp))
