@@ -73,7 +73,9 @@
     (dataframe-filter-all df (lambda (x) (not (na? x)))))
     
   ;; dataframe-ref ---------------------------------------------------------------
-  
+
+  ;; if passed an empty list of indices; returns no rows
+  ;; same behavior as in (map (lambda (x) (list-ref '(1 2 3) x)) '())
   (define dataframe-ref
     (case-lambda
       [(df indices) (df-ref-helper df indices (dataframe-names df))]

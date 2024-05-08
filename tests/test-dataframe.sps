@@ -34,6 +34,7 @@
 (test-equal 'bool (guess-type '(#t #f) 2))
 (test-equal 'other (guess-type '((1 2) (3 4)) 2))
 (test-equal 'chr (guess-type '(#\a #\b) 2))
+(test-equal 'na (guess-type '() 10))
 (test-equal 2 (convert-type 2 'num))
 (test-equal "1" (convert-type 1 'str))
 (test-equal "2" (convert-type "2" 'str))
@@ -68,7 +69,6 @@
 (test-equal 'other (series-type (make-series* (a 1 2 '(3 4)))))
 (test-assert (series-equal? (car (make-slist '(a) (list (iota 10)))) s1))
 (test-error (make-series 'a 'a))
-(test-error (make-series 'a '()))
 (test-end "series-record-test")
 
 ;;-------------------------------------------------------------
@@ -154,7 +154,6 @@
 (test-assert (dataframe-equal?
               (make-df* (a 1 3 2) (b 4 6 5))
               (dataframe-ref df3 '(0 2 4) 'a 'b)))
-(test-error (dataframe-ref df3 '()))
 (test-error (dataframe-ref df3 '(0 10)))
 (test-error (dataframe-ref df3 2))
 (test-error (dataframe-ref df3 '(2) 'total))
@@ -404,7 +403,10 @@
                (c 700 900))
               (dataframe-filter-all df10 even?)))
 (test-assert (dataframe-equal? df10 (dataframe-filter-at df10 even? 'a 'c)))
-(test-error (dataframe-filter-all df10 odd?))
+;; returns an empty dataframe
+(test-assert (dataframe-equal?
+             (dataframe-filter-all df10 odd?)
+             (make-df* (a) (b) (c))))
 (test-assert (dataframe-equal?
               (make-df* (a 2 4)
                         (b 7 9)

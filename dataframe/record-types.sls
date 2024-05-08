@@ -44,7 +44,7 @@
        (lambda (name src)
          (check-series name src "(make-series name src)")
          (let* ([type (guess-type src 1000)]
-                [lst (map (lambda (x) (convert-type x type)) src)])
+                [lst (if (null? src) '() (map (lambda (x) (convert-type x type)) src))])
            (new name src lst type (length lst)))))))
 
   (define-syntax make-series*
@@ -61,8 +61,6 @@
                series)))
 
   (define (check-series name src who)
-    (when (null? src)
-      (assertion-violation who "src is empty"))
     (unless (list? src)
       (assertion-violation who "src is not a list"))
     (check-names-symbol (list name) who))

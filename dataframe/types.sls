@@ -31,26 +31,27 @@
 
 
   (define (guess-type lst n-max)
-    ;; need to add check for empty vector
-    (let* ([n (length lst)]
-           [actual-max (if (< n n-max) n n-max)]
-           [types (map get-type (list-head lst actual-max))]
-           [first (car types)]
-           [type-count (count-elements types)]
-           [type-count-n (length type-count)])
-      (cond [(member 'other types)
-             'other]
-            [(= type-count-n 1)
-             first]
-            ;; na's don't count against same type
-            [(and (= type-count-n 2)
-                  (na? (caar type-count)))
-             (caadr type-count)]
-            [(and (= type-count-n 2)
-                  (na? (caadr type-count)))
-             (caar type-count)]
-            [else
-             'str])))
+    (if (null? lst)
+        'na
+        (let* ([n (length lst)]
+               [actual-max (if (< n n-max) n n-max)]
+               [types (map get-type (list-head lst actual-max))]
+               [first (car types)]
+               [type-count (count-elements types)]
+               [type-count-n (length type-count)])
+          (cond [(member 'other types)
+                 'other]
+                [(= type-count-n 1)
+                 first]
+                ;; na's don't count against same type
+                [(and (= type-count-n 2)
+                      (na? (caar type-count)))
+                 (caadr type-count)]
+                [(and (= type-count-n 2)
+                      (na? (caadr type-count)))
+                 (caar type-count)]
+                [else
+                 'str]))))
 
   (define (count-elements lst)
     (map (lambda (x) (cons x (count x lst)))
