@@ -40,6 +40,7 @@ modify.sls	dataframe-modify*
 modify.sls	dataframe-modify-all
 modify.sls	dataframe-modify-at
 crossing.sls	dataframe-crossing
+join.sls	dataframe-inner-join
 join.sls	dataframe-left-join
 join.sls	dataframe-left-join-all
 statistics.sls	cumulative-sum
@@ -138,8 +139,10 @@ modify.sls	scalar?
 modify.sls	df-modify-at
 crossing.sls	cartesian-product
 crossing.sls	product-of-two
+join.sls	check-join
 join.sls	check-join-names-exist
 join.sls	df-left-join-helper
+join.sls	df-inner-join-helper
 join.sls	get-join-group
 join.sls	join-match
 join.sls	join-no-match
