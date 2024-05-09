@@ -1247,13 +1247,14 @@ Exception in (make-series name src): name(s) not symbol(s)
 
 > (dataframe-display (dataframe-left-join-all (list df2 df1) '(site)))
 
- dim: 4 rows x 4 cols
+ dim: 5 rows x 4 cols
     site     day   catch    habitat 
    <str>   <num>   <num>      <str> 
        c      1.     10.   woodland 
        c      2.     20.   woodland 
        b      1.     12.  grassland 
        b      2.     24.  grassland 
+       d      1.    100.         na 
 
 > (define df3
     (make-df*
