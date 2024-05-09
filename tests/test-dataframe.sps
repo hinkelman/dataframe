@@ -415,6 +415,15 @@
                (make-df* (a 1 2 3 4 'na)
                          (b 'na 7 8 9 10)
                          (c 11 12 'na 14 15)))))
+(test-assert (dataframe-equal?
+              (make-df* (a 1 2 4)
+                        (b 'na 7 9)
+                        (c 11 12 14))
+              (dataframe-remove-na
+               (make-df* (a 1 2 3 4 'na)
+                         (b 'na 7 8 9 10)
+                         (c 11 12 'na 14 15))
+               'a 'c)))
 (test-end "dataframe-filter-test")
 
 ;;-------------------------------------------------------------

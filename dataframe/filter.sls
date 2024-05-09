@@ -68,9 +68,12 @@
 
   ;; dataframe-remove-na ----------------------------------------------------------
 
-  (define (dataframe-remove-na df)
-    (check-dataframe df "(dataframe-remove-na df)")
-    (dataframe-filter-all df (lambda (x) (not (na? x)))))
+  (define dataframe-remove-na
+    (case-lambda
+      [(df) (apply dataframe-remove-na df (dataframe-names df))]
+      [(df . names)
+       (apply check-df-names df "(dataframe-remove-na df)" names)
+       (df-filter-at df (lambda (x) (not (na? x))) names)]))
     
   ;; dataframe-ref ---------------------------------------------------------------
 
