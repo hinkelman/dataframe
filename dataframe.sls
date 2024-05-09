@@ -73,6 +73,7 @@
    dataframe-aggregate
    dataframe-aggregate*
    ;; join
+   dataframe-inner-join
    dataframe-left-join
    dataframe-left-join-all
    ;; reshape
