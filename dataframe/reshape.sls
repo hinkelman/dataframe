@@ -21,7 +21,7 @@
   (define (dataframe-stack df names names-to values-to)
     (let ([who "(dataframe-stack df names names-to values-to)"]
           ;; names in names can be reused b/c they are collapsed to one column
-          [other-names (map (lambda (x) (not (member x names))) (dataframe-names df))])
+          [other-names (not-in (dataframe-names df) names)])
       (apply check-df-names df who names)
       (unless (symbol? names-to)
         (assertion-violation who "names-to must be symbol"))
