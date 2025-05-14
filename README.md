@@ -3,11 +3,11 @@
 A dataframe record type with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes. 
 
 Related blog posts:  
-[A dataframe record type for Scheme](https://www.travishinkelman.com/dataframe-record-type-for-scheme/)  
-[Select, drop, and rename dataframe columns in Scheme](https://www.travishinkelman.com/select-drop-rename-dataframe-columns-scheme/)  
-[Split, bind, and append dataframes in Scheme](https://www.travishinkelman.com/split-bind-append-dataframes-scheme/)  
-[Filter, partition, and sort dataframes in Scheme](https://www.travishinkelman.com/filter-partition-and-sort-dataframes-in-scheme/)  
-[Modify and aggregate dataframes in Scheme](https://www.travishinkelman.com/modify-aggregate-dataframes-scheme/)  
+[A dataframe record type for Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-scheme/)  
+[Select, drop, and rename dataframe columns in Scheme](https://www.travishinkelman.com/posts/select-drop-rename-dataframe-columns-scheme/)  
+[Split, bind, and append dataframes in Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-scheme/)  
+[Filter, partition, and sort dataframes in Scheme](https://www.travishinkelman.com/posts/filter-partition-and-sort-dataframes-in-scheme/)  
+[Modify and aggregate dataframes in Scheme](https://www.travishinkelman.com/posts/modify-aggregate-dataframes-scheme/)  
 
 ## Installation
 
@@ -17,7 +17,7 @@ Related blog posts:
 $ akku install dataframe
 ```
 
-For more information on getting started with [Akku](https://akkuscm.org/), see this [blog post](https://www.travishinkelman.com/getting-started-with-akku-package-manager-for-scheme/).
+For more information on getting started with [Akku](https://akkuscm.org/), see this [blog post](https://www.travishinkelman.com/posts/getting-started-with-akku-package-manager-for-scheme/).
 
 ## Import
 
