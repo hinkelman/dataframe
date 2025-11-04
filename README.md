@@ -1,13 +1,6 @@
 # Scheme (R6RS) Dataframe Library
 
-A dataframe record type with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes. 
-
-Related blog posts:  
-[A dataframe record type for Scheme](https://www.travishinkelman.com/posts/dataframe-record-type-for-scheme/)  
-[Select, drop, and rename dataframe columns in Scheme](https://www.travishinkelman.com/posts/select-drop-rename-dataframe-columns-scheme/)  
-[Split, bind, and append dataframes in Scheme](https://www.travishinkelman.com/posts/split-bind-append-dataframes-scheme/)  
-[Filter, partition, and sort dataframes in Scheme](https://www.travishinkelman.com/posts/filter-partition-and-sort-dataframes-in-scheme/)  
-[Modify and aggregate dataframes in Scheme](https://www.travishinkelman.com/posts/modify-aggregate-dataframes-scheme/)  
+A dataframe record type with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes. [[Related blog posts](https://www.travishinkelman.com/#category=dataframe)]  
 
 ## Installation
 
