@@ -21,6 +21,7 @@
           (only (dataframe helpers)
                 add1
                 list-head
+                make-list
                 na?
                 remove-duplicates
                 transpose)
@@ -198,15 +199,21 @@
   ;; (with bools negated on 1 pass)
   ;; the extra transposing in this version is faster than two passes with filter-ls-vals
   (define (partition-ls-vals bools ls-vals)
-    (let loop ([bools bools]
-               [ls-rows (transpose ls-vals)]
-               [keep '()]
-               [drop '()])
-      (if (null? bools)
-          (values (transpose (reverse keep)) (transpose (reverse drop)))
-          (if (car bools)
-              (loop (cdr bools) (cdr ls-rows) (cons (car ls-rows) keep) drop)
-              (loop (cdr bools) (cdr ls-rows) keep (cons (car ls-rows) drop))))))
+    (let ([n-cols (length ls-vals)])
+      (let loop ([bools bools]
+                 [ls-rows (transpose ls-vals)]
+                 [keep '()]
+                 [drop '()])
+        (if (null? bools)
+            (values (if (null? keep)
+                        (make-list n-cols '())
+                        (transpose (reverse keep)))
+                    (if (null? drop)
+                        (make-list n-cols '())
+                        (transpose (reverse drop))))
+            (if (car bools)
+                (loop (cdr bools) (cdr ls-rows) (cons (car ls-rows) keep) drop)
+                (loop (cdr bools) (cdr ls-rows) keep (cons (car ls-rows) drop)))))))
   
   )
 
