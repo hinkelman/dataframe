@@ -119,6 +119,12 @@
 (test-equal '(a b c) (dataframe-names df2))
 (test-equal '(a b) (dataframe-names df1))
 (test-equal '(a) (dataframe-names (make-df* (a 1 2 3))))
+;; dataframe-slist returns the correct series list
+(test-assert (series-equal? (make-series* (a 1 2 3))
+                            (car (dataframe-slist df1))))
+(test-assert (series-equal? (make-series* (b 4 5 6))
+                            (cadr (dataframe-slist df1))))
+(test-equal 2 (length (dataframe-slist df1)))
 (test-end "df-record-test")
 
 ;;-------------------------------------------------------------
@@ -174,9 +180,13 @@
 
 (test-begin "dataframe-values-test")
 (test-equal '(100 200 300) (dataframe-values (make-df* (a 100 200 300)) 'a))
+(test-equal '(100 200 300) ($ (make-df* (a 100 200 300)) 'a))
 (test-equal '(4 5 6) (dataframe-values df1 'b))
+(test-equal '(4 5 6) ($ df1 'b))
 (test-error (dataframe-values df1 'd))
+(test-error ($ df1 'd))
 (test-error (dataframe-values df1 'a 'b))
+(test-error ($ df1 'a 'b))
 (test-end "dataframe-values-test")
 
 ;;-------------------------------------------------------------
@@ -239,6 +249,24 @@
               df4
               (dataframe-bind-all (list df2 df1))))
 (test-error (dataframe-bind-all (list df3 df4 '(1 2 3))))
+
+(define df-bind-1 (make-df* (a 1 2 3) (b 10 20 30) (c 100 200 300)))
+(define df-bind-2 (make-df* (a 4 5 6) (b 40 50 60)))
+
+;; Custom fill-value instead of default 'na
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 1 2 3 4 5 6)
+               (b 10 20 30 40 50 60)
+               (c 100 200 300 -999 -999 -999))
+              (dataframe-bind df-bind-1 df-bind-2 -999)))
+;; dataframe-bind-all with custom fill-value
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 1 2 3 4 5 6)
+               (b 10 20 30 40 50 60)
+               (c 100 200 300 -999 -999 -999))
+              (dataframe-bind-all (list df-bind-1 df-bind-2) -999)))
 (test-end "dataframe-bind-all-test")
 
 ;;-------------------------------------------------------------
@@ -326,23 +354,6 @@
    (a 100 200 300)
    (b 4 5 6)
    (c 700 800 900)))
-
-;;-------------------------------------------------------------
-
-(test-begin "dataframe-modify-at-all-test")
-(test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'd))
-(test-assert (dataframe-equal?
-              df10
-              (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c)))
-(test-assert (dataframe-equal?
-              (make-df*
-               (a 100 200 300)
-               (b 400 500 600)
-               (c 700 800 900))
-              (dataframe-modify-all df5 (lambda (x) (* x 100)))))
-(test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c 'd))
-(test-error (dataframe-modify-at df5 "test" 'a))
-(test-end "dataframe-modify-at-all-test")
 
 ;;-------------------------------------------------------------
 
@@ -480,6 +491,29 @@
 (define-values (part1 part2) (dataframe-partition* df10 (b) (odd? b)))
 (test-assert (dataframe-equal? part1 df16))
 (test-assert (dataframe-equal? part2 df17))
+
+;; non-* form happy path
+(define-values (part1b part2b)
+  (dataframe-partition df10 '(b) (lambda (b) (odd? b))))
+(test-assert (dataframe-equal? part1b df16))
+(test-assert (dataframe-equal? part2b df17))
+
+;; Error: non-dataframe
+(test-error (dataframe-partition '(1 2 3) '(a) (lambda (a) (> a 1))))
+;; Error: column not in dataframe
+(test-error (dataframe-partition df10 '(z) (lambda (z) (> z 1))))
+
+;; Empty keep partition (predicate matches nothing)
+(define-values (empty-keep full-drop)
+  (dataframe-partition* df10 (a) (> a 1000)))
+(test-assert (dataframe-equal? empty-keep (make-df* (a) (b) (c))))
+(test-assert (dataframe-equal? full-drop df10))
+
+;; Empty drop partition (predicate matches everything)
+(define-values (full-keep empty-drop)
+  (dataframe-partition* df10 (a) (> a 0)))
+(test-assert (dataframe-equal? full-keep df10))
+(test-assert (dataframe-equal? empty-drop (make-df* (a) (b) (c))))
 (test-end "dataframe-partition-test")
 
 ;;-------------------------------------------------------------
@@ -694,6 +728,23 @@
 
 ;;-------------------------------------------------------------
 
+(test-begin "dataframe-modify-at-all-test")
+(test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'd))
+(test-assert (dataframe-equal?
+              df10
+              (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c)))
+(test-assert (dataframe-equal?
+              (make-df*
+               (a 100 200 300)
+               (b 400 500 600)
+               (c 700 800 900))
+              (dataframe-modify-all df5 (lambda (x) (* x 100)))))
+(test-error (dataframe-modify-at df5 (lambda (x) (* x 100)) 'a 'c 'd))
+(test-error (dataframe-modify-at df5 "test" 'a))
+(test-end "dataframe-modify-at-all-test")
+
+;;-------------------------------------------------------------
+
 (test-begin "dataframe-modify-test")
 (test-assert (dataframe-equal?
               df23
@@ -722,12 +773,38 @@
 (test-error (dataframe-modify* df22 ("test" (juv) (/ juv 2))))
 (test-error (dataframe-modify df22 '(total1 total2) '((adult juv))
                               (lambda (adult juv) (+ adult juv))))
+
+;; scalar shorthand via () names
+(test-assert (dataframe-equal?
+              (make-df* (a 1 2 3) (b 4 5 6) (x 99 99 99))
+              (dataframe-modify df1
+                                '(x)
+                                '(())
+                                (lambda () 99))))
+;; list shorthand via () names
+(test-assert (dataframe-equal?
+              (make-df* (a 1 2 3) (b 4 5 6) (x 10 20 30))
+              (dataframe-modify df1
+                                '(x)
+                                '(())
+                                (lambda () '(10 20 30)))))
+;; replacing an existing column
+(test-assert (dataframe-equal?
+              (make-df* (a 10 20 30) (b 4 5 6))
+              (dataframe-modify df1
+                                '(a)
+                                '((a))
+                                (lambda (a) (* a 10)))))
+;; Error: column name not in dataframe
+(test-error (dataframe-modify df1
+                              '(z)
+                              '((missing))
+                              (lambda (missing) missing)))
 (test-end "dataframe-modify-test")
 
 ;;-------------------------------------------------------------
 
 (test-begin "thread-test")
-(define (mean ls) (/ (apply + ls) (length ls)))
 (test-equal 12 (-> '(1 2 3) (mean) (+ 10)))
 (test-assert (dataframe-equal?
               df1
@@ -833,6 +910,16 @@
                '((adult) (juv))
                (lambda (adult) (apply + adult))
                (lambda (juv) (apply + juv)))))
+
+;; Error: non-dataframe
+(test-error (dataframe-aggregate '(1 2 3) '(grp) '(n) '((adult))
+                                 (lambda (adult) (apply + adult))))
+;; Error: group column not in dataframe
+(test-error (dataframe-aggregate* df22 (missing)
+                                  (n (adult) (apply + adult))))
+;; Error: aggregation column not in dataframe
+(test-error (dataframe-aggregate* df22 (grp)
+                                  (n (missing) (apply + missing))))
 (test-end "dataframe-aggregate-test")
 
 ;;-------------------------------------------------------------
@@ -875,7 +962,39 @@
                (adult 5 4 2 3 1)
                (juv 50 40 20 30 10))
               (dataframe-sort df27 (list string>? >) '(trt adult))))
+
+;; Error: non-dataframe input
+(test-error (dataframe-sort '(1 2 3) (list >) '(a)))
+;; Error: column name not in dataframe
+(test-error (dataframe-sort df27 (list string>?) '(missing)))
+;; Error: predicate list length doesn't match names list length
+(test-error (dataframe-sort df27 (list string>? >) '(trt)))
+;; Ascending sort
+(test-assert (dataframe-equal?
+              (make-df*
+               (grp "a" "b" "a" "b" "b")
+               (trt "a" "a" "b" "b" "b")
+               (adult 1 3 2 4 5)
+               (juv 10 30 20 40 50))
+              (dataframe-sort* df27 (string<? trt))))
+;; Sort on numeric column ascending
+(test-assert (dataframe-equal?
+              (make-df*
+               (grp "a" "a" "b" "b" "b")
+               (trt "a" "b" "a" "b" "b")
+               (adult 1 2 3 4 5)
+               (juv 10 20 30 40 50))
+              (dataframe-sort* df27 (< adult))))
+;; Sort on numeric column descending
+(test-assert (dataframe-equal?
+              (make-df*
+               (grp "b" "b" "b" "a" "a")
+               (trt "b" "b" "a" "b" "a")
+               (adult 5 4 3 2 1)
+               (juv 50 40 30 20 10))
+              (dataframe-sort* df27 (> adult))))
 (test-end "dataframe-sort-test")
+
 
 ;;-------------------------------------------------------------
 
@@ -944,6 +1063,15 @@
 (test-error (dataframe-left-join df31 (dataframe-slist df30) '(first last) -999))
 (test-error (dataframe-left-join df29 df28 '(site day catch) -999))
 (test-error (dataframe-left-join df31 df30 '(first) -999))
+;; Left join with explicit fill-value (currently only tested in error paths)
+(test-assert (dataframe-equal?
+              (dataframe-left-join df29 df28 '(site) -999)
+              (make-df*
+               (site "c" "c" "b" "b" "d")
+               (day 1 2 1 2 1)
+               (catch 10 20 12 24 100)
+               (habitat "woodland" "woodland" "grassland" "grassland" -999))))
+
 (test-end "dataframe-join-test")
 
 ;;-------------------------------------------------------------
@@ -1019,7 +1147,44 @@
              'hr 'val))
 (test-error (dataframe-spread (make-df* (A 1 2 3) (B 4 5 6)) 'A 'B))
 (test-error (dataframe-spread (make-df* (A 1 2 3) (B 4 5 6)) 'B 'C))
+
+;; fill-value is used for missing combinations
+(test-assert (dataframe-equal?
+              (make-df*
+               (day 1 2)
+               (A 10 0)
+               (B 20 30))
+              (dataframe-spread
+               (make-df* (day 1 1 2) (grp "A" "B" "B") (val 10 20 30))
+               'grp 'val 0)))
+;; Error: names-from column not in dataframe
+(test-error (dataframe-spread df32 'missing 'count))
+;; Error: values-from column not in dataframe
+(test-error (dataframe-spread df32 'site 'missing))
 (test-end "dataframe-spread-test")
+
+;;-------------------------------------------------------------
+
+(test-begin "dataframe-display-test")
+;; Basic call should not error
+(test-assert (begin (dataframe-display df2) #t))
+;; With explicit n
+(test-assert (begin (dataframe-display df2 2) #t))
+;; With explicit n and total-width
+(test-assert (begin (dataframe-display df2 2 50) #t))
+;; With explicit n, total-width, and min-width
+(test-assert (begin (dataframe-display df2 2 50 5) #t))
+;; Error: non-dataframe
+(test-error (dataframe-display '(1 2 3)))
+(test-end "dataframe-display-test")
+
+(test-begin "dataframe-glimpse-test")
+(test-assert (begin (dataframe-glimpse df2) #t))
+;; With explicit total-width
+(test-assert (begin (dataframe-glimpse df2 100) #t))
+;; Error: non-dataframe
+(test-error (dataframe-glimpse '(1 2 3)))
+(test-end "dataframe-glimpse-test")
 
 ;;-------------------------------------------------------------
 
@@ -1039,16 +1204,14 @@
 
 ;;-------------------------------------------------------------
 
-;; not sure why these tests are failing
-;; they work correctly in the REPL
 (test-begin "mean-test")
 (test-assert (= 3 (mean '(1 2 3 4 5))))
-;;(test-assert (= 3 (mean '(na na 1 2 na 3 4 5 na)))
+(test-assert (= 3 (mean '(na na 1 2 na 3 4 5 na))))
 (test-assert (= 0 (mean '(-10 0 10))))
 (test-assert (= 27.5 (exact->inexact (mean '(1 2 3 4 5 150)))))
-;; (test-assert (symbol=? 'na (mean '(-10 0 10 na) #f)))
-;; (test-assert (symbol=? 'na (mean '(na na na))))
-;; (test-assert (symbol=? 'na (mean '())))
+(test-assert (symbol=? 'na (mean '(-10 0 10 na) #f)))
+(test-assert (symbol=? 'na (mean '(na na na))))
+(test-assert (symbol=? 'na (mean '())))
 (test-end "mean-test")
 
 ;;-------------------------------------------------------------
@@ -1142,6 +1305,12 @@
   (rle '(3 3 1 1 2 2 2)))
 (test-equal '(("a" . 1) ("b" . 2) ("a" . 1))
   (rle '("a" "b" "b" "a")))
+;; Single-element list
+(test-equal '((42 . 1)) (rle '(42)))
+;; All identical elements
+(test-equal '((a . 4)) (rle '(a a a a)))
+;; Two elements alternating
+(test-equal '((1 . 1) (2 . 1) (1 . 1) (2 . 1)) (rle '(1 2 1 2)))
 (test-end "rle-test")
 
 ;;-------------------------------------------------------------
@@ -1216,6 +1385,8 @@
 (test-equal '(a b c d na) (remove-duplicates '(a b b c c c d d d d na)))
 (test-equal '(1 2 3 4) (remove-duplicates '(1 2 3 4 2 3 4 3 4 4)))
 (test-end "remove-duplicates-test")
+
+;;-------------------------------------------------------------
 
 (exit (if (zero? (test-runner-fail-count (test-runner-get))) 0 1))
 
