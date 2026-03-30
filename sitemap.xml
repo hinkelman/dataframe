@@ -1,75 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/</loc>
+         <loc>https://github.com/hinkelman/dataframe/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/getting-started/</loc>
+         <loc>https://github.com/hinkelman/dataframe/getting-started/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/crossing/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/crossing/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/dataframe/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/dataframe/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/display/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/display/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/filter/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/filter/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/io/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/io/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/join/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/join/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/missing-values/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/missing-values/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/modify-aggregate/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/modify-aggregate/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/reshape/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/reshape/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/select/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/select/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/series/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/series/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/sort/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/sort/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/split-bind-append/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/split-bind-append/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/statistics/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/statistics/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/thread/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/thread/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
     <url>
-         <loc>https://github.com/hinkelman/dataframe/docs/api/types/</loc>
+         <loc>https://github.com/hinkelman/dataframe/api/types/</loc>
          <lastmod>2026-03-30</lastmod>
     </url>
 </urlset>

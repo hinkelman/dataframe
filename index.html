@@ -10,13 +10,17 @@
       
       
       
+        <link rel="canonical" href="https://github.com/hinkelman/dataframe/">
       
+      
+      
+        <link rel="next" href="getting-started/">
       
       
         
       
       
-      <link rel="icon" href="/hinkelman/dataframe/assets/images/favicon.png">
+      <link rel="icon" href="assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
@@ -25,10 +29,10 @@
       
     
     
-      <link rel="stylesheet" href="/hinkelman/dataframe/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/hinkelman/dataframe/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -47,7 +51,7 @@
       
     
     
-    <script>__md_scope=new URL("/hinkelman/dataframe/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -71,6 +75,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#scheme-r6rs-dataframe-library" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -81,7 +90,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/hinkelman/dataframe/." title="Scheme Dataframe Library" class="md-header__button md-logo" aria-label="Scheme Dataframe Library" data-md-component="logo">
+    <a href="." title="Scheme Dataframe Library" class="md-header__button md-logo" aria-label="Scheme Dataframe Library" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -101,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Home
             
           </span>
         </div>
@@ -198,9 +207,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="/hinkelman/dataframe/." class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
         
   
   
@@ -221,7 +232,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/hinkelman/dataframe/getting-started/" class="md-tabs__link">
+        <a href="getting-started/" class="md-tabs__link">
           
   
   
@@ -241,7 +252,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/hinkelman/dataframe/api/types/" class="md-tabs__link">
+        <a href="api/types/" class="md-tabs__link">
           
   
   
@@ -275,7 +286,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/hinkelman/dataframe/." title="Scheme Dataframe Library" class="md-nav__button md-logo" aria-label="Scheme Dataframe Library" data-md-component="logo">
+    <a href="." title="Scheme Dataframe Library" class="md-nav__button md-logo" aria-label="Scheme Dataframe Library" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -302,10 +313,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/." class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
         
   
   
@@ -321,6 +359,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -384,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/getting-started/" class="md-nav__link">
+      <a href="getting-started/" class="md-nav__link">
         
   
   
@@ -471,7 +551,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/types/" class="md-nav__link">
+      <a href="api/types/" class="md-nav__link">
         
   
   
@@ -499,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/series/" class="md-nav__link">
+      <a href="api/series/" class="md-nav__link">
         
   
   
@@ -527,7 +607,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/dataframe/" class="md-nav__link">
+      <a href="api/dataframe/" class="md-nav__link">
         
   
   
@@ -555,7 +635,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/display/" class="md-nav__link">
+      <a href="api/display/" class="md-nav__link">
         
   
   
@@ -583,7 +663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/io/" class="md-nav__link">
+      <a href="api/io/" class="md-nav__link">
         
   
   
@@ -611,7 +691,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/select/" class="md-nav__link">
+      <a href="api/select/" class="md-nav__link">
         
   
   
@@ -639,7 +719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/filter/" class="md-nav__link">
+      <a href="api/filter/" class="md-nav__link">
         
   
   
@@ -667,7 +747,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/sort/" class="md-nav__link">
+      <a href="api/sort/" class="md-nav__link">
         
   
   
@@ -695,7 +775,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/split-bind-append/" class="md-nav__link">
+      <a href="api/split-bind-append/" class="md-nav__link">
         
   
   
@@ -723,7 +803,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/crossing/" class="md-nav__link">
+      <a href="api/crossing/" class="md-nav__link">
         
   
   
@@ -751,7 +831,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/join/" class="md-nav__link">
+      <a href="api/join/" class="md-nav__link">
         
   
   
@@ -779,7 +859,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/reshape/" class="md-nav__link">
+      <a href="api/reshape/" class="md-nav__link">
         
   
   
@@ -807,7 +887,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/modify-aggregate/" class="md-nav__link">
+      <a href="api/modify-aggregate/" class="md-nav__link">
         
   
   
@@ -835,7 +915,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/thread/" class="md-nav__link">
+      <a href="api/thread/" class="md-nav__link">
         
   
   
@@ -863,7 +943,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/missing-values/" class="md-nav__link">
+      <a href="api/missing-values/" class="md-nav__link">
         
   
   
@@ -891,7 +971,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/hinkelman/dataframe/api/statistics/" class="md-nav__link">
+      <a href="api/statistics/" class="md-nav__link">
         
   
   
@@ -936,6 +1016,38 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -948,8 +1060,124 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+  
+  
+
+
+<h1 id="scheme-r6rs-dataframe-library">Scheme (R6RS) Dataframe Library<a class="headerlink" href="#scheme-r6rs-dataframe-library" title="Permanent link">&para;</a></h1>
+<p>A dataframe record type with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes.</p>
+<p><a href="https://www.travishinkelman.com/#category=dataframe">Related blog posts</a> · <a href="https://github.com/hinkelman/dataframe">GitHub</a></p>
+<hr />
+<h2 id="quick-example">Quick Example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">(</span><span class="k">import</span><span class="w"> </span><span class="p">(</span><span class="nf">dataframe</span><span class="p">))</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">(</span><span class="k">define</span><span class="w"> </span><span class="nv">df</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="p">(</span><span class="nf">make-df*</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">(</span><span class="nf">grp</span><span class="w"> </span><span class="ss">&#39;a</span><span class="w"> </span><span class="ss">&#39;a</span><span class="w"> </span><span class="ss">&#39;b</span><span class="w"> </span><span class="ss">&#39;b</span><span class="w"> </span><span class="ss">&#39;b</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">(</span><span class="nf">trt</span><span class="w"> </span><span class="ss">&#39;a</span><span class="w"> </span><span class="ss">&#39;b</span><span class="w"> </span><span class="ss">&#39;a</span><span class="w"> </span><span class="ss">&#39;b</span><span class="w"> </span><span class="ss">&#39;b</span><span class="p">)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">(</span><span class="nf">adult</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">(</span><span class="nf">juv</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="mi">50</span><span class="p">)))</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">(</span><span class="nf">dataframe-display</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="p">(</span><span class="nf">dataframe-filter*</span><span class="w"> </span><span class="nv">df</span><span class="w"> </span><span class="p">(</span><span class="nf">adult</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="nb">&gt;</span><span class="w"> </span><span class="nv">adult</span><span class="w"> </span><span class="mi">3</span><span class="p">)))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a> dim: 2 rows x 4 cols
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>     grp     trt   adult     juv
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>   &lt;sym&gt;   &lt;sym&gt;   &lt;num&gt;   &lt;num&gt;
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>       b       b      4.     40.
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>       b       b      5.     50.
+</code></pre></div>
+<h2 id="api-overview">API Overview<a class="headerlink" href="#api-overview" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Procedures</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="api/types/">Types</a></td>
+<td><code>get-type</code>, <code>guess-type</code>, <code>convert-type</code></td>
+</tr>
+<tr>
+<td><a href="api/series/">Series</a></td>
+<td><code>make-series</code>, <code>make-series*</code>, <code>series?</code>, <code>series-equal?</code>, …</td>
+</tr>
+<tr>
+<td><a href="api/dataframe/">Dataframe</a></td>
+<td><code>make-dataframe</code>, <code>make-df*</code>, <code>dataframe?</code>, <code>dataframe-equal?</code>, …</td>
+</tr>
+<tr>
+<td><a href="api/display/">Display</a></td>
+<td><code>dataframe-display</code>, <code>dataframe-glimpse</code></td>
+</tr>
+<tr>
+<td><a href="api/io/">Read &amp; Write</a></td>
+<td><code>dataframe-read</code>, <code>csv-&gt;dataframe</code>, <code>dataframe-write</code>,  …</td>
+</tr>
+<tr>
+<td><a href="api/select/">Select, Drop, &amp; Rename</a></td>
+<td><code>dataframe-select</code>, <code>dataframe-drop</code>, <code>dataframe-rename</code>, …</td>
+</tr>
+<tr>
+<td><a href="api/filter/">Filter</a></td>
+<td><code>dataframe-filter</code>, <code>dataframe-partition</code>, <code>dataframe-unique</code>,  …</td>
+</tr>
+<tr>
+<td><a href="api/sort/">Sort</a></td>
+<td><code>dataframe-sort</code>, <code>dataframe-sort*</code></td>
+</tr>
+<tr>
+<td><a href="api/split-bind-append/">Split, Bind &amp; Append</a></td>
+<td><code>dataframe-split</code>, <code>dataframe-bind</code>, <code>dataframe-append</code>, …</td>
+</tr>
+<tr>
+<td><a href="api/crossing/">Crossing</a></td>
+<td><code>dataframe-crossing</code></td>
+</tr>
+<tr>
+<td><a href="api/join/">Join</a></td>
+<td><code>dataframe-inner-join</code>, <code>dataframe-left-join</code>, …</td>
+</tr>
+<tr>
+<td><a href="api/reshape/">Reshape</a></td>
+<td><code>dataframe-stack</code>, <code>dataframe-spread</code></td>
+</tr>
+<tr>
+<td><a href="api/modify-aggregate/">Modify &amp; Aggregate</a></td>
+<td><code>dataframe-modify</code>, <code>dataframe-aggregate</code>, …</td>
+</tr>
+<tr>
+<td><a href="api/thread/">Thread Macros</a></td>
+<td><code>-&gt;</code>, <code>-&gt;&gt;</code></td>
+</tr>
+<tr>
+<td><a href="api/missing-values/">Missing Values</a></td>
+<td><code>na?</code>, <code>any-na?</code>, <code>remove-na</code>, <code>dataframe-remove-na</code></td>
+</tr>
+<tr>
+<td><a href="api/statistics/">Statistics</a></td>
+<td><code>sum</code>, <code>mean</code>, <code>variance</code>, <code>quantile</code>, …</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -992,10 +1220,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/hinkelman/dataframe/", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "content.code.copy"], "search": "/hinkelman/dataframe/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="/hinkelman/dataframe/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
