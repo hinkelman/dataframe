@@ -1,0 +1,51 @@
+site_name: Scheme Dataframe Library
+site_description: A dataframe record type for Scheme (R6RS) with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes.
+site_url: https://github.com/hinkelman/dataframe
+repo_url: https://github.com/hinkelman/dataframe
+repo_name: hinkelman/dataframe
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: teal
+      accent: teal
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation & Import: getting-started.md
+  - API Reference:
+    - Types: api/types.md
+    - Series: api/series.md
+    - Dataframe: api/dataframe.md
+    - Display: api/display.md
+    - Read & Write: api/io.md
+    - Select, Drop & Rename: api/select.md
+    - Filter: api/filter.md
+    - Sort: api/sort.md
+    - Split, Bind & Append: api/split-bind-append.md
+    - Crossing: api/crossing.md
+    - Join: api/join.md
+    - Reshape: api/reshape.md
+    - Modify & Aggregate: api/modify-aggregate.md
+    - Thread Macros: api/thread.md
+    - Missing Values: api/missing-values.md
+    - Statistics: api/statistics.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
