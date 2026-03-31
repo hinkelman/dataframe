@@ -57,7 +57,10 @@
 
 ;; data processing ---------------------------------------------------------
 (define fldr "dataframe")
-(define files (directory-list fldr))
+(define files
+  (remp (lambda (f)
+          (char=? (string-ref f (- (string-length f) 1)) #\~))
+        (directory-list fldr)))
 
 (define defs-by-file
   (map (lambda (file)
