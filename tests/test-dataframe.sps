@@ -349,6 +349,69 @@
 
 ;;-------------------------------------------------------------
 
+(define df-rel
+  (make-df*
+   (a 1 2 3)
+   (b 4 5 6)
+   (c 7 8 9)
+   (d 10 11 12)))
+
+(test-begin "dataframe-relocate-test")
+
+;; move one column to the front (default)
+(test-assert (dataframe-equal?
+              (make-df* (c 7 8 9) (a 1 2 3) (b 4 5 6) (d 10 11 12))
+              (dataframe-relocate df-rel '(c))))
+
+;; move multiple columns to the front
+(test-assert (dataframe-equal?
+              (make-df* (c 7 8 9) (d 10 11 12) (a 1 2 3) (b 4 5 6))
+              (dataframe-relocate df-rel '(c d))))
+
+;; move to front when columns are already at front - order is unchanged
+(test-assert (dataframe-equal?
+              df-rel
+              (dataframe-relocate df-rel '(a b))))
+
+;; move one column before another
+(test-assert (dataframe-equal?
+              (make-df* (a 1 2 3) (c 7 8 9) (b 4 5 6) (d 10 11 12))
+              (dataframe-relocate df-rel '(c) 'before 'b)))
+
+;; move multiple columns before anchor
+(test-assert (dataframe-equal?
+              (make-df* (a 1 2 3) (c 7 8 9) (d 10 11 12) (b 4 5 6))
+              (dataframe-relocate df-rel '(c d) 'before 'b)))
+
+;; move one column after another
+(test-assert (dataframe-equal?
+              (make-df* (a 1 2 3) (b 4 5 6) (d 10 11 12) (c 7 8 9))
+              (dataframe-relocate df-rel '(d) 'after 'b)))
+
+;; move multiple columns after anchor
+(test-assert (dataframe-equal?
+              (make-df* (a 1 2 3) (b 4 5 6) (c 7 8 9) (d 10 11 12))
+              (dataframe-relocate df-rel '(c d) 'after 'b)))
+
+;; move to end
+(test-assert (dataframe-equal?
+              (make-df* (b 4 5 6) (c 7 8 9) (d 10 11 12) (a 1 2 3))
+              (dataframe-relocate df-rel '(a) 'after 'd)))
+
+;; errors
+(test-error (dataframe-relocate df-rel '(e)))           ; name not in df
+(test-error (dataframe-relocate df-rel '(c) 'front))    ; wrong number of arguments
+(test-error (dataframe-relodate df-rel '(c) 'front 'b)) ; wrong where argument
+(test-error (dataframe-relocate df-rel '(a) 'before 'e)); anchor not in df
+(test-error (dataframe-relocate df-rel '(a) 'after 'e)) ; anchor not in df
+(test-error (dataframe-relocate df-rel '(b) 'before 'b)); anchor in relocated names
+(test-error (dataframe-relocate df-rel '(b) 'after 'b)) ; anchor in relocated names
+(test-error (dataframe-relocate '(1 2 3) '(a)))         ; not a dataframe
+
+(test-end "dataframe-relocate-test")
+
+;;-------------------------------------------------------------
+
 (define df10
   (make-df*
    (a 100 200 300)

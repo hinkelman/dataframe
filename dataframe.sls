@@ -38,6 +38,8 @@
    dataframe-series
    dataframe-values
    $
+   ;; relocate
+   dataframe-relocate
    ;; crossing
    dataframe-crossing
    ;; split
@@ -111,6 +113,7 @@
           (dataframe types)
           (dataframe rename)
           (dataframe select)
+          (dataframe relocate)
           (dataframe crossing)
           (dataframe split)
           (dataframe filter)
