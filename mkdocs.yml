@@ -27,7 +27,9 @@ nav:
     - Dataframe: api/dataframe.md
     - Display: api/display.md
     - Read & Write: api/io.md
-    - Select, Drop & Rename: api/select.md
+    - Select & Drop: api/select.md
+    - Rename: api/rename.md
+    - Relocate: api/relocate.md
     - Filter: api/filter.md
     - Sort: api/sort.md
     - Split, Bind & Append: api/split-bind-append.md

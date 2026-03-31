@@ -4,7 +4,7 @@ A dataframe record type with procedures to select, drop, and rename columns, and
 
 ## Documentation
 
-Full API documentation is available at **[hinkelman.github.io/dataframe](https://hinkelman.github.io/dataframe)**.
+Full API documentation is available at [hinkelman.github.io/dataframe](https://hinkelman.github.io/dataframe).
 
 ## Installation
 
@@ -34,9 +34,7 @@ For more information on getting started with [Akku](https://akkuscm.org/), see t
 
 (dataframe-display
   (dataframe-filter* df (adult) (> adult 3)))
-```
-
-```
+  
  dim: 2 rows x 4 cols
      grp     trt   adult     juv
    <sym>   <sym>   <num>   <num>

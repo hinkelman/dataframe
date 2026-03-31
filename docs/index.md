@@ -2,7 +2,7 @@
 
 A dataframe record type with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes.
 
-[Related blog posts](https://www.travishinkelman.com/#category=dataframe) · [GitHub](https://github.com/hinkelman/dataframe)
+[Related blog posts](https://www.travishinkelman.com/#category=dataframe) · [Akku](https://akkuscm.org/packages/dataframe/)
 
 ---
 
@@ -39,10 +39,12 @@ A dataframe record type with procedures to select, drop, and rename columns, and
 | [Dataframe](api/dataframe.md) | `make-dataframe`, `make-df*`, `dataframe?`, `dataframe-equal?`, …  |
 | [Display](api/display.md) | `dataframe-display`, `dataframe-glimpse` |
 | [Read & Write](api/io.md) | `dataframe-read`, `csv->dataframe`, `dataframe-write`,  … |
-| [Select, Drop, & Rename](api/select.md) | `dataframe-select`, `dataframe-drop`, `dataframe-rename`, …  |
+| [Select & Drop](api/select.md) | `dataframe-select`, `dataframe-drop`, …  |
+| [Rename](api/rename.md) | `dataframe-rename`, `dataframe-rename*`, `dataframe-rename-all` |
+| [Relocate](api/relocate.md) | `dataframe-relocate` |
 | [Filter](api/filter.md) | `dataframe-filter`, `dataframe-partition`, `dataframe-unique`,  … |
 | [Sort](api/sort.md) | `dataframe-sort`, `dataframe-sort*` |
-| [Split, Bind & Append](api/split-bind-append.md) | `dataframe-split`, `dataframe-bind`, `dataframe-append`, … |
+| [Split, Bind, & Append](api/split-bind-append.md) | `dataframe-split`, `dataframe-bind`, `dataframe-append`, … |
 | [Crossing](api/crossing.md) | `dataframe-crossing` |
 | [Join](api/join.md) | `dataframe-inner-join`, `dataframe-left-join`, …  |
 | [Reshape](api/reshape.md) | `dataframe-stack`, `dataframe-spread` |

@@ -2,8 +2,6 @@
 
 ## Installation
 
-### Akku
-
 ```
 $ akku install dataframe
 ```

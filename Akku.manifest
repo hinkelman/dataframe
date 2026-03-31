@@ -5,7 +5,7 @@
   (synopsis
    "A dataframe record type for Scheme (R6RS) with procedures to select, drop, and rename columns, and filter, sort, split, bind, append, join, reshape, and aggregate dataframes.")
   (authors "Travis Hinkelman")
-  (homepage "https://github.com/hinkelman/dataframe")
+  (homepage "https://hinkelman.github.io/dataframe/")
   (license "MIT")
   (depends ((slib format) "^3.1.5") ("chez-srfi" "^0.0.0-akku.209.552cd37"))
 )
