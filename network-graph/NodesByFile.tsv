@@ -43,6 +43,9 @@ crossing.sls	dataframe-crossing
 join.sls	dataframe-inner-join
 join.sls	dataframe-left-join
 join.sls	dataframe-left-join-all
+relocate.sls	dataframe-relocate
+relocate.sls~	dataframe-relocate
+relocate.sls~	dataframe-relocate*
 statistics.sls	cumulative-sum
 statistics.sls	sum
 statistics.sls	product
@@ -147,6 +150,16 @@ join.sls	get-join-group
 join.sls	join-match
 join.sls	join-no-match
 join.sls	slist-fill-missing
+relocate.sls	df-relocate
+relocate.sls	slist-relocate
+relocate.sls	build-order
+relocate.sls	insert-before
+relocate.sls	insert-after
+relocate.sls~	df-relocate
+relocate.sls~	slist-relocate
+relocate.sls~	build-order
+relocate.sls~	insert-before
+relocate.sls~	insert-after
 statistics.sls	sum/prod/mean
 statistics.sls	variance-helper
 statistics.sls	update-ms
