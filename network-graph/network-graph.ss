@@ -17,14 +17,18 @@
 
 ;; get all procedure definitions
 (define (get-defs lst)
-  (filter (lambda (x) (and (pair? x) (symbol=? (car x) 'define))) lst))
+  (filter (lambda (x)
+            (and (pair? x)
+                 (or (symbol=? (car x) 'define)
+                     (symbol=? (car x) 'define-syntax))))
+          lst))
 
 ;; name is the procedure name
 ;; def is one element of the list from get-defs
 (define (get-name def)
-  (if (pair? (cadr def))
+  (if (and (pair? (cadr def)) (not (symbol=? (car def) 'define-syntax)))
       (caadr def)
-      ;; cadr version for definitions using lambda or case-lambda
+      ;; cadr version for definitions using lambda, case-lambda, and define-syntax
       (cadr def)))
 
 ;; names-nums is list of pairs comprised of a procedure name and its arbitrary id #
@@ -44,6 +48,7 @@
     (map (lambda (x) (cons num x)) (remove-duplicates out))))
 
 (define (write-pairs lst car-proc cdr-proc path)
+  (when (file-exists? path) (delete-file path))
   (let ([p (open-output-file path)])
     (let loop ([lst lst])
       (cond [(null? lst)
