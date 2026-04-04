@@ -46,7 +46,7 @@ A dataframe record type with procedures to select, drop, and rename columns, and
 | [Sort](api/sort.md) | `dataframe-sort`, `dataframe-sort*` |
 | [Split, Bind, & Append](api/split-bind-append.md) | `dataframe-split`, `dataframe-bind`, `dataframe-append`, … |
 | [Crossing](api/crossing.md) | `dataframe-crossing` |
-| [Join](api/join.md) | `dataframe-inner-join`, `dataframe-left-join`, …  |
+| [Join](api/join.md) | `dataframe-inner-join`, `dataframe-full-join`, `dataframe-left-join`, …  |
 | [Reshape](api/reshape.md) | `dataframe-stack`, `dataframe-spread` |
 | [Modify & Aggregate](api/modify-aggregate.md) | `dataframe-modify`, `dataframe-aggregate`, …  |
 | [Thread Macros](api/thread.md) | `->`, `->>` |

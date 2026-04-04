@@ -63,9 +63,11 @@
 ;; data processing ---------------------------------------------------------
 (define fldr "dataframe")
 (define files
-  (remp (lambda (f)
-          (char=? (string-ref f (- (string-length f) 1)) #\~))
-        (directory-list fldr)))
+  (filter (lambda (f)
+            (let ([n (string-length f)])
+              (and (> n 4)
+                   (string=? (substring f (- n 4) n) ".sls"))))
+          (directory-list fldr)))
 
 (define defs-by-file
   (map (lambda (file)

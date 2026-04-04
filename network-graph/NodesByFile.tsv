@@ -11,6 +11,7 @@ modify.sls	dataframe-modify-at
 join.sls	dataframe-inner-join
 join.sls	dataframe-left-join
 join.sls	dataframe-left-join-all
+join.sls	dataframe-full-join
 record-types.sls	->
 record-types.sls	->>
 record-types.sls	check-dataframe
@@ -128,8 +129,11 @@ modify.sls	scalar?
 modify.sls	df-modify-at
 join.sls	check-join
 join.sls	check-join-names-exist
+join.sls	parse-join-names
+join.sls	align-df2
 join.sls	df-left-join-helper
 join.sls	df-inner-join-helper
+join.sls	df-full-join-helper
 join.sls	get-join-group
 join.sls	join-match
 join.sls	join-no-match

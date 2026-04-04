@@ -1085,9 +1085,17 @@
    (game 1 1 1 2)
    (goals 0 1 2 3)))
 
+;; df33: same data as df29 but join column is named 'location' instead of 'site'
+(define df33
+  (make-df*
+   (location "c" "b" "c" "b" "d")
+   (day 1 1 2 2 1)
+   (catch 10 12 20 24 100)))
+
 ;;-------------------------------------------------------------
 
 (test-begin "dataframe-join-test")
+;; df28 left join df29: "a" has no match in df29, "d" is df29-only (dropped)
 (test-assert (dataframe-equal?
               (dataframe-left-join df28 df29 '(site))
               (make-df*
@@ -1095,13 +1103,8 @@
                (habitat "grassland" "grassland" "meadow" "woodland" "woodland")
                (day 1 2 'na 1 2)
                (catch 12 24 'na 10 20))))
-(test-assert (dataframe-equal?
-              (dataframe-inner-join df28 df29 '(site))
-              (make-df*
-               (site "b" "b" "c" "c")
-               (habitat "grassland" "grassland" "woodland" "woodland")
-               (day 1 2 1 2)
-               (catch 12 24 10 20))))
+
+;; reversed: df29 left join df28; "d" has no match, gets na for habitat
 (test-assert (dataframe-equal?
               (dataframe-left-join df29 df28 '(site))
               (make-df*
@@ -1109,24 +1112,8 @@
                (day 1 2 1 2 1)
                (catch 10 20 12 24 100)
                (habitat "woodland" "woodland" "grassland" "grassland" 'na))))
-(test-assert (dataframe-equal?
-              (dataframe-inner-join df29 df28 '(site))
-              (make-df*
-               (site "c" "c" "b" "b")
-               (day 1 2 1 2)
-               (catch 10 20 12 24)
-               (habitat "woodland" "woodland" "grassland" "grassland"))))
-(test-assert (dataframe-equal?
-              (dataframe-left-join-all (list df29 df28) '(site))
-              (make-df*
-               (site "c" "c" "b" "b" "d")
-               (day 1 2 1 2 1)
-               (catch 10 20 12 24 100)
-               (habitat "woodland" "woodland" "grassland" "grassland" 'na))))
-(test-error (dataframe-left-join df31 (dataframe-slist df30) '(first last) -999))
-(test-error (dataframe-left-join df29 df28 '(site day catch) -999))
-(test-error (dataframe-left-join df31 df30 '(first) -999))
-;; Left join with explicit fill-value (currently only tested in error paths)
+
+;; custom fill-value
 (test-assert (dataframe-equal?
               (dataframe-left-join df29 df28 '(site) -999)
               (make-df*
@@ -1134,6 +1121,149 @@
                (day 1 2 1 2 1)
                (catch 10 20 12 24 100)
                (habitat "woodland" "woodland" "grassland" "grassland" -999))))
+
+;; two-column key
+(test-assert (dataframe-equal?
+              (dataframe-left-join df30 df31 '(first last))
+              (make-df*
+               (first "sam" "bob" "bob" "sam" "dan")
+               (last "son" "ert" "ert" "jam" "man")
+               (age 10 20 20 30 40)
+               (game 1 1 2 'na 1)
+               (goals 0 1 3 'na 2))))
+
+;; df28 and df29 share only 'site; result identical to explicit '(site)
+(test-assert (dataframe-equal?
+              (dataframe-left-join df28 df29)
+              (dataframe-left-join df28 df29 '(site))))
+
+;; df30 and df31 share 'first and 'last; result identical to explicit '(first last)
+(test-assert (dataframe-equal?
+              (dataframe-left-join df30 df31)
+              (dataframe-left-join df30 df31 '(first last))))
+
+;; df33 has 'location instead of 'site; join '((site . location)) renames before joining
+(test-assert (dataframe-equal?
+              (dataframe-left-join df28 df33 '((site . location)))
+              (dataframe-left-join df28 df29 '(site))))
+
+(test-assert (dataframe-equal?
+              (dataframe-left-join-all (list df29 df28) '(site))
+              (make-df*
+               (site "c" "c" "b" "b" "d")
+               (day 1 2 1 2 1)
+               (catch 10 20 12 24 100)
+               (habitat "woodland" "woodland" "grassland" "grassland" 'na))))
+
+;; auto-detect in left-join-all
+(test-assert (dataframe-equal?
+              (dataframe-left-join-all (list df29 df28))
+              (dataframe-left-join-all (list df29 df28) '(site))))
+
+;; only sites present in both df28 and df29 are retained ("d" and "a" dropped)
+(test-assert (dataframe-equal?
+              (dataframe-inner-join df28 df29 '(site))
+              (make-df*
+               (site "b" "b" "c" "c")
+               (habitat "grassland" "grassland" "woodland" "woodland")
+               (day 1 2 1 2)
+               (catch 12 24 10 20))))
+
+(test-assert (dataframe-equal?
+              (dataframe-inner-join df29 df28 '(site))
+              (make-df*
+               (site "c" "c" "b" "b")
+               (day 1 2 1 2)
+               (catch 10 20 12 24)
+               (habitat "woodland" "woodland" "grassland" "grassland"))))
+
+;; two-column key
+(test-assert (dataframe-equal?
+              (dataframe-inner-join df30 df31 '(first last))
+              (make-df*
+               (first "sam" "bob" "bob" "dan")
+               (last "son" "ert" "ert" "man")
+               (age 10 20 20 40)
+               (game 1 1 2 1)
+               (goals 0 1 3 2))))
+
+(test-assert (dataframe-equal?
+              (dataframe-inner-join df28 df29)
+              (dataframe-inner-join df28 df29 '(site))))
+
+(test-assert (dataframe-equal?
+              (dataframe-inner-join df30 df31)
+              (dataframe-inner-join df30 df31 '(first last))))
+
+(test-assert (dataframe-equal?
+              (dataframe-inner-join df28 df33 '((site . location)))
+              (dataframe-inner-join df28 df29 '(site))))
+
+;; df28 full join df29: all sites from both; "a" gets na for day/catch,
+;; "d" (df29-only) gets na for habitat
+(test-assert (dataframe-equal?
+              (dataframe-full-join df28 df29 '(site))
+              (make-df*
+               (site "b" "b" "a" "c" "c" "d")
+               (habitat "grassland" "grassland" "meadow" "woodland" "woodland" 'na)
+               (day 1 2 'na 1 2 1)
+               (catch 12 24 'na 10 20 100))))
+
+;; reversed: now "a" (df28-only) gets na for day/catch
+(test-assert (dataframe-equal?
+              (dataframe-full-join df29 df28 '(site))
+              (make-df*
+               (site "c" "c" "b" "b" "d" "a")
+               (day 1 2 1 2 1 'na)
+               (catch 10 20 12 24 100 'na)
+               (habitat "woodland" "woodland" "grassland" "grassland" 'na "meadow"))))
+
+;; custom fill-value
+(test-assert (dataframe-equal?
+              (dataframe-full-join df28 df29 '(site) -999)
+              (make-df*
+               (site "b" "b" "a" "c" "c" "d")
+               (habitat "grassland" "grassland" "meadow" "woodland" "woodland" -999)
+               (day 1 2 -999 1 2 1)
+               (catch 12 24 -999 10 20 100))))
+
+;; two-column key: "sam"+"jam" (df30-only) and no df31-only rows
+(test-assert (dataframe-equal?
+              (dataframe-full-join df30 df31 '(first last))
+              (make-df*
+               (first "sam" "bob" "bob" "sam" "dan")
+               (last "son" "ert" "ert" "jam" "man")
+               (age 10 20 20 30 40)
+               (game 1 1 2 'na 1)
+               (goals 0 1 3 'na 2))))
+
+(test-assert (dataframe-equal?
+              (dataframe-full-join df28 df29)
+              (dataframe-full-join df28 df29 '(site))))
+
+(test-assert (dataframe-equal?
+              (dataframe-full-join df30 df31)
+              (dataframe-full-join df30 df31 '(first last))))
+
+(test-assert (dataframe-equal?
+              (dataframe-full-join df28 df33 '((site . location)))
+              (dataframe-full-join df28 df29 '(site))))
+
+;; non-dataframe input
+(test-error (dataframe-left-join df31 (dataframe-slist df30) '(first last)))
+;; join-names not present in df2
+(test-error (dataframe-left-join df29 df28 '(site day catch)))
+;; column names not unique because both contain column 'last which was not specified in join
+(test-error (dataframe-left-join df31 df30 '(first)))
+;; non-overlapping columns would produce duplicate non-join names
+(test-error (dataframe-inner-join df28 df28 '(site)))
+;; auto-detect fails when no common names exist
+(test-error (dataframe-left-join df28
+                                 (make-df* (x 1 2) (y 3 4))))
+(test-error (dataframe-inner-join df28
+                                  (make-df* (x 1 2) (y 3 4))))
+(test-error (dataframe-full-join df28
+                                 (make-df* (x 1 2) (y 3 4))))
 
 (test-end "dataframe-join-test")
 

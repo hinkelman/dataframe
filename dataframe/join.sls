@@ -1,11 +1,13 @@
 (library (dataframe join)
   (export dataframe-inner-join
           dataframe-left-join
-          dataframe-left-join-all)
+          dataframe-left-join-all
+          dataframe-full-join)
 
   (import (rnrs)
           (dataframe bind)
           (dataframe split)
+          (dataframe rename)
           (dataframe record-types)
           (only (dataframe filter)
                 slist-ref)
@@ -19,6 +21,8 @@
 
   (define dataframe-left-join-all
     (case-lambda
+      [(dfs)
+       (dataframe-left-join-all dfs #f 'na)]
       [(dfs join-names)
        (dataframe-left-join-all dfs join-names 'na)]
       [(dfs join-names fill-value)
@@ -32,23 +36,55 @@
 
   (define dataframe-left-join
     (case-lambda
+      [(df1 df2)
+       (dataframe-left-join df1 df2 #f 'na)]
       [(df1 df2 join-names)
        (dataframe-left-join df1 df2 join-names 'na)]
       [(df1 df2 join-names fill-value)
-       (let ([who "(dataframe-left-join df1 df2 join-names fill-value)"])
-         (check-join df1 df2 join-names who)
-         (let ([slists1 (dataframe-split-helper df1 join-names who)]
-               [slists2 (dataframe-split-helper df2 join-names who)])
+       (let* ([who "(dataframe-left-join df1 df2 join-names fill-value)"]
+              [names-pair (parse-join-names df1 df2 join-names)]
+              [names1 (car names-pair)]
+              [names2 (cadr names-pair)]
+              [df2-aligned (align-df2 df2 names2 names1 who)])
+         (check-join df1 df2-aligned names1 who)
+         (let ([slists1 (dataframe-split-helper df1 names1 who)]
+               [slists2 (dataframe-split-helper df2-aligned names1 who)])
            (dataframe-bind-all
-            (df-left-join-helper slists1 slists2 join-names fill-value))))]))
+            (df-left-join-helper slists1 slists2 names1 fill-value))))]))
 
-  (define (dataframe-inner-join df1 df2 join-names)
-    (let ([who "(dataframe-inner-join df1 df2 join-names)"])
-      (check-join df1 df2 join-names who)
-      (let ([slists1 (dataframe-split-helper df1 join-names who)]
-            [slists2 (dataframe-split-helper df2 join-names who)])
-        (dataframe-bind-all
-         (df-inner-join-helper slists1 slists2 join-names)))))
+  (define dataframe-inner-join
+    (case-lambda
+      [(df1 df2)
+       (dataframe-inner-join df1 df2 #f)]
+      [(df1 df2 join-names)
+       (let* ([who "(dataframe-inner-join df1 df2 join-names)"]
+              [names-pair (parse-join-names df1 df2 join-names)]
+              [names1 (car names-pair)]
+              [names2 (cadr names-pair)]
+              [df2-aligned (align-df2 df2 names2 names1 who)])
+         (check-join df1 df2-aligned names1 who)
+         (let ([slists1 (dataframe-split-helper df1 names1 who)]
+               [slists2 (dataframe-split-helper df2-aligned names1 who)])
+           (dataframe-bind-all
+            (df-inner-join-helper slists1 slists2 names1))))]))
+
+  (define dataframe-full-join
+    (case-lambda
+      [(df1 df2)
+       (dataframe-full-join df1 df2 #f 'na)]
+      [(df1 df2 join-names)
+       (dataframe-full-join df1 df2 join-names 'na)]
+      [(df1 df2 join-names fill-value)
+       (let* ([who "(dataframe-full-join df1 df2 join-names fill-value)"]
+              [names-pair (parse-join-names df1 df2 join-names)]
+              [names1 (car names-pair)]
+              [names2 (cadr names-pair)]
+              [df2-aligned (align-df2 df2 names2 names1 who)])
+         (check-join df1 df2-aligned names1 who)
+         (let ([slists1 (dataframe-split-helper df1 names1 who)]
+               [slists2 (dataframe-split-helper df2-aligned names1 who)])
+           (dataframe-bind-all
+            (df-full-join-helper slists1 slists2 names1 fill-value))))]))
 
   (define (check-join df1 df2 join-names who)
     (check-all-dataframes (list df1 df2) who)
@@ -64,46 +100,108 @@
     (unless (apply dataframe-contains? df names)
       (assertion-violation who (string-append "not all join-names in " df-name))))
 
+  ;; Parse join-names
+  ;; Input for lst can be:
+  ;;   - #f or omitted: auto-detect common names
+  ;;   - '(a b c): list of symbols, same names in both dfs
+  ;;   - '((a . x) (b . y)): list of pairs, different names in each df
+  (define (parse-join-names df1 df2 lst)
+    (cond
+     [(not lst)
+      (let ([common (filter (lambda (n) (dataframe-contains? df2 n))
+                            (dataframe-names df1))])
+        (when (null? common)
+          (assertion-violation
+           "(dataframe-join)"
+           "no common column names found; specify join-names explicitly"))
+        (list common common))]
+     [(and (pair? lst) (pair? (car lst)))
+      (list (map car lst) (map cdr lst))]
+     [else
+      (list lst lst)]))
+
+  ;; When df2's join column names differ from df1's, rename them in df2
+  ;; so the rest of the join machinery works unchanged
+  (define (align-df2 df2 names2 names1 who)
+    (if (equal? names1 names2)
+        df2
+        (begin
+          ;; names2 must exist in df2
+          (unless (apply dataframe-contains? df2 names2)
+            (assertion-violation who "not all join-names found in df2"))
+          ;; renaming must not collide with existing non-join columns in df2
+          (let ([non-join-names (not-in (dataframe-names df2) names2)])
+            (when (exists (lambda (n) (member n non-join-names)) names1)
+              (assertion-violation who "join-names from df1 collide with existing columns in df2")))
+          (dataframe-rename df2 names2 names1))))
+
   (define (df-left-join-helper slists1 slists2 join-names fill-value)
     (let* ([grps2 (map (lambda (x) (get-join-group x join-names)) slists2)]
-           [grps2-slists2 (map (lambda (grp slist) (cons grp slist)) grps2 slists2)])
+           [grps2-slists2 (map cons grps2 slists2)])
       (map (lambda (slist)
-             ;; grp is a simple list
-             ;; grps2 is a list of lists equal to the length of slists2
              (let* ([grp (get-join-group slist join-names)]
                     [grp-match (assoc grp grps2-slists2)])
                (if grp-match
-                   ;; the cdr of grp-match is the slist2 that has the same grps
                    (join-match slist (cdr grp-match) join-names)
-                   ;; all slists in slists2 have the same columns so just need one
                    (join-no-match slist (car slists2) join-names fill-value))))
            slists1)))
 
   (define (df-inner-join-helper slists1 slists2 join-names)
     (let* ([grps2 (map (lambda (x) (get-join-group x join-names)) slists2)]
-           [grps2-slists2 (map (lambda (grp slist) (cons grp slist)) grps2 slists2)])
+           [grps2-slists2 (map cons grps2 slists2)])
       (let loop ([slists slists1]
                  [out '()])
         (cond [(null? slists)
                (reverse out)]
               [(assoc (get-join-group (car slists) join-names) grps2-slists2)
-               (loop (cdr slists)
-                     (cons
-                      (join-match
-                       (car slists)
-                       (cdr (assoc (get-join-group (car slists) join-names) grps2-slists2))
-                       join-names)
-                      out))]
+               =>
+               (lambda (grp-match)
+                 (loop (cdr slists)
+                       (cons
+                        (join-match
+                         (car slists)
+                         (cdr grp-match) join-names)
+                        out)))]
               [else
                (loop (cdr slists) out)]))))
-              
-  ;; takes an slist and returns the values from the first row of the join columns
-  ;; assumes that all values in join-names columns are the same because alist was split
+
+  ;; Full join = all matched rows + df1-only rows (filled) + df2-only rows (filled).
+  ;; We collect matched df2 groups as we go, then emit the unmatched df2 groups at the end.
+  (define (df-full-join-helper slists1 slists2 join-names fill-value)
+    (let* ([grps2 (map (lambda (x) (get-join-group x join-names)) slists2)]
+           [grps2-slists2 (map cons grps2 slists2)])
+      (let loop ([slists slists1]
+                 [matched-grps '()]
+                 [out '()])
+        (if (null? slists)
+            (let* ([unmatched-slists2
+                    (map cdr
+                         (filter (lambda (g+s) (not (member (car g+s) matched-grps)))
+                                 grps2-slists2))]
+                   [unmatched-rows
+                    (map (lambda (slist2)
+                           (join-no-match slist2 (car slists1) join-names fill-value))
+                         unmatched-slists2)])
+              (append (reverse out) unmatched-rows))   ;; <-- just return the list
+            (let* ([slist (car slists)]
+                   [grp (get-join-group slist join-names)]
+                   [grp-match (assoc grp grps2-slists2)])
+              (if grp-match
+                  (loop (cdr slists)
+                        (cons grp matched-grps)
+                        (cons (join-match slist (cdr grp-match) join-names) out))
+                  (loop (cdr slists)
+                        matched-grps
+                        (cons (join-no-match slist (car slists2) join-names fill-value)
+                              out))))))))
+
+  ;; Takes an slist and returns the values from the first row of the join columns.
+  ;; All values in join-names columns are the same because the slist was split on them.
   (define (get-join-group slist join-names)
     (apply append (map series-lst (slist-ref slist '(0) join-names))))
 
-  ;; drop join-names columns from slist2 so that they aren't duplicated in the append
-  ;; repeat rows for whichever slist has fewer
+  ;; Drop join-names columns from slist2 to avoid duplication, then append.
+  ;; Repeat rows for whichever slist has fewer.
   (define (join-match slist1 slist2 join-names)
     (let* ([n1 (series-length (car slist1))]
            [n2 (series-length (car slist2))]
@@ -115,10 +213,9 @@
                            slist2-drop
                            (slist-repeat-rows slist2-drop n1 'times))])
       (make-dataframe (append slist1-new slist2-new))))
-  
-  ;; row(s) in slist1 have no match in slist2
-  ;; retain non-join columns in slist2 and fill each column with missing value
-  ;; then append the two slists and make a dataframe
+
+  ;; Rows in slist1 have no match in slist2.
+  ;; Retain non-join columns from slist2 but fill them with fill-value.
   (define (join-no-match slist1 slist2 join-names fill-value)
     (let* ([n (series-length (car slist1))]
            [slist2-names (map series-name slist2)]
@@ -130,4 +227,3 @@
     (map (lambda (name) (make-series name (make-list n fill-value))) names))
 
   )
-
