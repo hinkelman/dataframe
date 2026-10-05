@@ -47,16 +47,17 @@
            [df-types (prepare-df-types df)]     ;; types as strings, e.g. "<num>"
            [dim (dataframe-dim df)]             ;; (rows . cols)
            [rows (car dim)]
+           [cols (cdr dim)]
            ;; cap at 500 rows to limit work; enough to compute display widths accurately
            [n-actual (if (< rows 500) rows 500)]
            [ls-vals (map (lambda (series) (list-head (series-lst series) n-actual)) slist)]
            [name-width (get-width df-names 7)]  ;; max name width, at least 7
            [type-width (get-width df-types 7)]  ;; max type width, at least 7
            [list-width (- total-width (+ name-width type-width))]  ;; remaining width for values
-           [gfs (glimpse-format-string name-width type-width list-width)]
+           [gfs (glimpse-format-string name-width type-width list-width cols)]
            ;; convert each column's value list to a truncated display string
            [list-str (map (lambda (x) (prepare-lst x list-width)) ls-vals)])
-      (format #t " dim: ~d rows x ~d cols" (car dim) (cdr dim))
+      (format #t " dim: ~d rows x ~d cols" rows cols)
       ;; gfs uses ~:{...~} so it expects a list of sublists; build-format-list provides that
       (format #t gfs (build-format-list df-names df-types list-str))
       (newline)))
@@ -76,11 +77,13 @@
   ;;   "~:{~& ~8a ~7a ~40a ~}"
   ;; Each iteration prints: name (left-aligned), type (left-aligned), value list (left-aligned).
   ;; ~a (no @) is used here because glimpse columns are left-aligned.
-  (define (glimpse-format-string name-width type-width list-width)
+  ;; need number of cols because otherwise will bump into default max iteration of 100 for format
+  (define (glimpse-format-string name-width type-width list-width n-cols)
     (let* ([nw (number->string name-width)]
            [tw (number->string type-width)]
-           [lw (number->string list-width)])
-      (string-append "~:{~& ~" nw "a ~" tw "a ~" lw "a ~}")))
+           [lw (number->string list-width)]
+           [nc (number->string n-cols)])
+      (string-append "~" nc ":{~& ~" nw "a ~" tw "a ~" lw "a ~}")))
 
   ;; Convert a column's value list to a single display string truncated to lst-width characters.
   ;; Values are separated by ", "; the string ends with ", ..." if truncated.
@@ -136,13 +139,13 @@
            [rows (car dim)]
            [n-actual (if (< rows n) rows n)]  ;; don't request more rows than exist
            [ls-vals (map (lambda (series) (list-head (series-lst series) n-actual)) slist)])
-      (format-df df-names df-types ls-vals dim total-width min-width)))
+      (format-df df-names df-types ls-vals dim n-actual total-width min-width)))
 
   ;; Orchestrates display output: prints dim, header, types, table, and footer.
   ;; Each of header/types/table is an association list entry: (label format-string values).
-  (define (format-df df-names df-types ls-vals dim total-width min-width)
+  (define (format-df df-names df-types ls-vals dim n-actual total-width min-width)
     (let* ([prep-vals (map prepare-non-numbers ls-vals)]
-           [parts (build-format-parts df-names df-types prep-vals total-width min-width 2)])
+           [parts (build-format-parts df-names df-types prep-vals n-actual total-width min-width 2)])
       (format #t " dim: ~d rows x ~d cols" (car dim) (cdr dim))
       ;; each parts entry is (label format-string values); cadr=format-string, caddr=values
       (format #t (cadr (assoc 'header parts)) (caddr (assoc 'header parts)))
@@ -215,11 +218,12 @@
   ;;   ~:{...~}   -- iterate over list of sublists (table rows, one sublist per row)
   ;; ----------------------------------------
 
-  (define (build-format-parts names df-types prep-vals total-width min-width pad)
+  (define (build-format-parts names df-types prep-vals n-actual total-width min-width pad)
     (let* ([e-dec 3]  ;; number of decimal digits used when displaying in exponential notation
            ;; compute formatting metadata (num-type, width, decimal, esigfig) per column
            [format-parts (map (lambda (lst)
                                 (compute-format-parts lst e-dec pad)) prep-vals)]
+           [n (number->string n-actual)]
            [val-widths  (map-efp format-parts 'width)]
            ;; final column width = max of name width, type width, value width, and min-width
            [col-widths  (compute-column-widths names df-types val-widths min-width pad)]
@@ -240,7 +244,7 @@
                  ;; format strings are built up incrementally as columns are added
                  [hd  "~& ~{"]   ;; header row:  ~{...~} iterates flat list of names
                  [typ "~& ~{"]   ;; types row:   ~{...~} iterates flat list of type strings
-                 [tbl "~:{~& "]) ;; table rows:  ~:{...~} iterates list of row sublists
+                 [tbl (string-append "~" n ":{~& ")]) ;; table rows:  ~:{...~} iterates list of row sublists
         (if (or (null? names) (>= (+ used-width (car cw)) total-width))
             ;; base case: no more columns fit; close format strings and package results
             (list (cons 'header (list (string-append hd "~}")
