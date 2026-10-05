@@ -4,6 +4,9 @@ site_url: https://github.com/hinkelman/dataframe
 repo_url: https://github.com/hinkelman/dataframe
 repo_name: hinkelman/dataframe
 
+exclude_docs: |
+  network-graph/network-graph.ss
+
 theme:
   name: material
   palette:
