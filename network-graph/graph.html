@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dataframe Network Graph</title>
+  <script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #fff; }
+    #controls { padding: 8px 16px; }
+    #controls select { font-size: 14px; padding: 2px 4px; }
+    #network { height: 800px; }
+    .tip { font-size: 13px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <select id="node-select">
+      <option value="">Select by id</option>
+    </select>
+  </div>
+  <div id="network"></div>
+
+  <script>
+    // Data files live next to this page; fall back to the copies on GitHub
+    // so the page also works when opened directly from disk.
+    const RAW = "https://raw.githubusercontent.com/hinkelman/dataframe/main/docs/network-graph/";
+
+    async function readTSV(file) {
+      let resp;
+      try {
+        resp = await fetch(file);
+        if (!resp.ok) throw new Error(resp.statusText);
+      } catch (e) {
+        resp = await fetch(RAW + file);
+      }
+      const text = await resp.text();
+      return text.trim().split("\n").map(line => line.split("\t"));
+    }
+
+    // One color per source file (group); explicit so highlighting can restore them.
+    const PALETTE = [
+      "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+      "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf",
+      "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5",
+      "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"
+    ];
+    const DIM = "rgba(200,200,200,0.5)";
+
+    function tooltip(label, group) {
+      const div = document.createElement("div");
+      div.className = "tip";
+      div.innerHTML = `${label}<br>${group}`;
+      return div;
+    }
+
+    async function main() {
+      const [edgeRows, nodeRows, fileRows] = await Promise.all([
+        readTSV("Edges.tsv"), readTSV("Nodes.tsv"), readTSV("NodesByFile.tsv")
+      ]);
+
+      // NodesByFile.tsv: group (file), label
+      const groupOf = new Map(fileRows.map(([group, label]) => [label, group]));
+      const groups = [...new Set(fileRows.map(r => r[0]))].sort();
+      const colorOf = new Map(groups.map((g, i) => [g, PALETTE[i % PALETTE.length]]));
+
+      // Nodes.tsv: label, id
+      const nodeData = nodeRows.map(([label, id]) => {
+        const group = groupOf.get(label) ?? "unknown";
+        return { id: Number(id), label, group, color: colorOf.get(group),
+                 title: tooltip(label, group) };
+      });
+
+      // Edges.tsv: from, to
+      const edgeData = edgeRows.map(([from, to], i) =>
+        ({ id: i, from: Number(from), to: Number(to) }));
+
+      const nodes = new vis.DataSet(nodeData);
+      const edges = new vis.DataSet(edgeData);
+      const network = new vis.Network(
+        document.getElementById("network"),
+        { nodes, edges },
+        { edges: { arrows: "to" }, interaction: { hover: false } }
+      );
+
+      // highlightNearest: dim everything except the selected node and its neighbors
+      function highlight(id) {
+        const keep = new Set([id, ...network.getConnectedNodes(id)]);
+        nodes.update(nodeData.map(n => keep.has(n.id)
+          ? { id: n.id, color: n.color, label: n.label }
+          : { id: n.id, color: DIM, label: " " }));
+        edges.update(edgeData.map(e => (e.from === id || e.to === id)
+          ? { id: e.id, color: { inherit: "from" }, hidden: false }
+          : { id: e.id, color: DIM }));
+      }
+
+      function reset() {
+        nodes.update(nodeData.map(n => ({ id: n.id, color: n.color, label: n.label })));
+        edges.update(edgeData.map(e => ({ id: e.id, color: { inherit: "from" } })));
+      }
+
+      // nodesIdSelection: dropdown that selects and highlights a node
+      const select = document.getElementById("node-select");
+      [...nodeData].sort((a, b) => a.label.localeCompare(b.label)).forEach(n => {
+        const opt = document.createElement("option");
+        opt.value = n.id;
+        opt.textContent = n.label;
+        select.appendChild(opt);
+      });
+
+      select.addEventListener("change", () => {
+        if (select.value === "") {
+          network.unselectAll();
+          reset();
+        } else {
+          const id = Number(select.value);
+          network.selectNodes([id]);
+          highlight(id);
+        }
+      });
+
+      network.on("click", params => {
+        if (params.nodes.length > 0) {
+          const id = params.nodes[0];
+          select.value = String(id);
+          highlight(id);
+        } else {
+          select.value = "";
+          reset();
+        }
+      });
+    }
+
+    main();
+  </script>
+</body>
+</html>
