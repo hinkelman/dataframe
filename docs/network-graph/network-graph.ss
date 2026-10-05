@@ -62,12 +62,14 @@
 
 ;; data processing ---------------------------------------------------------
 (define fldr "dataframe")
+;; sorted because directory-list order depends on the filesystem
 (define files
-  (filter (lambda (f)
-            (let ([n (string-length f)])
-              (and (> n 4)
-                   (string=? (substring f (- n 4) n) ".sls"))))
-          (directory-list fldr)))
+  (list-sort string<?
+             (filter (lambda (f)
+                       (let ([n (string-length f)])
+                         (and (> n 4)
+                              (string=? (substring f (- n 4) n) ".sls"))))
+                     (directory-list fldr))))
 
 (define defs-by-file
   (map (lambda (file)
