@@ -34,16 +34,16 @@
     (let ([who "(dataframe-rename df old-names new-names)"])
       (check-dataframe df who)
       (check-names new-names who))
-    (make-dataframe
-     (map (lambda (series)
-            (let* ([name-pairs (map cons old-names new-names)]
-                   [name (series-name series)]
-                   [lst (series-lst series)]
-                   [name-match (assoc name name-pairs)])
-              (if name-match
-                  (make-series (cdr name-match) lst)
-                  series)))
-          (dataframe-slist df))))
+    (let ([name-pairs (map cons old-names new-names)])
+      (make-dataframe
+       (map (lambda (series)
+              (let* ([name (series-name series)]
+                     [lst (series-lst series)]
+                     [name-match (assoc name name-pairs)])
+                (if name-match
+                    (make-series (cdr name-match) lst)
+                    series)))
+            (dataframe-slist df)))))
 
   )
 
