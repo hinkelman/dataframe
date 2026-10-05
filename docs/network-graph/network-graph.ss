@@ -115,19 +115,19 @@
  edges
  (lambda (x) (number->string x))
  (lambda (x) (number->string x))
- (make-rel-path "network-graph" "Edges.tsv"))
+ (make-rel-path "docs" "network-graph" "Edges.tsv"))
 
 (write-pairs
  all-names
  (lambda (x) (symbol->string x))
  (lambda (x) (number->string x))
- (make-rel-path "network-graph" "Nodes.tsv"))
+ (make-rel-path "docs" "network-graph" "Nodes.tsv"))
 
 (write-pairs
  all-names-by-file
  (lambda (x) x)
  (lambda (x) (symbol->string x))
- (make-rel-path "network-graph" "NodesByFile.tsv"))
+ (make-rel-path "docs" "network-graph" "NodesByFile.tsv"))
 
 (exit)  
        

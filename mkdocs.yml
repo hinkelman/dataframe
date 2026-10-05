@@ -40,6 +40,7 @@ nav:
     - Thread Macros: api/thread.md
     - Missing Values: api/missing-values.md
     - Statistics: api/statistics.md
+  - Network Graph: network-graph.md
 
 markdown_extensions:
   - admonition
