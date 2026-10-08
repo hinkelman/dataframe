@@ -8,7 +8,6 @@
    dataframe-write)
 
   (import (rnrs)
-          (srfi :6 basic-string-ports)
           (dataframe record-types)
           (dataframe rowtable)
           (only (dataframe helpers)
@@ -101,7 +100,7 @@
   ;; parse-line always unquotes
   ;; parse-line also removes the double quotes, e.g., "Earvin ""Magic"" Johnson"
   (define (parse-line line sep-char)
-    (let ([in (open-input-string line)])
+    (let ([in (open-string-input-port line)])
       (let loop ([c (read-char in)]
                  [str ""]
                  [out '()]
@@ -164,7 +163,7 @@
   	    (loop (cdr lst) (string-append result sep-str item-new) #f)))))
 
   (define (quote-string str sep-char)
-    (let* ([in (open-input-string str)]
+    (let* ([in (open-string-input-port str)]
 	   [str-list (string->list str)]
 	   [str-length (length str-list)])
       (if (not (or (member sep-char str-list) (member #\" str-list)))
